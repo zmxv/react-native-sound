@@ -1,0 +1,23 @@
+{
+  "name": "react-native-sound",
+  "version": "0.1.0",
+  "description": "React Native module for playing sound clips",
+  "main": "sound.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zmxv/react-native-sound.git"
+  },
+  "keywords": [
+    "react-native",
+    "sound",
+    "audio"
+  ],
+  "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.8.0"
+  },
+  "devDependencies": {
+    "react-native": "^0.12.0"
+  }
+}
