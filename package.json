@@ -1,6 +1,6 @@
 {
   "name": "react-native-sound",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Native module for playing sound clips",
   "main": "sound.js",
   "repository": {
@@ -16,8 +16,5 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.8.0"
-  },
-  "devDependencies": {
-    "react-native": "^0.12.0"
   }
 }
