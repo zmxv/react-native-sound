@@ -38,19 +38,29 @@ RCT_EXPORT_METHOD(play:(NSString *)fileName) {
   if (!_enabled) {
     return;
   }
-
+  
   NSURL *soundURL = [self soundURL:fileName];
-
+  
   for (AVAudioPlayer* player in [[self playerPool] mutableCopy]) {
     if (!player.playing && [player.url isEqual:soundURL]) {
       [player play];
       return;
     }
   }
-
+  
   AVAudioPlayer* player = [[AVAudioPlayer alloc] initWithContentsOfURL:soundURL error:nil];
   [player play];
   [[self playerPool] addObject:player];
+}
+
+
+RCT_EXPORT_METHOD(stop:(NSString *)fileName) {
+  for (AVAudioPlayer* player in [[self playerPool] mutableCopy]) {
+    if (player.playing && [player.url isEqual:soundURL]) {
+      [player stop];
+      return;
+    }
+  }
 }
 
 @end
