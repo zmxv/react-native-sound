@@ -4,10 +4,10 @@ var RNSound = require('react-native').NativeModules.RNSound;
 
 var nextKey = 0;
 
-function Sound(filename) {
-  this.filename = filename;
+function Sound(filename, basePath) {
+  this.filename = basePath ? basePath + '/' + filename : filename;
   this.key = nextKey++;
-  RNSound.prepare(filename, this.key);
+  RNSound.prepare(this.filename, this.key);
 }
 
 Sound.prototype.play = function() {
@@ -31,5 +31,10 @@ Sound.enable = function(enabled) {
 };
 
 Sound.enable(true);
+
+Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
+Sound.DOCUMENT = RNSound.NSDocumentDirectory;
+Sound.LIBRARY = RNSound.NSLibraryDirectory;
+Sound.CACHES = RNSound.NSCachesDirectory;
 
 module.exports = Sound;

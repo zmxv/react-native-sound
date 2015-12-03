@@ -17,7 +17,19 @@
   return [[self playerPool] objectForKey:key];
 }
 
+-(NSString *) getDirectory:(int)directory {
+  return [NSSearchPathForDirectoriesInDomains(directory, NSUserDomainMask, YES) firstObject];
+}
+
 RCT_EXPORT_MODULE();
+
+-(NSDictionary *)constantsToExport {
+  return @{@"MainBundlePath": [[NSBundle mainBundle] bundlePath],
+           @"NSDocumentDirectory": [self getDirectory:NSDocumentDirectory],
+           @"NSLibraryDirectory": [self getDirectory:NSLibraryDirectory],
+           @"NSCachesDirectory": [self getDirectory:NSCachesDirectory],
+           };
+}
 
 RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
