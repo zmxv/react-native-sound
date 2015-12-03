@@ -1,6 +1,6 @@
 #import "RNSound.h"
 #import <AVFoundation/AVFoundation.h>
-
+#import "RCTUtils.h"
 
 @implementation RNSound {
   NSMutableDictionary* _playerPool;
@@ -48,8 +48,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
     callback(@[[NSNull null], @{@"duration": @(player.duration),
                                 @"numberOfChannels": @(player.numberOfChannels)}]);
   } else {
-    callback(@[@{@"code": @(error.code),
-                 @"description": error.localizedDescription}]);
+    callback(@[RCTJSErrorFromNSError(error)]);
   }
 }
 
