@@ -7,7 +7,19 @@ var nextKey = 0;
 function Sound(filename, basePath, onError) {
   this.filename = basePath ? basePath + '/' + filename : filename;
   this.key = nextKey++;
-  RNSound.prepare(this.filename, this.key, (error) => onError && onError(error));
+  this.duration = -1;
+  this.numberOfChannels = -1;
+  RNSound.prepare(this.filename, this.key, (error, props) => {
+    if (props) {
+      if (typeof props.duration === 'number') {
+        this.duration = props.duration;
+      }
+      if (typeof props.numberOfChannels === 'number') {
+        this.numberOfChannels = props.numberOfChannels;
+      }
+    }
+    onError && onError(error);
+  });
 }
 
 Sound.prototype.play = function() {

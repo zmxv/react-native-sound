@@ -45,7 +45,8 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
   if (player) {
     [player prepareToPlay];
     [[self playerPool] setObject:player forKey:key];
-    callback(@[[NSNull null]]);
+    callback(@[[NSNull null], @{@"duration": @(player.duration),
+                                @"numberOfChannels": @(player.numberOfChannels)}]);
   } else {
     callback(@[@{@"code": @(error.code),
                  @"description": error.localizedDescription}]);
