@@ -98,7 +98,7 @@ RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player stop];
-    [player setCurrentTime:0.0]
+    [player setCurrentTime:0.0];
   }
 }
 
