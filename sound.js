@@ -4,10 +4,10 @@ var RNSound = require('react-native').NativeModules.RNSound;
 
 var nextKey = 0;
 
-function Sound(filename, basePath) {
+function Sound(filename, basePath, onError) {
   this.filename = basePath ? basePath + '/' + filename : filename;
   this.key = nextKey++;
-  RNSound.prepare(this.filename, this.key);
+  RNSound.prepare(this.filename, this.key, (error) => onError && onError(error));
 }
 
 Sound.prototype.play = function() {

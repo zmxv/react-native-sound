@@ -37,11 +37,19 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
-RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key) {
+RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
+                  withCallback:(RCTResponseSenderBlock)callback) {
+  NSError* error;
   AVAudioPlayer* player = [[AVAudioPlayer alloc]
-                           initWithContentsOfURL:[NSURL fileURLWithPath:fileName] error:nil];
-  [player prepareToPlay];
-  [[self playerPool] setObject:player forKey:key];
+                           initWithContentsOfURL:[NSURL fileURLWithPath:fileName] error:&error];
+  if (player) {
+    [player prepareToPlay];
+    [[self playerPool] setObject:player forKey:key];
+    callback(@[[NSNull null]]);
+  } else {
+    callback(@[@{@"code": @(error.code),
+                 @"description": error.localizedDescription}]);
+  }
 }
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key) {
