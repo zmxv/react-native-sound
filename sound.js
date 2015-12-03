@@ -22,8 +22,8 @@ function Sound(filename, basePath, onError) {
   });
 }
 
-Sound.prototype.play = function() {
-  RNSound.play(this.key);
+Sound.prototype.play = function(onEnd) {
+  RNSound.play(this.key, (successfully) => onEnd && onEnd(successfully));
 };
 
 Sound.prototype.pause = function() {

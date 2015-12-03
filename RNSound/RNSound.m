@@ -1,24 +1,50 @@
 #import "RNSound.h"
-#import <AVFoundation/AVFoundation.h>
 #import "RCTUtils.h"
 
 @implementation RNSound {
   NSMutableDictionary* _playerPool;
+  NSMutableDictionary* _callbackPool;
 }
 
 -(NSMutableDictionary*) playerPool {
   if (!_playerPool) {
-    _playerPool = [[NSMutableDictionary alloc] init];
+    _playerPool = [NSMutableDictionary new];
   }
   return _playerPool;
+}
+
+-(NSMutableDictionary*) callbackPool {
+  if (!_callbackPool) {
+    _callbackPool = [NSMutableDictionary new];
+  }
+  return _callbackPool;
 }
 
 -(AVAudioPlayer*) playerForKey:(nonnull NSNumber*)key {
   return [[self playerPool] objectForKey:key];
 }
 
+-(NSNumber*) keyForPlayer:(nonnull AVAudioPlayer*)player {
+  return [[[self playerPool] allKeysForObject:player] firstObject];
+}
+
+-(RCTResponseSenderBlock) callbackForKey:(nonnull NSNumber*)key {
+  return [[self callbackPool] objectForKey:key];
+}
+
 -(NSString *) getDirectory:(int)directory {
   return [NSSearchPathForDirectoriesInDomains(directory, NSUserDomainMask, YES) firstObject];
+}
+
+-(void) audioPlayerDidFinishPlaying:(AVAudioPlayer*)player
+                       successfully:(BOOL)flag {
+  NSNumber* key = [self keyForPlayer:player];
+  if (key != nil) {
+    RCTResponseSenderBlock callback = [self callbackForKey:key];
+    if (callback) {
+      callback(@[@(flag)]);
+    }
+  }
 }
 
 RCT_EXPORT_MODULE();
@@ -43,6 +69,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
   AVAudioPlayer* player = [[AVAudioPlayer alloc]
                            initWithContentsOfURL:[NSURL fileURLWithPath:fileName] error:&error];
   if (player) {
+    player.delegate = self;
     [player prepareToPlay];
     [[self playerPool] setObject:player forKey:key];
     callback(@[[NSNull null], @{@"duration": @(player.duration),
@@ -52,9 +79,10 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
   }
 }
 
-RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key) {
+RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
+    [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
   }
 }
@@ -77,6 +105,7 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player stop];
+    [[self callbackPool] removeObjectForKey:player];
     [[self playerPool] removeObjectForKey:key];
   }
 }
