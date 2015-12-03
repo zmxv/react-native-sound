@@ -98,7 +98,7 @@ RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player stop];
-    [player setCurrentTime:0.0];
+    player.currentTime = 0;
   }
 }
 
@@ -108,6 +108,44 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
     [player stop];
     [[self callbackPool] removeObjectForKey:player];
     [[self playerPool] removeObjectForKey:key];
+  }
+}
+
+RCT_EXPORT_METHOD(setVolume:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    player.volume = [value floatValue];
+  }
+}
+
+RCT_EXPORT_METHOD(setPan:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    player.pan = [value floatValue];
+  }
+}
+
+RCT_EXPORT_METHOD(setNumberOfLoops:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    player.numberOfLoops = [value intValue];
+  }
+}
+
+RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    player.currentTime = [value doubleValue];
+  }
+}
+
+RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
+                  withCallback:(RCTResponseSenderBlock)callback) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    callback(@[@(player.currentTime)]);
+  } else {
+    callback(@[@(-1)]);
   }
 }
 
