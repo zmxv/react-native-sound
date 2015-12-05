@@ -121,7 +121,7 @@ Return the loop count of the audio player. The default is `0` which means to pla
 `value` {number} Set the loop count. `0` means to play the sound once. A positive number specifies the number of times to return to the start and play again. A negative number indicates an indefinite loop.
 
 ### `getCurrentTime(callback)`
-`callback` {function(seconds)} Callback will receive the current playback position in seconds.
+`callback` {function(seconds, isPlaying)} Callback will receive the current playback position in seconds and whether the sound is being played.
 
 ### `setCurrentTime(value)`
 `value` {number} Seek to a particular playback point in seconds.

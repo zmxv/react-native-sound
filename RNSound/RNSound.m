@@ -143,9 +143,9 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
                   withCallback:(RCTResponseSenderBlock)callback) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
-    callback(@[@(player.currentTime)]);
+    callback(@[@(player.currentTime), @(player.isPlaying)]);
   } else {
-    callback(@[@(-1)]);
+    callback(@[@(-1), @(false)]);
   }
 }
 
