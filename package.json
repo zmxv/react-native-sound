@@ -1,7 +1,7 @@
 {
   "name": "react-native-sound",
-  "version": "0.5.1",
-  "description": "React Native module for playing sound clips",
+  "version": "0.6.0",
+  "description": "React Native module for playing sound clips on iOS and Android",
   "main": "sound.js",
   "repository": {
     "type": "git",
