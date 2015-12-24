@@ -1,12 +1,37 @@
 # react-native-sound
 
-React Native module for playing sound clips
+React Native module for playing sound clips on iOS and Android.
 
-## Installation (iOS)
+## Feature matrix
+
+The Android port supports basic audio playback but has not reached feature parity with the iOS version.
+
+Feature | iOS | Android
+---|---|---|---
+Load sound from the app bundle | ✓ | ✓
+Load sound from other directories | ✓ |
+Play sound | ✓ | ✓
+Playback completion callback | ✓ | ✓
+Pause | ✓ | ✓
+Resume | ✓ | ✓
+Stop | ✓ | ✓
+Release resource | ✓ | ✓
+Get duration | ✓ |
+Get number of channels | ✓ |
+Get/set volume | ✓ |
+Get/set pan | ✓ |
+Get/set loops | ✓ |
+Get/set current time | ✓ |
+
+## Installation
+
+First install the npm package from your app directory:
 
 ```javascript
 npm install react-native-sound --save
 ```
+
+### Installation on iOS
 
 In XCode, right click **Libraries**.
 Click **Add Files to "[Your project]"**.
@@ -20,6 +45,44 @@ Expand **Link Binary With Libraries**.
 Click the plus button and add **libRNSound.a** under **Workspace**.
 
 Run your project (⌘+R).
+
+### Installation on Android
+
+Edit `android/settings.gradle` to declare the project directory:
+```
+include ':RNSound', ':app'
+project(':RNSound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
+```
+
+Edit `android/app/build.gradle` to declare the project dependency:
+```
+dependencies {
+  ...
+  compile project(':RNSound')
+}
+```
+
+Edit `android/app/src/main/java/.../MainActivity.java` to register the native module:
+```java
+...
+import com.zmxv.RNSound.RNSoundPackage; // <-- New
+...
+
+public class MainActivity extends Activity implements DefaultHardwareBackBtnHandler {
+  ...
+    @Override
+  protected void onCreate(Bundle savedInstanceState){
+    ...
+    mReactInstanceManager = ReactInstanceManager.builder()
+      .setApplication(getApplication())
+      ...
+      .addPackage(new MainReactPackage())
+      .addPackage(new RNSoundPackage()) // <-- New
+      ...
+  }
+```
+
+Save your sound clip files under the directory `android/app/src/main/res/raw`.
 
 ## Basic usage
 
@@ -126,12 +189,10 @@ Return the loop count of the audio player. The default is `0` which means to pla
 ### `setCurrentTime(value)`
 `value` {number} Seek to a particular playback point in seconds.
 
-### `Sound.enable(enabled)`
-`enabled` {boolean} Enable or disable sound for the entire app. Sound is enabled by default.
-
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization.
-- You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds.
+- You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
 - You may reuse a `Sound` instance for multiple playbacks.
-- The module wraps `AVAudioPlayer` which supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
+- On iOS, the module wraps `AVAudioPlayer` which supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
+- On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at http://developer.android.com/guide/appendix/media-formats.html
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
