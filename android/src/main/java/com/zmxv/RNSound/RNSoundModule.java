@@ -56,6 +56,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       callback.invoke(false);
       return;
     }
+    if (player.isPlaying()) {
+      return;
+    }
     player.setOnCompletionListener(new OnCompletionListener() {
       @Override
       public void onCompletion(MediaPlayer mp) {
@@ -70,5 +73,34 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       }
     });
     player.start();
+  }
+
+  @ReactMethod
+  public void pause(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null && player.isPlaying()) {
+      player.pause();
+    }
+  }
+
+  @ReactMethod
+  public void stop(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.stop();
+      try {
+        player.prepare();
+      } catch (Exception e) {
+      }
+    }
+  }
+
+  @ReactMethod
+  public void release(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.release();
+      this.playerPool.remove(key);
+    }
   }
 }

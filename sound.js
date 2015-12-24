@@ -1,11 +1,16 @@
 'use strict';
 
+var IsAndroid = require('Platform').OS === 'android';
 var RNSound = require('react-native').NativeModules.RNSound;
 
 var nextKey = 0;
 
 function Sound(filename, basePath, onError) {
-  this._filename = basePath ? basePath + '/' + filename : filename;
+  if (IsAndroid) {
+    this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+  } else {
+    this._filename = basePath ? basePath + '/' + filename : filename;
+  }
   this._key = nextKey++;
   this._duration = -1;
   this._numberOfChannels = -1;
