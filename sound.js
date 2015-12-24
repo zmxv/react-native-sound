@@ -63,7 +63,12 @@ Sound.prototype.getVolume = function() {
 };
 
 Sound.prototype.setVolume = function(value) {
-  RNSound.setVolume(this._key, this._volume = value);
+  this._volume = value;
+  if (IsAndroid) {
+    RNSound.setVolume(this._key, value, value);
+  } else {
+    RNSound.setVolume(this._key, value);
+  }
   return this;
 };
 
@@ -81,7 +86,12 @@ Sound.prototype.getNumberOfLoops = function() {
 };
 
 Sound.prototype.setNumberOfLoops = function(value) {
-  RNSound.setNumberOfLoops(this._key, this._numberOfLoops = value);
+  this._numberOfLoops = value;
+  if (IsAndroid) {
+    RNSound.setLooping(this._key, !!value);
+  } else {
+    RNSound.setNumberOfLoops(this._key, value);
+  }
   return this;
 };
 
@@ -98,7 +108,9 @@ Sound.enable = function(enabled) {
   RNSound.enable(enabled);
 };
 
-Sound.enable(true);
+if (!IsAndroid) {
+  Sound.enable(true);
+}
 
 Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
 Sound.DOCUMENT = RNSound.NSDocumentDirectory;

@@ -4,8 +4,6 @@ React Native module for playing sound clips on iOS and Android.
 
 ## Feature matrix
 
-The Android port supports basic audio playback but has not reached feature parity with the iOS version.
-
 Feature | iOS | Android
 ---|---|---|---
 Load sound from the app bundle | ✓ | ✓
@@ -16,12 +14,12 @@ Pause | ✓ | ✓
 Resume | ✓ | ✓
 Stop | ✓ | ✓
 Release resource | ✓ | ✓
-Get duration | ✓ |
+Get duration | ✓ | ✓ 
 Get number of channels | ✓ |
-Get/set volume | ✓ |
+Get/set volume | ✓ | ✓ 
 Get/set pan | ✓ |
-Get/set loops | ✓ |
-Get/set current time | ✓ |
+Get/set loops | ✓ | ✓
+Get/set current time | ✓ | ✓ 
 
 ## Installation
 
@@ -181,7 +179,7 @@ Return the stereo pan position of the audio player (not the system-wide pan), ra
 Return the loop count of the audio player. The default is `0` which means to play the sound once. A positive number specifies the number of times to return to the start and play again. A negative number indicates an indefinite loop.
 
 ### `setNumberOfLoops(value)`
-`value` {number} Set the loop count. `0` means to play the sound once. A positive number specifies the number of times to return to the start and play again. A negative number indicates an indefinite loop.
+`value` {number} Set the loop count. `0` means to play the sound once. A positive number specifies the number of times to return to the start and play again (iOS only). A negative number indicates an indefinite loop (iOS and Android).
 
 ### `getCurrentTime(callback)`
 `callback` {function(seconds, isPlaying)} Callback will receive the current playback position in seconds and whether the sound is being played.

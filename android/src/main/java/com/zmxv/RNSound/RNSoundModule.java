@@ -30,11 +30,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void enable(final Boolean enabled) {
-    // no-op
-  }
-
-  @ReactMethod
   public void prepare(final String fileName, final Integer key, final Callback callback) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     if (res == 0) {
@@ -46,7 +41,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
     MediaPlayer player = MediaPlayer.create(this.context, res);
     this.playerPool.put(key, player);
-    callback.invoke(NULL);
+    WritableMap props = Arguments.createMap();
+    props.putDouble("duration", player.getDuration() * .001);
+    callback.invoke(NULL, props);
   }
 
   @ReactMethod
@@ -62,7 +59,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     player.setOnCompletionListener(new OnCompletionListener() {
       @Override
       public void onCompletion(MediaPlayer mp) {
-        callback.invoke(true);
+        if (!mp.isLooping()) {
+          callback.invoke(true);
+        }
       }
     });
     player.setOnErrorListener(new OnErrorListener() {
@@ -86,7 +85,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void stop(final Integer key) {
     MediaPlayer player = this.playerPool.get(key);
-    if (player != null) {
+    if (player != null && player.isPlaying()) {
       player.stop();
       try {
         player.prepare();
@@ -102,5 +101,39 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       player.release();
       this.playerPool.remove(key);
     }
+  }
+
+  @ReactMethod
+  public void setVolume(final Integer key, final Float left, final Float right) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setVolume(left, right);
+    }
+  }
+
+  @ReactMethod
+  public void setLooping(final Integer key, final Boolean looping) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setLooping(looping);
+    }
+  }
+
+  @ReactMethod
+  public void setCurrentTime(final Integer key, final Float sec) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.seekTo((int)Math.round(sec * 1000));
+    }
+  }
+
+  @ReactMethod
+  public void getCurrentTime(final Integer key, final Callback callback) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player == null) {
+      callback.invoke(-1, false);
+      return;
+    }
+    callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
   }
 }
