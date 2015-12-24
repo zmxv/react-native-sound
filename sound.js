@@ -1,7 +1,7 @@
 'use strict';
 
-var IsAndroid = require('Platform').OS === 'android';
 var RNSound = require('react-native').NativeModules.RNSound;
+var IsAndroid = !!RNSound.setLooping;
 
 var nextKey = 0;
 
