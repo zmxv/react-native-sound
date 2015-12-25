@@ -1,7 +1,7 @@
 'use strict';
 
 var RNSound = require('react-native').NativeModules.RNSound;
-var IsAndroid = !!RNSound.setLooping;
+var IsAndroid = (typeof RNSound.setLooping) !== 'undefined';
 
 var nextKey = 0;
 
