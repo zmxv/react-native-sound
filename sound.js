@@ -11,6 +11,7 @@ function Sound(filename, basePath, onError) {
   } else {
     this._filename = basePath ? basePath + '/' + filename : filename;
   }
+  this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;
   this._numberOfChannels = -1;
@@ -26,27 +27,42 @@ function Sound(filename, basePath, onError) {
         this._numberOfChannels = props.numberOfChannels;
       }
     }
+    if (error === null) {
+      this._loaded = true;
+    }
     onError && onError(error);
   });
 }
 
+Sound.prototype.isLoaded = function() {
+  return this._loaded;
+};
+
 Sound.prototype.play = function(onEnd) {
-  RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
+  if (this._loaded) {
+    RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
+  }
   return this;
 };
 
 Sound.prototype.pause = function() {
-  RNSound.pause(this._key);
+  if (this._loaded) {
+    RNSound.pause(this._key);
+  }
   return this;
 };
 
 Sound.prototype.stop = function() {
-  RNSound.stop(this._key);
+  if (this._loaded) {
+    RNSound.stop(this._key);
+  }
   return this;
 };
 
 Sound.prototype.release = function() {
-  RNSound.release(this._key);
+  if (this._loaded) {
+    RNSound.release(this._key);
+  }
   return this;
 };
 
@@ -64,10 +80,12 @@ Sound.prototype.getVolume = function() {
 
 Sound.prototype.setVolume = function(value) {
   this._volume = value;
-  if (IsAndroid) {
-    RNSound.setVolume(this._key, value, value);
-  } else {
-    RNSound.setVolume(this._key, value);
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setVolume(this._key, value, value);
+    } else {
+      RNSound.setVolume(this._key, value);
+    }
   }
   return this;
 };
@@ -77,7 +95,9 @@ Sound.prototype.getPan = function() {
 };
 
 Sound.prototype.setPan = function(value) {
-  RNSound.setPan(this._key, this._pan = value);
+  if (this._loaded) {
+    RNSound.setPan(this._key, this._pan = value);
+  }
   return this;
 };
 
@@ -87,20 +107,26 @@ Sound.prototype.getNumberOfLoops = function() {
 
 Sound.prototype.setNumberOfLoops = function(value) {
   this._numberOfLoops = value;
-  if (IsAndroid) {
-    RNSound.setLooping(this._key, !!value);
-  } else {
-    RNSound.setNumberOfLoops(this._key, value);
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setLooping(this._key, !!value);
+    } else {
+      RNSound.setNumberOfLoops(this._key, value);
+    }
   }
   return this;
 };
 
 Sound.prototype.getCurrentTime = function(callback) {
-  RNSound.getCurrentTime(this._key, callback);
+  if (this._loaded) {
+    RNSound.getCurrentTime(this._key, callback);
+  }
 };
 
 Sound.prototype.setCurrentTime = function(value) {
-  RNSound.setCurrentTime(this._key, value);
+  if (this._loaded) {
+    RNSound.setCurrentTime(this._key, value);
+  }
   return this;
 };
 

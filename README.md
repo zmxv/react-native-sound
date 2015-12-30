@@ -8,6 +8,7 @@ Feature | iOS | Android
 ---|---|---|---
 Load sound from the app bundle | ✓ | ✓
 Load sound from other directories | ✓ |
+Load sound from the network | |
 Play sound | ✓ | ✓
 Playback completion callback | ✓ | ✓
 Pause | ✓ | ✓
@@ -144,6 +145,9 @@ whoosh.release();
 `basePath` {?string} Optional base path of the file. Omit this or pass `''` if `filename` is an absolute path. Otherwise, you may use one of the predefined directories: `Sound.MAIN_BUNDLE`, `Sound.DOCUMENT`, `Sound.LIBRARY`, `Sound.CACHES`.
 
 `onError` {?function(error, props)} Optional callback function. If the file is successfully loaded, the first parameter `error` is `null`, and `props` contains an object with two properties: `duration` (in seconds) and `numberOfChannels` (`1` for mono and `2` for stereo sound), both of which can also be accessed from the `Sound` instance object. If an initialization error is encountered (e.g. file not found), `error` will be an object containing `code`, `description`, and the stack trace.
+
+### `isLoaded()`
+Return `true` if the sound has been loaded.
 
 ### `play(onEnd)`
 `onEnd` {?function(successfully)} Optinoal callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it.
