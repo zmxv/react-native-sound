@@ -37,11 +37,16 @@ Click **Add Files to "[Your project]"**.
 Navigate to **node_modules/react-native-sound**.
 Add the file **RNSound.xcodeproj**.
 
-In the project navigator, select your project.
+In the *Project Navigator*, select your project.
 Click the build target.
 Click **Build Phases**.
 Expand **Link Binary With Libraries**.
 Click the plus button and add **libRNSound.a** under **Workspace**.
+
+Drag and drop sound files into *Project Navigator* to add them to the project.  Verify that the files are packaged in the app bundle in either way:
+
+* Select a sound file in the *Project Navigator*, tick the checkbox in the *Target Membership* list on the right.
+* Alternatively, click the build target, click **Build Phases**, expand **Copy Bundle Resources**, add the file if it's not already listed.
 
 Run your project (⌘+R).
 
