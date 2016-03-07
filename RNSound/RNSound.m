@@ -63,6 +63,12 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
+RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setCategory: AVAudioSessionCategoryPlayback error: nil];
+  [session setActive: enabled error: nil];
+}
+
 RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
                   withCallback:(RCTResponseSenderBlock)callback) {
   NSError* error;
