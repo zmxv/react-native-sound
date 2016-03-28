@@ -6,11 +6,7 @@ var IsAndroid = (typeof RNSound.setLooping) !== 'undefined';
 var nextKey = 0;
 
 function Sound(filename, basePath, onError) {
-  if (IsAndroid) {
-    this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
-  } else {
-    this._filename = basePath ? basePath + '/' + filename : filename;
-  }
+  this._filename = basePath ? basePath + '/' + filename : filename;
   this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;

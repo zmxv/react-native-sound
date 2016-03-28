@@ -1,7 +1,9 @@
 package com.zmxv.RNSound;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
+import android.net.Uri;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -10,9 +12,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
   Map<Integer, MediaPlayer> playerPool = new HashMap<>();
@@ -31,19 +33,31 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void prepare(final String fileName, final Integer key, final Callback callback) {
-    int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
-    if (res == 0) {
+    MediaPlayer player = createMediaPlayer(fileName);
+    if (player == null) {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
       callback.invoke(e);
       return;
     }
-    MediaPlayer player = MediaPlayer.create(this.context, res);
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);
     callback.invoke(NULL, props);
+  }
+
+  protected MediaPlayer createMediaPlayer(final String fileName) {
+    int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
+    if (res != 0) {
+      return MediaPlayer.create(this.context, res);
+    }
+    File file = new File(fileName);
+    if (file.exists()) {
+      Uri uri = Uri.fromFile(file);
+      return MediaPlayer.create(this.context, uri);
+    }
+    return null;
   }
 
   @ReactMethod

@@ -7,7 +7,7 @@ React Native module for playing sound clips on iOS and Android.
 Feature | iOS | Android
 ---|---|---|---
 Load sound from the app bundle | ✓ | ✓
-Load sound from other directories | ✓ |
+Load sound from other directories | ✓ | ✓
 Load sound from the network | |
 Play sound | ✓ | ✓
 Playback completion callback | ✓ | ✓
@@ -86,7 +86,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
   }
 ```
 
-Save your sound clip files under the directory `android/app/src/main/res/raw`.
+Save your sound clip files under the directory `android/app/src/main/res/raw` or any of the directories under Sound.
 
 ## Basic usage
 
