@@ -86,7 +86,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
   }
 ```
 
-Save your sound clip files under the directory `android/app/src/main/res/raw` or any of the directories under Sound.
+Save your sound clip files under the directory `android/app/src/main/res/raw`, or any other directory in which case you need to pass the full path into the Sound constructor.
 
 ## Basic usage
 

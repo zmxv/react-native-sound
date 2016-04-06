@@ -7,6 +7,11 @@ var nextKey = 0;
 
 function Sound(filename, basePath, onError) {
   this._filename = basePath ? basePath + '/' + filename : filename;
+
+  if (IsAndroid && !basePath) {
+    this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+  }
+
   this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;
