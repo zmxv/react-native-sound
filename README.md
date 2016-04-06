@@ -67,6 +67,25 @@ dependencies {
 ```
 
 Edit `android/app/src/main/java/.../MainActivity.java` to register the native module:
+
+```java
+...
+import com.zmxv.RNSound.RNSoundPackage; // <-- New
+...
+
+public class MainActivity extends ReactActivity {
+  ...
+  @Override
+  protected List<ReactPackage> getPackages() {
+    return Arrays.<ReactPackage>asList(
+        new MainReactPackage(),
+        new RNSoundPackage() // <-- New
+    );
+  }
+```
+
+For older `MainActivity.java` templates, edit as follows:
+
 ```java
 ...
 import com.zmxv.RNSound.RNSoundPackage; // <-- New
@@ -88,6 +107,10 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
 
 Save your sound clip files under the directory `android/app/src/main/res/raw`.
 
+## Demo project
+
+https://github.com/zmxv/react-native-sound-demo
+
 ## Basic usage
 
 ```js
@@ -99,8 +122,8 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
   } else { // loaded successfully
-    console.log('duration in seconds: ' + whoosh.duration +
-        'number of channels: ' + whoosh.numberOfChannels);
+    console.log('duration in seconds: ' + whoosh.getDuration() +
+        'number of channels: ' + whoosh.getNumberOfChannels());
   }
 });
 
