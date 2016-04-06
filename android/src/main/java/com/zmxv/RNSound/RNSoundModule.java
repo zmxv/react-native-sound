@@ -1,5 +1,7 @@
 package com.zmxv.RNSound;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,14 +34,30 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void prepare(final String fileName, final Integer key, final Callback callback) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
-    if (res == 0) {
-      WritableMap e = Arguments.createMap();
-      e.putInt("code", -1);
-      e.putString("message", "resource not found");
-      callback.invoke(e);
-      return;
+    MediaPlayer player;
+    if (res != 0) {
+        player = MediaPlayer.create(this.context, res);
+    }else{
+        File file = new File(fileName);
+        if (!file.exists()) {
+          WritableMap e = Arguments.createMap();
+          e.putInt("code", -1);
+          e.putString("message", "resource not found");
+          callback.invoke(e);
+          return;
+        }
+        try{
+          player = new MediaPlayer();
+          player.setDataSource(fileName);
+          player.prepare();
+        }catch (IOException err) {
+          WritableMap e = Arguments.createMap();
+          e.putInt("code", -1);
+          e.putString("message", err.getMessage());
+          callback.invoke(e);
+          return;
+        }
     }
-    MediaPlayer player = MediaPlayer.create(this.context, res);
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);

@@ -6,7 +6,7 @@ var IsAndroid = RNSound.IsAndroid;
 var nextKey = 0;
 
 function Sound(filename, basePath, onError) {
-  if (IsAndroid) {
+  if (IsAndroid && filename.indexOf('/') == -1) { //???
     this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
   } else {
     this._filename = basePath ? basePath + '/' + filename : filename;
