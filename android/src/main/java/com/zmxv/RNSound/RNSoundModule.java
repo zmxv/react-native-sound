@@ -136,4 +136,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
     callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
   }
+
+  @ReactMethod
+  public void enable(final Boolean enabled) {
+    // no op
+  }
+
+  @Override
+  public Map<String, Object> getConstants() {
+    final Map<String, Object> constants = new HashMap<>();
+    constants.put("IsAndroid", true);
+    return constants;
+  }
 }

@@ -50,7 +50,8 @@
 RCT_EXPORT_MODULE();
 
 -(NSDictionary *)constantsToExport {
-  return @{@"MainBundlePath": [[NSBundle mainBundle] bundlePath],
+  return @{@"IsAndroid": [NSNumber numberWithBool:NO],
+           @"MainBundlePath": [[NSBundle mainBundle] bundlePath],
            @"NSDocumentDirectory": [self getDirectory:NSDocumentDirectory],
            @"NSLibraryDirectory": [self getDirectory:NSLibraryDirectory],
            @"NSCachesDirectory": [self getDirectory:NSCachesDirectory],
