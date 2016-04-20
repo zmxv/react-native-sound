@@ -117,6 +117,8 @@ https://github.com/zmxv/react-native-sound-demo
 // Import the react-native-sound module
 var Sound = require('react-native-sound');
 
+// Sound.enableInSilenceMode(true); // if need to enable playback in silence mode, currently for iOS only 
+
 // Load the sound file 'whoosh.mp3' from the app bundle
 var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
