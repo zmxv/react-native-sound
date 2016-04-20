@@ -136,7 +136,9 @@ Sound.enable = function(enabled) {
 };
 
 Sound.enableInSilenceMode = function(enabled) {
-  RNSound.enableInSilenceMode(enabled);
+  if (!IsAndroid) {
+    RNSound.enableInSilenceMode(enabled);
+  }
 };
 
 if (!IsAndroid) {

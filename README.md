@@ -117,8 +117,6 @@ https://github.com/zmxv/react-native-sound-demo
 // Import the react-native-sound module
 var Sound = require('react-native-sound');
 
-// Sound.enableInSilenceMode(true); // if need to enable playback in silence mode, currently for iOS only 
-
 // Load the sound file 'whoosh.mp3' from the app bundle
 var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
@@ -151,6 +149,9 @@ whoosh.setNumberOfLoops(-1);
 console.log('volume: ' + whoosh.getVolume());
 console.log('pan: ' + whoosh.getPan());
 console.log('loops: ' + whoosh.getNumberOfLoops());
+
+// Enable playback in silence mode (iOS only)
+// Sound.enableInSilenceMode(true);
 
 // Seek to a specific point in seconds
 whoosh.setCurrentTime(2.5);
@@ -220,6 +221,9 @@ Return the loop count of the audio player. The default is `0` which means to pla
 
 ### `setCurrentTime(value)`
 `value` {number} Seek to a particular playback point in seconds.
+
+### `enableInSilenceMode(enabled)`
+`enabled` {boolean} Whether to enable playback in silence mode (iOS only).
 
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization.
