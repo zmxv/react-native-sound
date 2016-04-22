@@ -118,6 +118,7 @@ https://github.com/zmxv/react-native-sound-demo
 var Sound = require('react-native-sound');
 
 // Load the sound file 'whoosh.mp3' from the app bundle
+// See notes below about preloading sounds within initialization code below.
 var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
@@ -226,7 +227,7 @@ Return the loop count of the audio player. The default is `0` which means to pla
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).
 
 ## Notes
-- To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization.
+- To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
 - You may reuse a `Sound` instance for multiple playbacks.
 - On iOS, the module wraps `AVAudioPlayer` which supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
