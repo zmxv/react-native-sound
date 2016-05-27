@@ -1,16 +1,21 @@
 'use strict';
 
 var RNSound = require('react-native').NativeModules.RNSound;
-var IsAndroid = (typeof RNSound.setLooping) !== 'undefined';
+var IsAndroid = RNSound.IsAndroid;
 
 var nextKey = 0;
 
+function isRelativePath(path) {
+  return !/^\//.test(path);
+}
+
 function Sound(filename, basePath, onError) {
-  if (IsAndroid) {
+  this._filename = basePath ? basePath + '/' + filename : filename;
+
+  if (IsAndroid && !basePath && isRelativePath(filename)) {
     this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
-  } else {
-    this._filename = basePath ? basePath + '/' + filename : filename;
   }
+
   this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;
@@ -137,6 +142,12 @@ Sound.prototype.setCategory = function(value) {
 
 Sound.enable = function(enabled) {
   RNSound.enable(enabled);
+};
+
+Sound.enableInSilenceMode = function(enabled) {
+  if (!IsAndroid) {
+    RNSound.enableInSilenceMode(enabled);
+  }
 };
 
 if (!IsAndroid) {

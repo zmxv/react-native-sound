@@ -7,7 +7,7 @@ React Native module for playing sound clips on iOS and Android.
 Feature | iOS | Android
 ---|---|---|---
 Load sound from the app bundle | ✓ | ✓
-Load sound from other directories | ✓ |
+Load sound from other directories | ✓ | ✓
 Load sound from the network | |
 Play sound | ✓ | ✓
 Playback completion callback | ✓ | ✓
@@ -15,12 +15,12 @@ Pause | ✓ | ✓
 Resume | ✓ | ✓
 Stop | ✓ | ✓
 Release resource | ✓ | ✓
-Get duration | ✓ | ✓ 
+Get duration | ✓ | ✓
 Get number of channels | ✓ |
-Get/set volume | ✓ | ✓ 
+Get/set volume | ✓ | ✓
 Get/set pan | ✓ |
 Get/set loops | ✓ | ✓
-Get/set current time | ✓ | ✓ 
+Get/set current time | ✓ | ✓
 
 ## Installation
 
@@ -67,6 +67,25 @@ dependencies {
 ```
 
 Edit `android/app/src/main/java/.../MainActivity.java` to register the native module:
+
+```java
+...
+import com.zmxv.RNSound.RNSoundPackage; // <-- New
+...
+
+public class MainActivity extends ReactActivity {
+  ...
+  @Override
+  protected List<ReactPackage> getPackages() {
+    return Arrays.<ReactPackage>asList(
+        new MainReactPackage(),
+        new RNSoundPackage() // <-- New
+    );
+  }
+```
+
+For older `MainActivity.java` templates, edit as follows:
+
 ```java
 ...
 import com.zmxv.RNSound.RNSoundPackage; // <-- New
@@ -86,7 +105,11 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
   }
 ```
 
-Save your sound clip files under the directory `android/app/src/main/res/raw`.
+Save your sound clip files under the directory `android/app/src/main/res/raw`, or any other directory in which case you need to pass the full path into the Sound constructor.
+
+## Demo project
+
+https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
 
@@ -95,12 +118,13 @@ Save your sound clip files under the directory `android/app/src/main/res/raw`.
 var Sound = require('react-native-sound');
 
 // Load the sound file 'whoosh.mp3' from the app bundle
+// See notes below about preloading sounds within initialization code below.
 var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
   } else { // loaded successfully
-    console.log('duration in seconds: ' + whoosh.duration +
-        'number of channels: ' + whoosh.numberOfChannels);
+    console.log('duration in seconds: ' + whoosh.getDuration() +
+        'number of channels: ' + whoosh.getNumberOfChannels());
   }
 });
 
@@ -126,6 +150,9 @@ whoosh.setNumberOfLoops(-1);
 console.log('volume: ' + whoosh.getVolume());
 console.log('pan: ' + whoosh.getPan());
 console.log('loops: ' + whoosh.getNumberOfLoops());
+
+// Enable playback in silence mode (iOS only)
+// Sound.enableInSilenceMode(true);
 
 // Seek to a specific point in seconds
 whoosh.setCurrentTime(2.5);
@@ -201,8 +228,11 @@ Return the loop count of the audio player. The default is `0` which means to pla
 
 More info about each category can be found in https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVAudioSession_ClassReference/#//apple_ref/doc/constant_group/Audio_Session_Categories
 
+### `enableInSilenceMode(enabled)`
+`enabled` {boolean} Whether to enable playback in silence mode (iOS only).
+
 ## Notes
-- To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization.
+- To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
 - You may reuse a `Sound` instance for multiple playbacks.
 - On iOS, the module wraps `AVAudioPlayer` which supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html

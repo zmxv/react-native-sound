@@ -50,7 +50,8 @@
 RCT_EXPORT_MODULE();
 
 -(NSDictionary *)constantsToExport {
-  return @{@"MainBundlePath": [[NSBundle mainBundle] bundlePath],
+  return @{@"IsAndroid": [NSNumber numberWithBool:NO],
+           @"MainBundlePath": [[NSBundle mainBundle] bundlePath],
            @"NSDocumentDirectory": [self getDirectory:NSDocumentDirectory],
            @"NSLibraryDirectory": [self getDirectory:NSLibraryDirectory],
            @"NSCachesDirectory": [self getDirectory:NSCachesDirectory],
@@ -80,6 +81,12 @@ RCT_EXPORT_METHOD(setCategory:(nonnull NSNumber*)key withValue:(NSString*)catego
   } else if ([categoryName isEqual: @"MultiRoute"]) {
     [session setCategory: AVAudioSessionCategoryMultiRoute error: nil];
   }
+}
+
+RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setCategory: AVAudioSessionCategoryPlayback error: nil];
+  [session setActive: enabled error: nil];
 }
 
 RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
