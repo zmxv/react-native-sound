@@ -10,9 +10,9 @@ function isRelativePath(path) {
 }
 
 function Sound(filename, basePath, onError) {
-  var image = resolveAssetSource(filename);
-  if (image) {
-    this._filename = image.uri;
+  var asset = resolveAssetSource(filename);
+  if (asset) {
+    this._filename = asset.uri;
     onError = basePath;
   } else {
     this._filename = basePath ? basePath + '/' + filename : filename;
