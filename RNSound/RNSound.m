@@ -64,6 +64,25 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
+RCT_EXPORT_METHOD(setCategory:(nonnull NSNumber*)key withValue:(NSString*)categoryName) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  if ([categoryName isEqual: @"Ambient"]) {
+    [session setCategory: AVAudioSessionCategoryAmbient error: nil];
+  } else if ([categoryName isEqual: @"SoloAmbient"]) {
+    [session setCategory: AVAudioSessionCategorySoloAmbient error: nil];
+  } else if ([categoryName isEqual: @"Playback"]) {
+    [session setCategory: AVAudioSessionCategoryPlayback error: nil];
+  } else if ([categoryName isEqual: @"Record"]) {
+    [session setCategory: AVAudioSessionCategoryRecord error: nil];
+  } else if ([categoryName isEqual: @"PlayAndRecord"]) {
+    [session setCategory: AVAudioSessionCategoryPlayAndRecord error: nil];
+  } else if ([categoryName isEqual: @"AudioProcessing"]) {
+    [session setCategory: AVAudioSessionCategoryAudioProcessing error: nil];
+  } else if ([categoryName isEqual: @"MultiRoute"]) {
+    [session setCategory: AVAudioSessionCategoryMultiRoute error: nil];
+  }
+}
+
 RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
   [session setCategory: AVAudioSessionCategoryPlayback error: nil];
