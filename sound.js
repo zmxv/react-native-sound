@@ -2,7 +2,7 @@
 
 var RNSound = require('react-native').NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
-
+var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
 var nextKey = 0;
 
 function isRelativePath(path) {
@@ -10,10 +10,16 @@ function isRelativePath(path) {
 }
 
 function Sound(filename, basePath, onError) {
-  this._filename = basePath ? basePath + '/' + filename : filename;
+  var asset = resolveAssetSource(filename);
+  if (asset) {
+    this._filename = asset.uri;
+    onError = basePath;
+  } else {
+    this._filename = basePath ? basePath + '/' + filename : filename;
 
-  if (IsAndroid && !basePath && isRelativePath(filename)) {
-    this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+    if (IsAndroid && !basePath && isRelativePath(filename)) {
+      this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+    }
   }
 
   this._loaded = false;
