@@ -228,6 +228,14 @@ Return the loop count of the audio player. The default is `0` which means to pla
 
 More info about each category can be found in https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVAudioSession_ClassReference/#//apple_ref/doc/constant_group/Audio_Session_Categories
 
+To play sound in the background, make sure to add the following to the `Info.plist` file.
+```
+<key>UIBackgroundModes</key>
+<array>
+  <string>audio</string>
+</array>
+```
+
 ### `enableInSilenceMode(enabled)`
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).
 
