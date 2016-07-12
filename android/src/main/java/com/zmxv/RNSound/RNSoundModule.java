@@ -41,6 +41,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       callback.invoke(e);
       return;
     }
+    try {
+      player.prepare();
+    } catch (Exception e) {
+    }
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);
@@ -100,11 +104,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   public void stop(final Integer key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
-      player.stop();
-      try {
-        player.prepare();
-      } catch (Exception e) {
-      }
+      player.pause();
+      player.seekTo(0);
     }
   }
 
