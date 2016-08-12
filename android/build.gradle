@@ -1,3 +1,13 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:1.1.3'
+  }
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -6,15 +16,19 @@ android {
 
   defaultConfig {
     minSdkVersion 16
-    targetSdkVersion 23
+    targetSdkVersion 22
     versionCode 1
     versionName "1.0"
-    ndk {
-      abiFilters "armeabi-v7a", "x86"
-    }
+  }
+  lintOptions {
+    abortOnError false
   }
 }
 
+repositories {
+  mavenCentral()
+}
+
 dependencies {
-  compile 'com.facebook.react:react-native:0.12.+'
+  compile "com.facebook.react:react-native:+"
 }

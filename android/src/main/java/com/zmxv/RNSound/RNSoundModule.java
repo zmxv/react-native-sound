@@ -1,13 +1,16 @@
 package com.zmxv.RNSound;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 
+import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
@@ -17,18 +20,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
-  Map<Integer, MediaPlayer> playerPool = new HashMap<>();
-  ReactApplicationContext context;
-  final static Object NULL = null;
 
-  public RNSoundModule(ReactApplicationContext context) {
-    super(context);
-    this.context = context;
-  }
+  private static final Map<Integer, MediaPlayer> playerPool = new HashMap<>();
+
+  private static final Object NULL = null;
+
+  public static final String REACT_CLASS = "RNSound";
 
   @Override
   public String getName() {
-    return "RNSound";
+    return REACT_CLASS;
+  }
+
+  public RNSoundModule(ReactApplicationContext reactContext) {
+    super(reactContext);
   }
 
   @ReactMethod
@@ -41,10 +46,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       callback.invoke(e);
       return;
     }
-    try {
-      player.prepare();
-    } catch (Exception e) {
-    }
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);
@@ -52,14 +53,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
-    int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
+    Context context = getReactApplicationContext();
+
+    int res = context.getResources().getIdentifier(fileName, "raw", context.getPackageName());
     if (res != 0) {
-      return MediaPlayer.create(this.context, res);
+      return MediaPlayer.create(context, res);
     }
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
-      return MediaPlayer.create(this.context, uri);
+      return MediaPlayer.create(context, uri);
     }
     return null;
   }
