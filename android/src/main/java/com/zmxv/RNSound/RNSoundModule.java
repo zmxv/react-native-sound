@@ -12,6 +12,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 
+import com.android.vending.expansion.zipfile.APKExpansionSupport;
+import com.android.vending.expansion.zipfile.ZipResourceFile;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,14 +55,41 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
-    int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
-    if (res != 0) {
-      return MediaPlayer.create(this.context, res);
-    }
-    File file = new File(fileName);
-    if (file.exists()) {
-      Uri uri = Uri.fromFile(file);
-      return MediaPlayer.create(this.context, uri);
+    if(fileName.startsWith('exp://')) {
+      String[] path = fileName.split("//");
+      int expVer = Integer.parseInt(path[1]);
+      int expPatchVer = Integer.parseInt(path[2]);
+      String uri = path[3];
+      ZipResourceFile expansionFile = null;
+      AssetFileDescriptor fd = null;
+      MediaPlayer mPlayer = new MediaPlayer();
+      if(expVer>0) {
+          try {
+              expansionFile = APKExpansionSupport.getAPKExpansionZipFile(this.context, expVer, expPatchVer);
+              fd = expansionFile.getAssetFileDescriptor(uri;
+          } catch (IOException e) {
+              e.printStackTrace();
+          } catch (NullPointerException e) {
+              e.printStackTrace();
+          }
+      }
+      if(fd!=null) {
+          mPlayer.
+          mPlayer.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(),fd.getLength());
+          mPlayer.prepare()
+          fd.close(();
+        return mPlayer;
+      }
+    } else {
+      int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
+      if (res != 0) {
+        return MediaPlayer.create(this.context, res);
+      }
+      File file = new File(fileName);
+      if (file.exists()) {
+        Uri uri = Uri.fromFile(file);
+        return MediaPlayer.create(this.context, uri);
+      }
     }
     return null;
   }
