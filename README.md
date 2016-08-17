@@ -127,6 +127,9 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
         'number of channels: ' + whoosh.getNumberOfChannels());
   }
 });
+// For use zip expansion file
+// new Sound('exp://mainVersion//PatchVersion//whoosh.mp3','', (error) => {
+
 
 // Play the sound with an onEnd callback
 whoosh.play((success) => {
