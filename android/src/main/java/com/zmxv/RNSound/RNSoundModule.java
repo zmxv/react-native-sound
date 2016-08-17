@@ -4,6 +4,8 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
+import android.content.res.AssetFileDescriptor;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -18,6 +20,8 @@ import com.android.vending.expansion.zipfile.ZipResourceFile;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
+import java.util.Arrays;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
   Map<Integer, MediaPlayer> playerPool = new HashMap<>();
@@ -55,7 +59,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
-    if(fileName.startsWith('exp://')) {
+    if(fileName.startsWith("exp://")) {
       String[] path = fileName.split("//");
       int expVer = Integer.parseInt(path[1]);
       int expPatchVer = Integer.parseInt(path[2]);
@@ -66,18 +70,23 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       if(expVer>0) {
           try {
               expansionFile = APKExpansionSupport.getAPKExpansionZipFile(this.context, expVer, expPatchVer);
-              fd = expansionFile.getAssetFileDescriptor(uri;
+              fd = expansionFile.getAssetFileDescriptor(uri);
           } catch (IOException e) {
-              e.printStackTrace();
+              e.getStackTrace();
           } catch (NullPointerException e) {
-              e.printStackTrace();
+              e.getStackTrace();
           }
       }
       if(fd!=null) {
-          mPlayer.
+        try {
           mPlayer.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(),fd.getLength());
-          mPlayer.prepare()
-          fd.close(();
+          mPlayer.prepare();
+          fd.close();
+        } catch (IOException e) {
+            e.getStackTrace();
+        } catch (NullPointerException e) {
+            e.getStackTrace();
+        }
         return mPlayer;
       }
     } else {
@@ -194,3 +203,4 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     return constants;
   }
 }
+
