@@ -10,15 +10,18 @@ function isRelativePath(path) {
 }
 
 function Sound(filename, basePath, onError) {
-  var asset = resolveAssetSource(filename);
-  if (asset) {
-    this._filename = asset.uri;
-    onError = basePath;
-  } else {
-    this._filename = basePath ? basePath + '/' + filename : filename;
-
-    if (IsAndroid && !basePath && isRelativePath(filename)) {
-      this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+  this._filename = filename;
+  if(!filename.startsWith('exp://')) {
+    var asset = resolveAssetSource(filename);
+    if (asset) {
+      this._filename = asset.uri;
+      onError = basePath;
+    } else {
+      this._filename = basePath ? basePath + '/' + filename : filename;
+  
+      if (IsAndroid && !basePath && isRelativePath(filename)) {
+        this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+      }
     }
   }
 
