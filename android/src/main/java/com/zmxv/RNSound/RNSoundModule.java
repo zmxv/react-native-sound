@@ -11,6 +11,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 
@@ -23,13 +24,15 @@ import java.util.Map;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class RNSoundModule extends ReactContextBaseJavaModule {
+public class RNSoundModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
   Map<Integer, MediaPlayer> playerPool = new HashMap<>();
   ReactApplicationContext context;
   final static Object NULL = null;
+  private static final String TAG = "RNSoundModule";
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
+    context.addLifecycleEventListener(this);
     this.context = context;
   }
 
@@ -72,8 +75,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
               expansionFile = APKExpansionSupport.getAPKExpansionZipFile(this.context, expVer, expPatchVer);
               fd = expansionFile.getAssetFileDescriptor(uri);
           } catch (IOException e) {
+              Log.e(TAG, Arrays.toString(e.getStackTrace()));
               e.getStackTrace();
           } catch (NullPointerException e) {
+              Log.e(TAG, Arrays.toString(e.getStackTrace()));
               e.getStackTrace();
           }
       }
@@ -81,11 +86,18 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         try {
           mPlayer.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(),fd.getLength());
           mPlayer.prepare();
-          fd.close();
         } catch (IOException e) {
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
             e.getStackTrace();
         } catch (NullPointerException e) {
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
             e.getStackTrace();
+        }
+        try {
+          fd.close();
+        } catch (IOException e) {
+          Log.e(TAG, Arrays.toString(e.getStackTrace()));
+          e.getStackTrace();
         }
         return mPlayer;
       }
@@ -202,5 +214,15 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     constants.put("IsAndroid", true);
     return constants;
   }
+
+  public void onHostDestroy() {
+      for (Map.Entry<Integer, MediaPlayer> entry : this.playerPool.entrySet()) {
+        release(entry.getKey());
+      }
+  }
+
+  public void onHostPause() {}
+
+  public void onHostResume() {}
 }
 
