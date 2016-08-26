@@ -29,6 +29,7 @@ function Sound(filename, basePath, onError) {
   this._volume = 1;
   this._pan = 0;
   this._numberOfLoops = 0;
+  this._speed = 1;
   RNSound.prepare(this._filename, this._key, (error, props) => {
     if (props) {
       if (typeof props.duration === 'number') {
@@ -123,6 +124,16 @@ Sound.prototype.setNumberOfLoops = function(value) {
       RNSound.setLooping(this._key, !!value);
     } else {
       RNSound.setNumberOfLoops(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setSpeed = function(value) {
+  this._setSpeed = value;
+  if (this._loaded) {
+    if (!IsAndroid) {
+      RNSound.setSpeed(this._key, value);
     }
   }
   return this;

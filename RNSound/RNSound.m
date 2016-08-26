@@ -97,6 +97,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
                            error:&error];
   if (player) {
     player.delegate = self;
+    player.enableRate = YES;
     [player prepareToPlay];
     [[self playerPool] setObject:player forKey:key];
     callback(@[[NSNull null], @{@"duration": @(player.duration),
@@ -158,6 +159,14 @@ RCT_EXPORT_METHOD(setNumberOfLoops:(nonnull NSNumber*)key withValue:(nonnull NSN
     player.numberOfLoops = [value intValue];
   }
 }
+
+RCT_EXPORT_METHOD(setSpeed:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    player.rate = [value floatValue];
+  }
+}
+
 
 RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
   AVAudioPlayer* player = [self playerForKey:key];

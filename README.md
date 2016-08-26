@@ -239,6 +239,9 @@ To play sound in the background, make sure to add the following to the `Info.pli
 ### `enableInSilenceMode(enabled)`
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).
 
+### `setSpeed(value)`
+`value` {number} Speed of the audio playback (iOS Only).
+
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
