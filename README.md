@@ -21,6 +21,7 @@ Get/set volume | ✓ | ✓
 Get/set pan | ✓ |
 Get/set loops | ✓ | ✓
 Get/set current time | ✓ | ✓
+Set speed | ✓ |
 
 ## Installation
 
