@@ -21,7 +21,7 @@ function Sound(filename, basePath, onError) {
       this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
     }
   }
-
+  this._events = {}
   this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;
@@ -40,11 +40,16 @@ function Sound(filename, basePath, onError) {
     }
     if (error === null) {
       this._loaded = true;
+      if(this._events.loaded) this._events.loaded()
     }
     onError && onError(error);
   });
 }
 
+Sound.prototype.on = function(str, func){
+  if(this._events[str]) return;
+  else this._events[str] = func;
+}
 Sound.prototype.isLoaded = function() {
   return this._loaded;
 };
