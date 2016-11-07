@@ -77,6 +77,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     player.setOnCompletionListener(new OnCompletionListener() {
       @Override
       public void onCompletion(MediaPlayer mp) {
+        mp.release();
         if (!mp.isLooping()) {
           callback.invoke(true);
         }
@@ -85,6 +86,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     player.setOnErrorListener(new OnErrorListener() {
       @Override
       public boolean onError(MediaPlayer mp, int what, int extra) {
+        mp.release();
         callback.invoke(false);
         return true;
       }
