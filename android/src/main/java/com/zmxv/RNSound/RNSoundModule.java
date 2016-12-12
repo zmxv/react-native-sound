@@ -167,7 +167,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * Ensure any audios that are playing when app exits are stopped are released
+   * Ensure any audios that are playing when app exits are stopped and released
    */
   @Override
   public void onCatalystInstanceDestroy() {
@@ -181,6 +181,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       }
       try {
         mp.setOnCompletionListener(null);
+        mp.setOnPreparedListener(null);
+        mp.setOnErrorListener(null);
         if (mp.isPlaying()) {
           mp.stop();
         }
