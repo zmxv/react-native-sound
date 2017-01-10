@@ -223,10 +223,12 @@ Return the loop count of the audio player. The default is `0` which means to pla
 ### `setCurrentTime(value)`
 `value` {number} Seek to a particular playback point in seconds.
 
-### `setCategory(value) (iOS only)`
+### `setCategory(value, mixWithOthers) (iOS only)`
 `value` {string} Sets AVAudioSession category, which allows playing sound in background, stop sound playback when phone is locked, etc. Parameter options: "Ambient", "SoloAmbient", "Playback", "Record", "PlayAndRecord", "AudioProcessing", "MultiRoute".
 
 More info about each category can be found in https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVAudioSession_ClassReference/#//apple_ref/doc/constant_group/Audio_Session_Categories
+
+`mixWithOthers` {boolean} can be set to true to force mixing with other audio sessions.
 
 To play sound in the background, make sure to add the following to the `Info.plist` file.
 ```
