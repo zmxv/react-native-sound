@@ -1,4 +1,4 @@
-#import "RCTBridgeModule.h"
+#import <React/RCTBridgeModule.h>
 #import <AVFoundation/AVFoundation.h>
 
 @interface RNSound : NSObject <RCTBridgeModule, AVAudioPlayerDelegate>
