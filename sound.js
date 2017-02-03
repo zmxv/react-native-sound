@@ -22,6 +22,10 @@ function Sound(filename, basePath, onError) {
     }
   }
 
+  if (!IsAndroid) {
+    Sound.enable(true);
+  }
+
   this._loaded = false;
   this._key = nextKey++;
   this._duration = -1;
@@ -155,10 +159,6 @@ Sound.enableInSilenceMode = function(enabled) {
     RNSound.enableInSilenceMode(enabled);
   }
 };
-
-if (!IsAndroid) {
-  Sound.enable(true);
-}
 
 Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
 Sound.DOCUMENT = RNSound.NSDocumentDirectory;
