@@ -67,14 +67,14 @@ dependencies {
 }
 ```
 
-Edit `android/app/src/main/java/.../MainActivity.java` to register the native module:
+Edit `android/app/src/main/java/.../MainApplication.java` to register the native module:
 
 ```java
 ...
 import com.zmxv.RNSound.RNSoundPackage; // <-- New
 ...
 
-public class MainActivity extends ReactActivity {
+public class MainApplication extends Application implements ReactApplication {
   ...
   @Override
   protected List<ReactPackage> getPackages() {
