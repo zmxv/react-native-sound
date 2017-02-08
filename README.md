@@ -68,6 +68,7 @@ dependencies {
 ```
 
 Edit `android/app/src/main/java/.../MainActivity.java` to register the native module:
+If you are using React Native v0.29+ then edit `android/app/src/main/java/.../MainApplication.java`
 
 ```java
 ...
