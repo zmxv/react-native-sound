@@ -1,5 +1,10 @@
 #import "RNSound.h"
-#import "RCTUtils.h"
+
+#if __has_include("RCTUtils.h")
+    #import "RCTUtils.h"
+#else
+    #import <React/RCTUtils.h>
+#endif
 
 @implementation RNSound {
   NSMutableDictionary* _playerPool;
