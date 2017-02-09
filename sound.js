@@ -153,9 +153,12 @@ Sound.prototype.setCurrentTime = function(value) {
 };
 
 // ios only
+
+// This is deprecated.  Call the static one instead.
+
 Sound.prototype.setCategory = function(value) {
-  RNSound.setCategory(this._key, value);
-};
+  Sound.setCategory(value, false);
+}
 
 Sound.enable = function(enabled) {
   RNSound.enable(enabled);
@@ -167,9 +170,11 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
-if (!IsAndroid) {
-  Sound.enable(true);
-}
+Sound.setCategory = function(value, mixWithOthers) {
+  if (!IsAndroid) {
+    RNSound.setCategory(value, mixWithOthers);
+  }
+};
 
 Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
 Sound.DOCUMENT = RNSound.NSDocumentDirectory;
