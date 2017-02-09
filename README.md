@@ -31,7 +31,15 @@ First install the npm package from your app directory:
 npm install react-native-sound --save
 ```
 
-### Installation on iOS
+Then link it automatically using:
+
+```javascript
+react-native link react-native-sound
+```
+
+### Manual Installation on iOS
+
+This is not necessary if you have used `react-native link`
 
 In XCode, right click **Libraries**.
 Click **Add Files to "[Your project]"**.
@@ -51,19 +59,21 @@ Drag and drop sound files into *Project Navigator* to add them to the project.  
 
 Run your project (⌘+R).
 
-### Installation on Android
+### Manual Installation on Android
+
+This is not necessary if you have used `react-native link`
 
 Edit `android/settings.gradle` to declare the project directory:
 ```
-include ':RNSound', ':app'
-project(':RNSound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
+include ':react-native-sound'
+project(':react-native-sound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
 ```
 
 Edit `android/app/build.gradle` to declare the project dependency:
 ```
 dependencies {
   ...
-  compile project(':RNSound')
+  compile project(':react-native-sound')
 }
 ```
 
@@ -85,7 +95,7 @@ public class MainApplication extends Application implements ReactApplication {
   }
 ```
 
-For older `MainActivity.java` templates, edit as follows:
+For older versions of React Native you need to edit `MainActivity.java` instead:
 
 ```java
 ...
@@ -106,13 +116,16 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
   }
 ```
 
-Save your sound clip files under the directory `android/app/src/main/res/raw`, or any other directory in which case you need to pass the full path into the Sound constructor.
-
 ## Demo project
 
 https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
+
+First you'll need to audio files to your project.
+
+- Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
+- iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)
 
 ```js
 // Import the react-native-sound module
