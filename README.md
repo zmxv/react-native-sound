@@ -31,7 +31,15 @@ First install the npm package from your app directory:
 npm install react-native-sound --save
 ```
 
-### Installation on iOS
+Then link it automatically using:
+
+```javascript
+react-native link react-native-sound
+```
+
+### Manual Installation on iOS
+
+This is not necessary if you have used `react-native link`
 
 In XCode, right click **Libraries**.
 Click **Add Files to "[Your project]"**.
@@ -51,19 +59,21 @@ Drag and drop sound files into *Project Navigator* to add them to the project.  
 
 Run your project (⌘+R).
 
-### Installation on Android
+### Manual Installation on Android
+
+This is not necessary if you have used `react-native link`
 
 Edit `android/settings.gradle` to declare the project directory:
 ```
-include ':RNSound', ':app'
-project(':RNSound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
+include ':react-native-sound'
+project(':react-native-sound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
 ```
 
 Edit `android/app/build.gradle` to declare the project dependency:
 ```
 dependencies {
   ...
-  compile project(':RNSound')
+  compile project(':react-native-sound')
 }
 ```
 
@@ -85,7 +95,7 @@ public class MainApplication extends Application implements ReactApplication {
   }
 ```
 
-For older `MainActivity.java` templates, edit as follows:
+For older versions of React Native you need to edit `MainActivity.java` instead:
 
 ```java
 ...
@@ -106,27 +116,33 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
   }
 ```
 
-Save your sound clip files under the directory `android/app/src/main/res/raw`, or any other directory in which case you need to pass the full path into the Sound constructor.
-
 ## Demo project
 
 https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
 
+First you'll need to audio files to your project.
+
+- Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
+- iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)
+
 ```js
 // Import the react-native-sound module
 var Sound = require('react-native-sound');
+
+// Enable playback in silence mode (iOS only)
+Sound.setCategory('Playback');
 
 // Load the sound file 'whoosh.mp3' from the app bundle
 // See notes below about preloading sounds within initialization code below.
 var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
-  } else { // loaded successfully
-    console.log('duration in seconds: ' + whoosh.getDuration() +
-        'number of channels: ' + whoosh.getNumberOfChannels());
-  }
+    return;
+  } 
+  // loaded successfully
+  console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
 });
 
 // Play the sound with an onEnd callback
@@ -151,9 +167,6 @@ whoosh.setNumberOfLoops(-1);
 console.log('volume: ' + whoosh.getVolume());
 console.log('pan: ' + whoosh.getPan());
 console.log('loops: ' + whoosh.getNumberOfLoops());
-
-// Enable playback in silence mode (iOS only)
-// Sound.enableInSilenceMode(true);
 
 // Seek to a specific point in seconds
 whoosh.setCurrentTime(2.5);
@@ -224,7 +237,22 @@ Return the loop count of the audio player. The default is `0` which means to pla
 ### `setCurrentTime(value)`
 `value` {number} Seek to a particular playback point in seconds.
 
-### `setCategory(value, mixWithOthers) (iOS only)`
+### `setSpeed(value)`
+`value` {number} Speed of the audio playback (iOS Only).
+
+### `enableInSilenceMode(enabled)` (deprecated)
+`enabled` {boolean} Whether to enable playback in silence mode (iOS only).
+
+Use the static method `Sound.setCategory('Playback')` instead which has the same effect.
+
+### `setCategory(value)` (deprecated)
+
+Deprecated. Use the static method `Sound.setCategory` instead.
+
+## Static Methods
+
+### `Sound.setCategory(value, mixWithOthers) (iOS only)`
+
 `value` {string} Sets AVAudioSession category, which allows playing sound in background, stop sound playback when phone is locked, etc. Parameter options: "Ambient", "SoloAmbient", "Playback", "Record", "PlayAndRecord", "AudioProcessing", "MultiRoute".
 
 More info about each category can be found in https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVAudioSession_ClassReference/#//apple_ref/doc/constant_group/Audio_Session_Categories
@@ -238,12 +266,6 @@ To play sound in the background, make sure to add the following to the `Info.pli
   <string>audio</string>
 </array>
 ```
-
-### `enableInSilenceMode(enabled)`
-`enabled` {boolean} Whether to enable playback in silence mode (iOS only).
-
-### `setSpeed(value)`
-`value` {number} Speed of the audio playback (iOS Only).
 
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
