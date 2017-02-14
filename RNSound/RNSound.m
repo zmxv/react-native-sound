@@ -108,9 +108,22 @@ RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
 RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
                   withCallback:(RCTResponseSenderBlock)callback) {
   NSError* error;
-  AVAudioPlayer* player = [[AVAudioPlayer alloc]
-                           initWithContentsOfURL:[NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]]
-                           error:&error];
+  NSURL* fileNameUrl;
+  AVAudioPlayer* player;
+  
+  if ([fileName hasPrefix:@"http"]) {
+    fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
+  }
+  else {
+    fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
+  }
+    
+  if (fileNameUrl) {
+    player = [[AVAudioPlayer alloc]
+              initWithData:[[NSData alloc] initWithContentsOfURL:fileNameUrl]
+              error:&error];
+  }
+    
   if (player) {
     player.delegate = self;
     player.enableRate = YES;
