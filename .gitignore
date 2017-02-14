@@ -22,4 +22,5 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-
+# Jetbrains
+.idea
