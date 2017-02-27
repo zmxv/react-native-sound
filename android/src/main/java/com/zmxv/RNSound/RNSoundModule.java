@@ -3,6 +3,7 @@ package com.zmxv.RNSound;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
+import android.media.AudioManager;
 import android.net.Uri;
 
 import com.facebook.react.bridge.Arguments;
@@ -150,6 +151,21 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return;
     }
     callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
+  }
+
+  @ReactMethod
+  public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+      AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
+      audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+      if (speaker == true) {
+        audioManager.setSpeakerphoneOn(true);
+      } else { 
+        audioManager.setSpeakerphoneOn(false);
+      }
+    }
   }
 
   @ReactMethod

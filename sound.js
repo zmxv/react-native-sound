@@ -152,6 +152,13 @@ Sound.prototype.setCurrentTime = function(value) {
   return this;
 };
 
+// android only
+Sound.prototype.setSpeakerphoneOn = function(value) {
+  if (IsAndroid) {
+    RNSound.setSpeakerphoneOn(this._key, value);
+  }
+};
+
 // ios only
 
 // This is deprecated.  Call the static one instead.
