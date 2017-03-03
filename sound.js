@@ -54,7 +54,6 @@ Sound.prototype.play = function(onEnd) {
   if (this._loaded) {
     RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
   } else {
-    console.warn('Tried to play sound that was not yet loaded.');
     onEnd && onEnd(false);
   }
   return this;
