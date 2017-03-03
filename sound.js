@@ -170,7 +170,7 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers) {
+Sound.setCategory = function(value, mixWithOthers = false) {
   if (!IsAndroid) {
     RNSound.setCategory(value, mixWithOthers);
   }
