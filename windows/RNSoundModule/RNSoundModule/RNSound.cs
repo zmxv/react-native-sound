@@ -1,0 +1,271 @@
+﻿using ReactNative.Bridge;
+using ReactNative.Collections;
+using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
+using Windows.UI.Popups;
+using Windows.Media.Capture;
+using Windows.Media.MediaProperties;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Controls;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.IO;
+using ReactNative.Modules.Core;
+using System.Threading;
+using Newtonsoft.Json.Linq;
+using Windows.UI.Xaml;
+using System.Windows;
+using Windows.UI.Xaml.Media;
+using Windows.Media.Playback;
+using Windows.Media.Core;
+
+namespace RNSoundModule
+{
+    public class RNSound : ReactContextNativeModuleBase
+    {
+        private const String IsWindows = "IsWindows";
+
+        private ReactContext context;
+
+        Dictionary<int, MediaPlayer> playerPool = new Dictionary<int, MediaPlayer>();
+        static Object NULL = null;
+
+
+
+        public RNSound(ReactContext reactContext)
+            : base(reactContext)
+        {
+            context = reactContext;
+        }
+        public override string Name
+        {
+            get
+            {
+                return "RNSound";
+            }
+        }
+        public override void Initialize()
+        {
+        }
+
+        public override IReadOnlyDictionary<string, object> Constants
+        {
+            get
+            {
+                return new Dictionary<string, object>
+                {
+                    { IsWindows, true },
+                };
+            }
+        }
+
+
+        [ReactMethod]
+        public async void prepare(String fileName, int key, ICallback callback)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                MediaPlayer player = await createMediaPlayer(fileName);
+                player.MediaOpened +=
+                    delegate
+                    {
+                        JObject props = new JObject();
+                        props.Add("duration", player.PlaybackSession.NaturalDuration.TotalMilliseconds * .001);
+                        callback.Invoke(NULL, props);
+                    };
+                player.AutoPlay = false;
+                if (player == null)
+                {
+                    JObject e = new JObject();
+
+                    e.Add("code", -1);
+                    e.Add("message", "resource not found");
+                    callback.Invoke(e);
+                    return;
+                }
+
+                this.playerPool.Add(key, player);
+                
+                
+            });
+
+
+
+
+        }
+        protected async Task<MediaPlayer> createMediaPlayer(String fileName)
+        {
+            MediaPlayer song = new MediaPlayer();
+            StorageFile file = null;
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                async () =>
+                {
+                    StorageFolder folder = ApplicationData.Current.LocalFolder;
+
+                    try
+                    {
+                        file = await folder.GetFileAsync(fileName);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Fail(e.Message);
+                    }
+                    if (file != null)
+                    {
+                        var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+
+                        var mediaSource = MediaSource.CreateFromStorageFile(file);
+                        song.Source = mediaSource;
+                    }
+                }).AsTask();
+
+
+
+
+            return song;
+
+        }
+
+        [ReactMethod]
+        public void play(int key, ICallback callback)
+        {
+            MediaPlayer player = null;
+            Debug.WriteLine("play()");
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                Debug.WriteLine("Player is null");
+                callback.Invoke(false);
+                return;
+            }
+
+            if (player == null)
+            {
+                Debug.WriteLine("Player is null");
+                callback.Invoke(false);
+                return;
+            }
+            if (player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing)
+            {
+                Debug.WriteLine("Already playing...");
+                return;
+            }
+
+            player.MediaEnded += 
+                delegate
+                {
+                    Debug.WriteLine("Media Ended");
+                    callback.Invoke(true);
+                };
+
+            player.Play();
+        }
+
+        [ReactMethod]
+        public void pause(int key)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+            if (player != null && player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing)
+            {
+                player.Pause();
+            }
+        }
+
+        [ReactMethod]
+        public void stop(int key)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+
+            player.Pause();
+            player.PlaybackSession.Position = new TimeSpan(0);
+        }
+
+        [ReactMethod]
+        public void release(int key)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+
+            player.Source = null;
+            playerPool.Remove(key);
+        }
+
+        [ReactMethod]
+        public void setVolume(int key, float volume)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+
+            player.Volume = volume;
+
+
+        }
+
+        [ReactMethod]
+        public void setLooping(int key, bool looping)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+
+            player.IsLoopingEnabled = looping;
+
+        }
+
+        [ReactMethod]
+        public void setCurrentTime(int key, float seconds)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+
+            player.PlaybackSession.Position = new TimeSpan(0, 0, 0, 0, (int)seconds * 1000);
+
+        }
+
+        [ReactMethod]
+        public void getCurrentTime(int key, ICallback callback)
+        {
+            MediaPlayer player = null;
+
+            if (!playerPool.TryGetValue(key, out player))
+            {
+                return;
+            }
+            callback.Invoke(player.PlaybackSession.Position.Milliseconds * .001, player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing);
+        }
+
+        [ReactMethod]
+        public void enable(bool enabled)
+        {
+            // no op
+        }
+    }
+}
