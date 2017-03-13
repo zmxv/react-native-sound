@@ -2,6 +2,7 @@
 
 var RNSound = require('react-native').NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
+var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
 var nextKey = 0;
 
@@ -95,7 +96,7 @@ Sound.prototype.getVolume = function() {
 Sound.prototype.setVolume = function(value) {
   this._volume = value;
   if (this._loaded) {
-    if (IsAndroid) {
+    if (IsAndroid || IsWindows) {
       RNSound.setVolume(this._key, value, value);
     } else {
       RNSound.setVolume(this._key, value);
@@ -122,7 +123,7 @@ Sound.prototype.getNumberOfLoops = function() {
 Sound.prototype.setNumberOfLoops = function(value) {
   this._numberOfLoops = value;
   if (this._loaded) {
-    if (IsAndroid) {
+    if (IsAndroid || IsWindows) {
       RNSound.setLooping(this._key, !!value);
     } else {
       RNSound.setNumberOfLoops(this._key, value);
@@ -134,7 +135,7 @@ Sound.prototype.setNumberOfLoops = function(value) {
 Sound.prototype.setSpeed = function(value) {
   this._setSpeed = value;
   if (this._loaded) {
-    if (!IsAndroid) {
+    if (!IsAndroid && !IsWindows) {
       RNSound.setSpeed(this._key, value);
     }
   }
@@ -167,13 +168,13 @@ Sound.enable = function(enabled) {
 };
 
 Sound.enableInSilenceMode = function(enabled) {
-  if (!IsAndroid) {
+  if (!IsAndroid && !IsWindows) {
     RNSound.enableInSilenceMode(enabled);
   }
 };
 
 Sound.setCategory = function(value, mixWithOthers = false) {
-  if (!IsAndroid) {
+  if (!IsAndroid && !IsWindows) {
     RNSound.setCategory(value, mixWithOthers);
   }
 };

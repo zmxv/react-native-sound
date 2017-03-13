@@ -21,6 +21,7 @@ using System.Windows;
 using Windows.UI.Xaml.Media;
 using Windows.Media.Playback;
 using Windows.Media.Core;
+using System.Text;
 
 namespace RNSoundModule
 {
@@ -88,8 +89,8 @@ namespace RNSoundModule
                 }
 
                 this.playerPool.Add(key, player);
-                
-                
+
+
             });
 
 
@@ -103,16 +104,25 @@ namespace RNSoundModule
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 async () =>
                 {
-                    StorageFolder folder = ApplicationData.Current.LocalFolder;
+                    StorageFolder LocalFolder = ApplicationData.Current.LocalFolder;
+                    StorageFolder InstallationFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
 
                     try
                     {
-                        file = await folder.GetFileAsync(fileName);
+                        file = await InstallationFolder.GetFileAsync(@"Assets\" + fileName);
                     }
-                    catch (Exception e)
+                    catch (Exception e) { }
+
+                    if (file == null)
                     {
-                        Debug.Fail(e.Message);
+                        try
+                        {
+                            file = await LocalFolder.GetFileAsync(fileName);
+                        }
+                        catch (Exception e) { }
+
                     }
+
                     if (file != null)
                     {
                         var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
@@ -148,13 +158,13 @@ namespace RNSoundModule
                 callback.Invoke(false);
                 return;
             }
-            if (player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing)
+            if (player.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
             {
                 Debug.WriteLine("Already playing...");
                 return;
             }
 
-            player.MediaEnded += 
+            player.MediaEnded +=
                 delegate
                 {
                     Debug.WriteLine("Media Ended");
@@ -173,7 +183,7 @@ namespace RNSoundModule
             {
                 return;
             }
-            if (player != null && player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing)
+            if (player != null && player.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
             {
                 player.Pause();
             }
@@ -259,7 +269,7 @@ namespace RNSoundModule
             {
                 return;
             }
-            callback.Invoke(player.PlaybackSession.Position.Milliseconds * .001, player.PlaybackSession.PlaybackState== MediaPlaybackState.Playing);
+            callback.Invoke(player.PlaybackSession.Position.Milliseconds * .001, player.PlaybackSession.PlaybackState == MediaPlaybackState.Playing);
         }
 
         [ReactMethod]
