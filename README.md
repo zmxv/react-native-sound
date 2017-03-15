@@ -1,11 +1,11 @@
 # react-native-sound
 
-React Native module for playing sound clips on iOS and Android.
+React Native module for playing sound clips on iOS, Android, and Windows.
 
 ## Feature matrix
 
 Feature | iOS | Android | Windows
----|---|---|---|---
+---|---|---|---
 Load sound from the app bundle | ✓ | ✓ | ✓  
 Load sound from other directories | ✓ | ✓ | ✓
 Load sound from the network | ✓ |   |
