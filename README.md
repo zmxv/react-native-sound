@@ -4,24 +4,24 @@ React Native module for playing sound clips on iOS and Android.
 
 ## Feature matrix
 
-Feature | iOS | Android
----|---|---|---
-Load sound from the app bundle | ✓ | ✓
-Load sound from other directories | ✓ | ✓
-Load sound from the network | ✓ |
-Play sound | ✓ | ✓
-Playback completion callback | ✓ | ✓
-Pause | ✓ | ✓
-Resume | ✓ | ✓
-Stop | ✓ | ✓
-Release resource | ✓ | ✓
-Get duration | ✓ | ✓
-Get number of channels | ✓ |
-Get/set volume | ✓ | ✓
-Get/set pan | ✓ |
-Get/set loops | ✓ | ✓
-Get/set current time | ✓ | ✓
-Set speed | ✓ |
+Feature | iOS | Android | Windows
+---|---|---|---|---
+Load sound from the app bundle | ✓ | ✓ | ✓  
+Load sound from other directories | ✓ | ✓ | ✓
+Load sound from the network | ✓ |   |
+Play sound | ✓ | ✓ | ✓
+Playback completion callback | ✓ | ✓ | ✓
+Pause | ✓ | ✓ | ✓
+Resume | ✓ | ✓ | ✓
+Stop | ✓ | ✓ | ✓
+Release resource | ✓ | ✓ | ✓
+Get duration | ✓ | ✓ | ✓
+Get number of channels | ✓ |   |
+Get/set volume | ✓ | ✓ | ✓
+Get/set pan | ✓ |   |
+Get/set loops | ✓ | ✓ | ✓
+Get/set current time | ✓ | ✓ | ✓
+Set speed | ✓ |   |
 
 ## Installation
 
