@@ -52,6 +52,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
+
+    if (fileName.contains("http://") || fileName.contains("https://")){
+      return MediaPlayer.create(this.context, Uri.parse(fileName));
+    }
+
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     if (res != 0) {
       return MediaPlayer.create(this.context, res);
