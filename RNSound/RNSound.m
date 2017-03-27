@@ -84,9 +84,13 @@ RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
     category = AVAudioSessionCategoryRecord;
   } else if ([categoryName isEqual: @"PlayAndRecord"]) {
     category = AVAudioSessionCategoryPlayAndRecord;
-  } else if ([categoryName isEqual: @"AudioProcessing"]) {
-    category = AVAudioSessionCategoryAudioProcessing;
-  } else if ([categoryName isEqual: @"MultiRoute"]) {
+  } 
+  #if TARGET_OS_IOS
+  else if ([categoryName isEqual: @"AudioProcessing"]) {
+      category = AVAudioSessionCategoryAudioProcessing;
+  }
+  #endif
+    else if ([categoryName isEqual: @"MultiRoute"]) {
     category = AVAudioSessionCategoryMultiRoute;
   }
 
