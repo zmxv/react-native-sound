@@ -271,6 +271,6 @@ To play sound in the background, make sure to add the following to the `Info.pli
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
 - You may reuse a `Sound` instance for multiple playbacks.
-- On iOS, the module wraps `AVAudioPlayer` which supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/ios/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
-- On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at http://developer.android.com/guide/appendix/media-formats.html
+- On iOS, the module wraps `AVAudioPlayer` that supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/CoreAudioOverview/SupportedAudioFormatsMacOSX/SupportedAudioFormatsMacOSX.html
+- On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
