@@ -1,21 +1,23 @@
 package com.zmxv.RNSound;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class RNSoundPackage implements ReactPackage {
 
+  public RNSoundPackage() {}
+
   @Override
-  public List<NativeModule> createNativeModules (ReactApplicationContext context) {
+  public List<NativeModule> createNativeModules (ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
-    modules.add(new RNSoundModule(context));
+    modules.add(new RNSoundModule(reactContext));
     return modules;
   }
 
@@ -25,7 +27,7 @@ public class RNSoundPackage implements ReactPackage {
   }
 
   @Override
-  public List<ViewManager> createViewManagers(ReactApplicationContext context) {
+  public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
     return Collections.emptyList();
   }
 }
