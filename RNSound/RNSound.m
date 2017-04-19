@@ -45,9 +45,11 @@
                        successfully:(BOOL)flag {
   NSNumber* key = [self keyForPlayer:player];
   if (key != nil) {
-    RCTResponseSenderBlock callback = [self callbackForKey:key];
-    if (callback) {
-      callback(@[@(flag)]);
+    @synchronized(key) {
+      RCTResponseSenderBlock callback = [self callbackForKey:key];
+      if (callback) {
+        callback(@[@(flag)]);
+      }
     }
   }
 }
