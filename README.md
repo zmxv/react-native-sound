@@ -8,7 +8,7 @@ Feature | iOS | Android | Windows
 ---|---|---|---
 Load sound from the app bundle | ✓ | ✓ | ✓  
 Load sound from other directories | ✓ | ✓ | ✓
-Load sound from the network | ✓ |   |
+Load sound from the network | ✓ | ✓ |
 Play sound | ✓ | ✓ | ✓
 Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
