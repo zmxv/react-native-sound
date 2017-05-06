@@ -98,16 +98,24 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return;
     }
     player.setOnCompletionListener(new OnCompletionListener() {
+      boolean callbackWasCalled = false;
+
       @Override
       public synchronized void onCompletion(MediaPlayer mp) {
         if (!mp.isLooping()) {
+          if (callbackWasCalled) return;
+          callbackWasCalled = true;
           callback.invoke(true);
         }
       }
     });
     player.setOnErrorListener(new OnErrorListener() {
+      boolean callbackWasCalled = false;
+
       @Override
       public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+        if (callbackWasCalled) return true;
+        callbackWasCalled = true;
         callback.invoke(false);
         return true;
       }
