@@ -44,12 +44,13 @@
 -(void) audioPlayerDidFinishPlaying:(AVAudioPlayer*)player
                        successfully:(BOOL)flag {
   NSNumber* key = [self keyForPlayer:player];
-  if (key != nil) {
-    @synchronized(key) {
-      RCTResponseSenderBlock callback = [self callbackForKey:key];
-      if (callback) {
-        callback(@[@(flag)]);
-      }
+  if (key == nil) return;
+
+  @synchronized(key) {
+    RCTResponseSenderBlock callback = [self callbackForKey:key];
+    if (callback) {
+      callback(@[@(flag)]);
+      [[self callbackPool] removeObjectForKey:key];
     }
   }
 }
