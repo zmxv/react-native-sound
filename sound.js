@@ -135,7 +135,7 @@ Sound.prototype.setNumberOfLoops = function(value) {
 Sound.prototype.setSpeed = function(value) {
   this._setSpeed = value;
   if (this._loaded) {
-    if (!IsAndroid && !IsWindows) {
+    if (!IsWindows) {
       RNSound.setSpeed(this._key, value);
     }
   }

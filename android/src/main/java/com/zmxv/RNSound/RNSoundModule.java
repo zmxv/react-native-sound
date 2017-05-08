@@ -44,17 +44,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       callback.invoke(e);
       return;
     }
-    try {
-      player.prepare();
-    } catch (Exception exception) {
-              Log.e("RNSoundModule", "Exception", exception);
-
-       WritableMap e = Arguments.createMap();
-        e.putInt("code", -1);
-        e.putString("message", exception.getMessage());
-        callback.invoke(e);
-        return;
-    }
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);
@@ -154,6 +143,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setLooping(looping);
+    }
+  }
+
+  @ReactMethod
+  public void setSpeed(final Integer key, final Float speed) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
     }
   }
 
