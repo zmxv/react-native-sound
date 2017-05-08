@@ -142,6 +142,7 @@ namespace RNSoundModule
         [ReactMethod]
         public void play(int key, ICallback callback)
         {
+            Boolean callbackWasCalled = false;
             MediaPlayer player = null;
             Debug.WriteLine("play()");
 
@@ -167,6 +168,8 @@ namespace RNSoundModule
             player.MediaEnded +=
                 delegate
                 {
+                    if (callbackWasCalled) return;
+                    callbackWasCalled = true;
                     Debug.WriteLine("Media Ended");
                     callback.Invoke(true);
                 };
