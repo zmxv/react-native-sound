@@ -149,10 +149,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setSystemVolume(final Integer key, final Integer value) {
+  public void setSystemVolume(final Integer key, final Float value) {
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0);
+    int volume = Math.round(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * value);
+    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
   }
 
   @ReactMethod
