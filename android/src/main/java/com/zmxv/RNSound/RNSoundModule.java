@@ -44,6 +44,37 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       callback.invoke(e);
       return;
     }
+
+    // #175 remote audio needs .prepare() to be called before .getDuration()
+    if (isRemoteUrl(fileName)) {
+      try {
+        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+          @Override
+          public void onPrepared(MediaPlayer mp) {
+            // ensure called only once
+            mp.setOnPreparedListener(null);
+            RNSoundModule.this.onPrepared(key, mp, callback);
+          }
+        });
+        // Can't use .prepare() here as that'll block the thread until enough data has been downloaded
+        player.prepareAsync();
+        return;
+      } catch (Exception exception) {
+        Log.e("RNSoundModule", "Exception", exception);
+
+        WritableMap e = Arguments.createMap();
+        e.putInt("code", -1);
+        e.putString("message", exception.getMessage());
+        callback.invoke(e);
+        return;
+      }
+    }
+
+    // Non-remote audio does not need this, so we can immedately carry on
+    onPrepared(key, player, callback);
+  }
+
+  private void onPrepared(Integer key, MediaPlayer player, Callback callback) {
     this.playerPool.put(key, player);
     WritableMap props = Arguments.createMap();
     props.putDouble("duration", player.getDuration() * .001);
@@ -55,7 +86,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     if (res != 0) {
       return MediaPlayer.create(this.context, res);
     }
-    if(fileName.startsWith("http://") || fileName.startsWith("https://")) {
+    if(isRemoteUrl(fileName)) {
       MediaPlayer mediaPlayer = new MediaPlayer();
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
@@ -74,6 +105,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return MediaPlayer.create(this.context, uri);
     }
     return null;
+  }
+
+  private boolean isRemoteUrl(String fileName) {
+    return fileName.startsWith("http://") || fileName.startsWith("https://");
   }
 
   @ReactMethod
