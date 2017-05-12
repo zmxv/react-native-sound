@@ -248,6 +248,11 @@ Return the loop count of the audio player. The default is `0` which means to pla
 ### `setSpeed(value)`
 `value` {number} Speed of the audio playback (iOS Only).
 
+### `setSpeakerphoneOn(value)`
+`speaker` {boolean} Sets the speakerphone on or off (Android Only).
+
+It requires this permission in your AndroidManifest: `<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>`
+
 ### `enableInSilenceMode(enabled)` (deprecated)
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).
 
