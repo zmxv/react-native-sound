@@ -60,16 +60,16 @@ Sound.prototype.play = function(onEnd) {
   return this;
 };
 
-Sound.prototype.pause = function() {
+Sound.prototype.pause = function(callback) {
   if (this._loaded) {
-    RNSound.pause(this._key);
+    RNSound.pause(this._key, () => { callback && callback() });
   }
   return this;
 };
 
-Sound.prototype.stop = function() {
+Sound.prototype.stop = function(callback) {
   if (this._loaded) {
-    RNSound.stop(this._key);
+    RNSound.stop(this._key, () => { callback && callback() });
   }
   return this;
 };

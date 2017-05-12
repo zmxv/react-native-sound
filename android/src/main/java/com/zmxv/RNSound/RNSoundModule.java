@@ -113,20 +113,22 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void pause(final Integer key) {
+  public void pause(final Integer key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
     }
+    callback.invoke();
   }
 
   @ReactMethod
-  public void stop(final Integer key) {
+  public void stop(final Integer key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
       player.seekTo(0);
     }
+    callback.invoke();
   }
 
   @ReactMethod

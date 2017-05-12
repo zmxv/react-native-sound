@@ -178,7 +178,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void pause(int key)
+        public void pause(int key, ICallback callback)
         {
             MediaPlayer player = null;
 
@@ -190,10 +190,11 @@ namespace RNSoundModule
             {
                 player.Pause();
             }
+            callback.Invoke();
         }
 
         [ReactMethod]
-        public void stop(int key)
+        public void stop(int key, ICallback callback)
         {
             MediaPlayer player = null;
 
@@ -204,6 +205,7 @@ namespace RNSoundModule
 
             player.Pause();
             player.PlaybackSession.Position = new TimeSpan(0);
+            callback.Invoke();
         }
 
         [ReactMethod]
