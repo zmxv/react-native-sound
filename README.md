@@ -6,7 +6,7 @@ React Native module for playing sound clips on iOS, Android, and Windows.
 
 Feature | iOS | Android | Windows
 ---|---|---|---
-Load sound from the app bundle | ✓ | ✓ | ✓  
+Load sound from the app bundle | ✓ | ✓ | ✓
 Load sound from other directories | ✓ | ✓ | ✓
 Load sound from the network | ✓ | ✓ |
 Play sound | ✓ | ✓ | ✓
@@ -18,6 +18,7 @@ Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
 Get/set volume | ✓ | ✓ | ✓
+Get/set system volume |   | ✓ |
 Get/set pan | ✓ |   |
 Get/set loops | ✓ | ✓ | ✓
 Get/set current time | ✓ | ✓ | ✓
@@ -140,7 +141,7 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
     return;
-  } 
+  }
   // loaded successfully
   console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
 });
