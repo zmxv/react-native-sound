@@ -105,11 +105,18 @@ Sound.prototype.setVolume = function(value) {
   return this;
 };
 
+Sound.prototype.getSystemVolume = function() {
+  if(IsAndroid) {
+    return RNSound.getSystemVolume();
+  } else {
+    return null;
+  }
+};
+
 Sound.prototype.setSystemVolume = function(value) {
-  this._volume = value;
   if (this._loaded) {
     if (IsAndroid) {
-      RNSound.setSystemVolume(this._key, value);
+      RNSound.setSystemVolume(value);
     }
   }
   return this;
