@@ -151,18 +151,20 @@ RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
   }
 }
 
-RCT_EXPORT_METHOD(pause:(nonnull NSNumber*)key) {
+RCT_EXPORT_METHOD(pause:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player pause];
+    callback(@[]);
   }
 }
 
-RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key) {
+RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player stop];
     player.currentTime = 0;
+    callback(@[]);
   }
 }
 
