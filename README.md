@@ -179,7 +179,11 @@ whoosh.getCurrentTime((seconds) => console.log('at ' + seconds));
 whoosh.pause();
 
 // Stop the sound and rewind to the beginning
-whoosh.stop();
+whoosh.stop(() => {
+  // Note: If you want to play a sound after stopping and rewinding it,
+  // it is important to call play() in a callback.
+  whoosh.play();
+});
 
 // Release the audio player resource
 whoosh.release();
@@ -197,13 +201,17 @@ whoosh.release();
 Return `true` if the sound has been loaded.
 
 ### `play(onEnd)`
-`onEnd` {?function(successfully)} Optinoal callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it.
+`onEnd` {?function(successfully)} Optional callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it.
 
-### `pause()`
+### `pause(callback)`
+`callback` {?function()} Optional callback function that gets called when the sound has been paused.
+
 Pause the sound.
 
-### `stop()`
-Stop the playback.
+### `stop(callback)`
+`callback` {?function()} Optional callback function that gets called when the sound has been stopped.
+
+Stop playback and set the seek position to 0.
 
 ### `release()`
 Release the audio player resource associated with the instance.
