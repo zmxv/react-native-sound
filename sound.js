@@ -10,7 +10,7 @@ function isRelativePath(path) {
   return !/^(\/|http(s?))/.test(path);
 }
 
-function Sound(filename, basePath, onError) {
+function Sound(filename, basePath, onError, options) {
   var asset = resolveAssetSource(filename);
   if (asset) {
     this._filename = asset.uri;
@@ -31,7 +31,7 @@ function Sound(filename, basePath, onError) {
   this._pan = 0;
   this._numberOfLoops = 0;
   this._speed = 1;
-  RNSound.prepare(this._filename, this._key, (error, props) => {
+  RNSound.prepare(this._filename, this._key, options || {}, (error, props) => {
     if (props) {
       if (typeof props.duration === 'number') {
         this._duration = props.duration;

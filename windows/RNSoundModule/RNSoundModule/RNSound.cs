@@ -28,7 +28,6 @@ namespace RNSoundModule
     public class RNSound : ReactContextNativeModuleBase
     {
         private const String IsWindows = "IsWindows";
-
         private ReactContext context;
 
         Dictionary<int, MediaPlayer> playerPool = new Dictionary<int, MediaPlayer>();
@@ -65,11 +64,18 @@ namespace RNSoundModule
 
 
         [ReactMethod]
-        public async void prepare(String fileName, int key, ICallback callback)
+        public async void prepare(String fileName, int key, JObject options, ICallback callback)
         {
+            bool enableSMTCIntegration = true;
+            JToken smtcOptionToken = options["enableSMTCIntegration"];
+            if (smtcOptionToken != null)
+            {
+                enableSMTCIntegration = smtcOptionToken.Value<bool>();
+            }
+
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                MediaPlayer player = await createMediaPlayer(fileName);
+                MediaPlayer player = await createMediaPlayer(fileName, enableSMTCIntegration);
                 player.MediaOpened +=
                     delegate
                     {
@@ -89,17 +95,14 @@ namespace RNSoundModule
                 }
 
                 this.playerPool.Add(key, player);
-
-
             });
-
-
-
-
         }
-        protected async Task<MediaPlayer> createMediaPlayer(String fileName)
+
+        protected async Task<MediaPlayer> createMediaPlayer(String fileName, bool enableSMTCIntegration)
         {
-            MediaPlayer song = new MediaPlayer();
+            MediaPlayer player = new MediaPlayer();
+            player.CommandManager.IsEnabled = enableSMTCIntegration;
+
             StorageFile file = null;
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 async () =>
@@ -125,18 +128,14 @@ namespace RNSoundModule
 
                     if (file != null)
                     {
-                        var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                        var stream = await file.OpenAsync(FileAccessMode.Read);
 
                         var mediaSource = MediaSource.CreateFromStorageFile(file);
-                        song.Source = mediaSource;
+                        player.Source = mediaSource;
                     }
                 }).AsTask();
 
-
-
-
-            return song;
-
+            return player;
         }
 
         [ReactMethod]
