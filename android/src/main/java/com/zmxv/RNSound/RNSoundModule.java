@@ -61,6 +61,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       Log.i("RNSoundModule", fileName);
       try {
         mediaPlayer.setDataSource(fileName);
+        mediaPlayer.prepareAsync();
       } catch(IOException e) {
         Log.e("RNSoundModule", "Exception", e);
         return null;
