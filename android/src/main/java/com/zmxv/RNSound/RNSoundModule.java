@@ -182,6 +182,18 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
   }
 
+  //turn speaker on
+  @ReactMethod
+  public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+      AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
+      audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+      audioManager.setSpeakerphoneOn(speaker);
+    }
+  }
+
   @ReactMethod
   public void enable(final Boolean enabled) {
     // no op
