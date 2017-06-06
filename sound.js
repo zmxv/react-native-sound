@@ -24,7 +24,7 @@ function Sound(filename, basePath, onError) {
   }
 
   this._loaded = false;
-  this._key = nextKey++;
+  this._key = nextKey;
   this._duration = -1;
   this._numberOfChannels = -1;
   this._volume = 1;
