@@ -42,13 +42,52 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
-      callback.invoke(e);
       return;
     }
-    this.playerPool.put(key, player);
-    WritableMap props = Arguments.createMap();
-    props.putDouble("duration", player.getDuration() * .001);
-    callback.invoke(NULL, props);
+
+    final RNSoundModule module = this;
+    
+    player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+      boolean callbackWasCalled = false;
+
+      @Override
+      public synchronized void onPrepared(MediaPlayer mp) {
+        if (callbackWasCalled) return;
+        callbackWasCalled = true;
+
+        module.playerPool.put(key, mp);
+        WritableMap props = Arguments.createMap();
+        props.putDouble("duration", mp.getDuration() * .001);
+        try {
+          callback.invoke(NULL, props);
+        } catch(RuntimeException runtimeException) {
+          // The callback was already invoked
+          Log.e("RNSoundModule", "Exception", runtimeException);
+        }
+      }
+
+    });
+
+    player.setOnErrorListener(new OnErrorListener() {
+      boolean callbackWasCalled = false;
+
+      @Override
+      public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+        if (callbackWasCalled) return true;
+        callbackWasCalled = true;
+        try {
+          WritableMap props = Arguments.createMap();
+          props.putInt("what", what);
+          props.putInt("extra", extra);
+          callback.invoke(props, NULL);
+        } catch(RuntimeException runtimeException) {
+          // The callback was already invoked
+          Log.e("RNSoundModule", "Exception", runtimeException);
+        }
+        return true;
+      }
+    });
+    player.prepareAsync();
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
