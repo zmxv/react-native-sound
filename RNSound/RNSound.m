@@ -118,7 +118,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
   NSURL* fileNameUrl;
   AVAudioPlayer* player;
   
-  if ([fileName hasPrefix:@"http"]) {
+  if ([fileName hasPrefix:@"http"] || [fileName hasPrefix:@"ipod-library://"]) {
     fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
   }
   else {
