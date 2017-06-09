@@ -46,9 +46,15 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return;
     }
     this.playerPool.put(key, player);
-    WritableMap props = Arguments.createMap();
-    props.putDouble("duration", player.getDuration() * .001);
-    callback.invoke(NULL, props);
+    player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+      @Override
+      public void onPrepared(MediaPlayer mediaPlayer) {
+        WritableMap props = Arguments.createMap();
+        props.putDouble("duration", mediaPlayer.getDuration() * .001);
+        callback.invoke(NULL, props);
+      }
+    });
+    player.prepareAsync();
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
