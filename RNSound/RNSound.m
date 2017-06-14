@@ -128,7 +128,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
     player = [[AVAudioPlayer alloc]
-               initWithContentsOfURL:fileNameUrl
+              initWithContentsOfURL:fileNameUrl
               error:&error];
   }
 
