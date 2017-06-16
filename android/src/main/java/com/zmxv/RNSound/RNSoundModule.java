@@ -44,6 +44,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       e.putInt("code", -1);
       e.putString("message", "resource not found");
       return;
+    } else {
+      player.stop();
     }
 
     final RNSoundModule module = this;
