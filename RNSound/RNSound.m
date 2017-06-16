@@ -122,12 +122,11 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
 
   if ([fileName hasPrefix:@"http"]) {
     fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
+    NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
+    player = [[AVAudioPlayer alloc] initWithData:data error:&error];
   }
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
-  }
-
-  if (fileNameUrl) {
     player = [[AVAudioPlayer alloc]
               initWithContentsOfURL:fileNameUrl
               error:&error];
