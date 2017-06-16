@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
 import java.util.HashMap;
@@ -87,7 +88,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         return true;
       }
     });
-    player.prepareAsync();
+
+    try {
+      player.prepareAsync();
+    } catch (IllegalStateException ignored) {
+      // When loading files from a file, we useMediaPlayer.create, which actually
+      // prepares the audio for us already. So we catch and ignore this error
+    }
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
@@ -111,6 +118,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
+      // Mediaplayer is already prepared here.
       return MediaPlayer.create(this.context, uri);
     }
     return null;
