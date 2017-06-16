@@ -131,4 +131,10 @@ export default class Sound {
    * @param value 
    */
   setCategory(value: AVAudioSessionCategory): void
+
+  /**
+   * Turn speaker phone on (android only)
+   * @param value
+   */
+  setSpeakerphoneOn(value: boolean): void
 }
