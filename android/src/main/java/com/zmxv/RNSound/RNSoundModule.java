@@ -38,11 +38,26 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void prepare(final String fileName, final Integer key, final ReadableMap options, final Callback callback) {
-    MediaPlayer player = createMediaPlayer(fileName);
+    MediaPlayer player = createMediaPlayerFileBased(fileName);
+    boolean isFileBased = player != null;
+    if (!isFileBased) {
+      player = createMediaPlayerHTTP(fileName);
+      isFileBased = false;
+    }
     if (player == null) {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
+      return;
+    }
+
+    if (isFileBased) {
+      // When loading files from a file, we useMediaPlayer.create, which actually
+      // prepares the audio for us already. No need to invoke prepareAsync
+      module.playerPool.put(key, mp);
+      WritableMap props = Arguments.createMap();
+      props.putDouble("duration", mp.getDuration() * .001);
+      callback.invoke(NULL, props);
       return;
     }
 
@@ -89,32 +104,17 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       }
     });
 
-    try {
-      player.prepareAsync();
-    } catch (IllegalStateException ignored) {
-      // When loading files from a file, we useMediaPlayer.create, which actually
-      // prepares the audio for us already. So we catch and ignore this error
-    }
+    player.prepareAsync();
   }
 
-  protected MediaPlayer createMediaPlayer(final String fileName) {
+  protected MediaPlayer createMediaPlayerFileBased(file String fileName) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     if (res != 0) {
       return MediaPlayer.create(this.context, res);
     }
     if(fileName.startsWith("http://") || fileName.startsWith("https://")) {
-      MediaPlayer mediaPlayer = new MediaPlayer();
-      mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-      Log.i("RNSoundModule", fileName);
-      try {
-        mediaPlayer.setDataSource(fileName);
-      } catch(IOException e) {
-        Log.e("RNSoundModule", "Exception", e);
-        return null;
-      }
-      return mediaPlayer;
+      return null;
     }
-
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
@@ -122,6 +122,24 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return MediaPlayer.create(this.context, uri);
     }
     return null;
+  }
+
+  protected MediaPlayer createMediaPlayerHTTP(final String fileName) {
+    if(!(fileName.startsWith("http://") || fileName.startsWith("https://"))) {
+      return null;
+    }
+
+    MediaPlayer mediaPlayer = new MediaPlayer();
+    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    Log.i("RNSoundModule", fileName);
+    try {
+      mediaPlayer.setDataSource(fileName);
+    } catch(IOException e) {
+      Log.e("RNSoundModule", "Exception", e);
+      return null;
+    }
+
+    return mediaPlayer;
   }
 
   @ReactMethod
