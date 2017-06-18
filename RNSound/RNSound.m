@@ -87,7 +87,7 @@ RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
     category = AVAudioSessionCategoryRecord;
   } else if ([categoryName isEqual: @"PlayAndRecord"]) {
     category = AVAudioSessionCategoryPlayAndRecord;
-  } 
+  }
   #if TARGET_OS_IOS
   else if ([categoryName isEqual: @"AudioProcessing"]) {
       category = AVAudioSessionCategoryAudioProcessing;
@@ -112,25 +112,26 @@ RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
-RCT_EXPORT_METHOD(prepare:(NSString*)fileName withKey:(nonnull NSNumber*)key
+RCT_EXPORT_METHOD(prepare:(NSString*)fileName
+                  withKey:(nonnull NSNumber*)key
+                  withOptions:(NSDictionary*)options
                   withCallback:(RCTResponseSenderBlock)callback) {
   NSError* error;
   NSURL* fileNameUrl;
   AVAudioPlayer* player;
-  
+
   if ([fileName hasPrefix:@"http"]) {
     fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
+    NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
+    player = [[AVAudioPlayer alloc] initWithData:data error:&error];
   }
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
-  }
-    
-  if (fileNameUrl) {
     player = [[AVAudioPlayer alloc]
-              initWithData:[[NSData alloc] initWithContentsOfURL:fileNameUrl]
+              initWithContentsOfURL:fileNameUrl
               error:&error];
   }
-    
+
   if (player) {
     player.delegate = self;
     player.enableRate = YES;

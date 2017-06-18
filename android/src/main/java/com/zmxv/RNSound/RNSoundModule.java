@@ -12,7 +12,9 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,19 +39,64 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void prepare(final String fileName, final Integer key, final Callback callback) {
+  public void prepare(final String fileName, final Integer key, final ReadableMap options, final Callback callback) {
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
-      callback.invoke(e);
       return;
     }
-    this.playerPool.put(key, player);
-    WritableMap props = Arguments.createMap();
-    props.putDouble("duration", player.getDuration() * .001);
-    callback.invoke(NULL, props);
+
+    final RNSoundModule module = this;
+
+    player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+      boolean callbackWasCalled = false;
+
+      @Override
+      public synchronized void onPrepared(MediaPlayer mp) {
+        if (callbackWasCalled) return;
+        callbackWasCalled = true;
+
+        module.playerPool.put(key, mp);
+        WritableMap props = Arguments.createMap();
+        props.putDouble("duration", mp.getDuration() * .001);
+        try {
+          callback.invoke(NULL, props);
+        } catch(RuntimeException runtimeException) {
+          // The callback was already invoked
+          Log.e("RNSoundModule", "Exception", runtimeException);
+        }
+      }
+
+    });
+
+    player.setOnErrorListener(new OnErrorListener() {
+      boolean callbackWasCalled = false;
+
+      @Override
+      public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+        if (callbackWasCalled) return true;
+        callbackWasCalled = true;
+        try {
+          WritableMap props = Arguments.createMap();
+          props.putInt("what", what);
+          props.putInt("extra", extra);
+          callback.invoke(props, NULL);
+        } catch(RuntimeException runtimeException) {
+          // The callback was already invoked
+          Log.e("RNSoundModule", "Exception", runtimeException);
+        }
+        return true;
+      }
+    });
+
+    try {
+      player.prepareAsync();
+    } catch (IllegalStateException ignored) {
+      // When loading files from a file, we useMediaPlayer.create, which actually
+      // prepares the audio for us already. So we catch and ignore this error
+    }
   }
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
@@ -73,6 +120,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
+      // Mediaplayer is already prepared here.
       return MediaPlayer.create(this.context, uri);
     }
     return null;
@@ -96,7 +144,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         if (!mp.isLooping()) {
           if (callbackWasCalled) return;
           callbackWasCalled = true;
-          callback.invoke(true);
+          try {
+            callback.invoke(true);
+          } catch (Exception e) {
+              //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+          }
         }
       }
     });
@@ -204,6 +256,18 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return;
     }
     callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
+  }
+
+  //turn speaker on
+  @ReactMethod
+  public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+      AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
+      audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+      audioManager.setSpeakerphoneOn(speaker);
+    }
   }
 
   @ReactMethod

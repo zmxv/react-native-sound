@@ -190,12 +190,16 @@ whoosh.release();
 ```
 
 ## API
-### `constructor(filename, basePath, onError)`
+### `constructor(filename, basePath, onError, options)`
 `filename` {string} Either absolute or relative path to the sound file
 
 `basePath` {?string} Optional base path of the file. Omit this or pass `''` if `filename` is an absolute path. Otherwise, you may use one of the predefined directories: `Sound.MAIN_BUNDLE`, `Sound.DOCUMENT`, `Sound.LIBRARY`, `Sound.CACHES`.
 
 `onError` {?function(error, props)} Optional callback function. If the file is successfully loaded, the first parameter `error` is `null`, and `props` contains an object with two properties: `duration` (in seconds) and `numberOfChannels` (`1` for mono and `2` for stereo sound), both of which can also be accessed from the `Sound` instance object. If an initialization error is encountered (e.g. file not found), `error` will be an object containing `code`, `description`, and the stack trace.
+
+`options` {?object} Platform-specific options:
+
+**Windows Only:** `enableSMTCIntegration` {?boolean}. Optional setting for windows to enable or disable SMTC integration (controlling your apps sounds or music via the keyboard, and the built-in media controls on Windows.) This is enabled by default. Set this to false when you don't want users to be able to control your sounds (e.g. sound effects.) See the [Windows.Media.SystemMediaTransportControls documentation](https://docs.microsoft.com/en-us/uwp/api/Windows.Media.SystemMediaTransportControls) for more information.
 
 ### `isLoaded()`
 Return `true` if the sound has been loaded.
@@ -254,6 +258,11 @@ Return the loop count of the audio player. The default is `0` which means to pla
 
 ### `setSpeed(value)`
 `value` {number} Speed of the audio playback (iOS Only).
+
+### `setSpeakerphoneOn(value)`
+`speaker` {boolean} Sets the speakerphone on or off (Android only).
+
+It requires this permission in your AndroidManifest: `<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>`
 
 ### `enableInSilenceMode(enabled)` (deprecated)
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).
