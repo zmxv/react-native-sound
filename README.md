@@ -233,10 +233,10 @@ Return the volume of the audio player (not the system-wide volume), ranging from
 `value` {number} Set the volume, ranging from `0.0` (silence) through `1.0` (full volume).
 
 ### `getSystemVolume(callback)`
-`callback` {?function(systemVolume)} Return the system-wide volume of the audio player, ranging from `0.0` (silence) through `1.0` (full volume).
+`callback` {?function(systemVolume)} Return the system-wide volume of the audio player, ranging from `0.0` (silence) through `1.0` (full volume). (Android only).
 
 ### `setSystemVolume(value)`
-`value` {number} Set the system-side volume, ranging from `0.0` (silence) through `1.0` (full volume).
+`value` {number} Set the system-side volume, ranging from `0.0` (silence) through `1.0` (full volume).  (Android only).
 
 ### `getPan()`
 Return the stereo pan position of the audio player (not the system-wide pan), ranging from `-1.0` (full left) through `1.0` (full right). The default value is `0.0` (center).

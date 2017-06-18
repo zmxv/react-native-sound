@@ -108,11 +108,6 @@ Sound.prototype.setVolume = function(value) {
 Sound.prototype.getSystemVolume = function(callback) {
   if(IsAndroid) {
     RNSound.getSystemVolume(callback);
-  } else {
-    callback({
-      code: -1,
-      message: "getSystemVolume is only supported in android"
-    });
   }
   return this;
 };
