@@ -122,7 +122,7 @@ https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
 
-First you'll need to audio files to your project.
+First you'll need to add audio files to your project.
 
 - Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
 - iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)
