@@ -4,6 +4,7 @@
 // TypeScript Version: 2.3.2
 
 type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute'
+type AudioManagerAudioStreamType = 'ALARM' | 'DTMF' | 'MUSIC' | 'NOTIFICATION' | 'RING' | 'SYSTEM' | 'VOICE_CALL'
 
 export default class Sound {
   static MAIN_BUNDLE: string
@@ -25,8 +26,9 @@ export default class Sound {
    * @param filename Either absolute or relative path to the sound file
    * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
    * @param onError Optional callback function if loading file failed
+   * @param options Optional feature 
    */
-  constructor(filename: string, basePath: string, onError: (error: any) => void)
+  constructor(filename: string, basePath: string, onError: (error: any) => void, options: { audioStreamType: AudioManagerAudioStreamType })
 
   /**
    * Return true if the sound has been loaded.

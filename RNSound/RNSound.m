@@ -224,4 +224,14 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
   }
 }
 
+RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  if (enabled) {
+    [session  overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
+  } else {
+    [session  overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:&error];
+  }
+}
+
 @end
