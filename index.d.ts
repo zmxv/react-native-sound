@@ -19,8 +19,9 @@ export default class Sound {
    * 
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param allowBluetooth Can be set to true to allow bluetooth handsfree devices.
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean, allowBluetooth: boolean): void
 
   /**
    * @param filename Either absolute or relative path to the sound file

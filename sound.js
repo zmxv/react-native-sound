@@ -182,9 +182,9 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
+Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth = false) {
   if (!IsAndroid && !IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+    RNSound.setCategory(value, mixWithOthers, allowBluetooth);
   }
 };
 
