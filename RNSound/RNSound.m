@@ -240,4 +240,16 @@ RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
   }
 }
 
+RCT_REMAP_METHOD(isPlaying,
+                 playerKey:(nonnull NSNumber*)key
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    resolve(@(player.isPlaying));
+  } else {
+    resolve(@(false));
+  }
+}
+
 @end
