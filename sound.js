@@ -164,6 +164,14 @@ Sound.prototype.setSpeakerphoneOn = function(value) {
   }
 };
 
+Sound.prototype.isPlaying = function() {
+  if (this._loaded) {
+    return RNSound.isPlaying(this._key);
+  } else {
+    return Promise.resolve(false);
+  }
+};
+
 // ios only
 
 // This is deprecated.  Call the static one instead.
