@@ -140,4 +140,9 @@ export default class Sound {
    * @param value
    */
   setSpeakerphoneOn(value: boolean): void
+
+  /**
+   * Return promise with isPlaying.
+   */
+  isPlaying(): Promise<boolean>
 }

@@ -8,6 +8,7 @@ import android.media.AudioManager;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -283,6 +284,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void enable(final Boolean enabled) {
     // no op
+  }
+
+  @ReactMethod
+  public void isPlaying(final Integer key, Promise promise) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      promise.resolve(player.isPlaying());
+    } else {
+      promise.resolve(false);
+    }
   }
 
   @Override
