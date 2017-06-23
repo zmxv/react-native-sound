@@ -159,6 +159,8 @@ Sound.prototype.setCurrentTime = function(value) {
 Sound.prototype.setSpeakerphoneOn = function(value) {
   if (IsAndroid) {
     RNSound.setSpeakerphoneOn(this._key, value);
+  } else if (!IsAndroid && !IsWindows) {
+    RNSound.setSpeakerphoneOn(value);
   }
 };
 
@@ -180,9 +182,9 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
+Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth = false) {
   if (!IsAndroid && !IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+    RNSound.setCategory(value, mixWithOthers, allowBluetooth);
   }
 };
 
