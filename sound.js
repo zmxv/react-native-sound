@@ -123,7 +123,7 @@ Sound.prototype.getNumberOfLoops = function() {
 Sound.prototype.setNumberOfLoops = function(value) {
   this._numberOfLoops = value;
   if (this._loaded) {
-    if (IsAndroid || IsWindows) {
+    if (IsWindows) {
       RNSound.setLooping(this._key, !!value);
     } else {
       RNSound.setNumberOfLoops(this._key, value);
