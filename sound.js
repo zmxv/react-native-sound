@@ -148,9 +148,9 @@ Sound.prototype.getCurrentTime = function(callback) {
   }
 };
 
-Sound.prototype.setCurrentTime = function(value) {
+Sound.prototype.setCurrentTime = function(value, callback) {
   if (this._loaded) {
-    RNSound.setCurrentTime(this._key, value);
+    RNSound.setCurrentTime(this._key, value, callback);
   }
   return this;
 };
