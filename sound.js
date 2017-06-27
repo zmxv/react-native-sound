@@ -172,6 +172,10 @@ Sound.prototype.isPlaying = function() {
   }
 };
 
+Sound.prototype.isHeadsetPluggedIn = function() {
+  return RNSound.isHeadsetPluggedIn();
+};
+
 // ios only
 
 // This is deprecated.  Call the static one instead.

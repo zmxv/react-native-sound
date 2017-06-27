@@ -240,6 +240,18 @@ RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
   }
 }
 
+RCT_REMAP_METHOD(isHeadsetPluggedIn,
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+
+  BOOL headphonesLocated = NO;
+  for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
+    headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
+  }
+  resolve(@(headphonesLocated));
+}
+
 RCT_REMAP_METHOD(isPlaying,
                  playerKey:(nonnull NSNumber*)key
                  resolver:(RCTPromiseResolveBlock)resolve
