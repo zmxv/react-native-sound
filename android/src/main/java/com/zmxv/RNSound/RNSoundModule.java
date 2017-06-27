@@ -60,6 +60,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         audioStreamType = AudioManager.STREAM_MUSIC;
       }
     }
+
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
@@ -69,8 +70,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
 
     final RNSoundModule module = this;
+    final int audioStreamTypeFinal = audioStreamType;
     
-    player.setAudioStreamType(audioStreamType);
+    player.setAudioStreamType(audioStreamTypeFinal);
 
     player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
       boolean callbackWasCalled = false;
@@ -89,6 +91,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
           // The callback was already invoked
           Log.e("RNSoundModule", "Exception", runtimeException);
         }
+        module.context.getCurrentActivity().setVolumeControlStream(audioStreamTypeFinal);
       }
 
     });
