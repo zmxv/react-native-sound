@@ -299,6 +299,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void isHeadsetPluggedIn(Promise promise) {
+    AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
+    boolean headphonesLocated = audioManager.isWiredHeadsetOn() || audioManager.isBluetoothA2dpOn() || audioManager.isBluetoothScoOn();
+    promise.resolve(headphonesLocated);
+  }
+
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();

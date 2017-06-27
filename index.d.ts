@@ -145,4 +145,9 @@ export default class Sound {
    * Return promise with isPlaying.
    */
   isPlaying(): Promise<boolean>
+
+  /**
+   * Return promise with isHeadsetPluggedIn.
+   */
+  isHeadsetPluggedIn(): Promise<boolean>
 }
