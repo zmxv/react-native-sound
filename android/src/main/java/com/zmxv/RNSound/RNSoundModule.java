@@ -3,6 +3,7 @@ package com.zmxv.RNSound;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.net.Uri;
 import android.media.AudioManager;
 
@@ -217,9 +218,15 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setCurrentTime(final Integer key, final Float sec) {
-    MediaPlayer player = this.playerPool.get(key);
+  public void setCurrentTime(final Integer key, final Float sec, final Callback callback) {
+    final MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
+      player.setOnSeekCompleteListener(new OnSeekCompleteListener() {
+        @Override
+        public void onSeekComplete(MediaPlayer mp) {
+          callback.invoke(player.getCurrentPosition() * .001);
+        }
+      });
       player.seekTo((int)Math.round(sec * 1000));
     }
   }
