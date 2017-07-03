@@ -233,11 +233,13 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
 RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
   NSError *error = nil;
+  AVAudioSessionCategoryOptions categoryOptions = [session categoryOptions];
   if (enabled) {
-    [session  overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
+    categoryOptions = categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
   } else {
-    [session  overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:&error];
+    categoryOptions = categoryOptions & ~AVAudioSessionCategoryOptionDefaultToSpeaker;
   }
+  [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions: categoryOptions error: &error];
 }
 
 RCT_REMAP_METHOD(isHeadsetPluggedIn,
