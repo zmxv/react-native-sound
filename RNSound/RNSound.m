@@ -11,6 +11,10 @@
   NSMutableDictionary* _callbackPool;
 }
 
+- (dispatch_queue_t)methodQueue {
+  return dispatch_get_main_queue();
+}
+
 -(NSMutableDictionary*) playerPool {
   if (!_playerPool) {
     _playerPool = [NSMutableDictionary new];
