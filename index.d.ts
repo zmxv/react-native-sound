@@ -5,11 +5,23 @@
 
 type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute'
 
+type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
+
 export default class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
   static LIBRARY: string
   static CACHES: string
+
+  /**
+   * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+   * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+   * to regain access to the audio stack.
+   * 
+   * @param category AVAudioSession category
+   * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   */
+  static setActive(active: boolean): void
 
   /**
    * Sets AVAudioSession category, which allows playing sound in background, 
@@ -20,6 +32,15 @@ export default class Sound {
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
    */
   static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean): void
+
+  /**
+   * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
+   * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+   * 
+   * @param mode AVAudioSession mode
+   * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   */
+  static setMode(mode: AVAudioSessionMode): void
 
   /**
    * @param filename Either absolute or relative path to the sound file

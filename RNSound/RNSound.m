@@ -72,6 +72,38 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
+RCT_EXPORT_METHOD(setActive:(BOOL)active) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setActive: active error: nil];
+}
+
+RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSString *mode = nil;
+
+  if ([modeName isEqual: @"Default"]) {
+    mode = AVAudioSessionModeDefault;
+  } else if ([modeName isEqual: @"VoiceChat"]) {
+    mode = AVAudioSessionModeVoiceChat;
+  } else if ([modeName isEqual: @"VideoChat"]) {
+    mode = AVAudioSessionModeVideoChat;
+  } else if ([modeName isEqual: @"GameChat"]) {
+    mode = AVAudioSessionModeGameChat;
+  } else if ([modeName isEqual: @"VideoRecording"]) {
+    mode = AVAudioSessionModeVideoRecording;
+  } else if ([modeName isEqual: @"Measurement"]) {
+    mode = AVAudioSessionModeMeasurement;
+  } else if ([modeName isEqual: @"MoviePlayback"]) {
+    mode = AVAudioSessionModeMoviePlayback;
+  } else if ([modeName isEqual: @"SpokenAudio"]) {
+    mode = AVAudioSessionModeSpokenAudio;
+  }
+
+  if (mode) {
+    [session setMode: mode error: nil];
+  }
+}
+
 RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
     mixWithOthers:(BOOL)mixWithOthers) {
   AVAudioSession *session = [AVAudioSession sharedInstance];

@@ -284,6 +284,20 @@ To play sound in the background, make sure to add the following to the `Info.pli
 </array>
 ```
 
+### `Sound.setMode(value) (iOS only)`
+
+`value` {string} Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior. Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+
+This should be called in conjunction with `Sound.setCategory`.
+
+More info about each mode can be found in https://developer.apple.com/documentation/avfoundation/avaudiosession/audio_session_modes
+
+### `Sound.setActive(value) (iOS only)`
+
+Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+to regain access to the audio stack.
+
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.

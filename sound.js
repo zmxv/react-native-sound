@@ -180,9 +180,21 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
+Sound.setActive = function(value) {
+  if (!IsAndroid && !IsWindows) {
+    RNSound.setActive(value);
+  }
+};
+
 Sound.setCategory = function(value, mixWithOthers = false) {
   if (!IsAndroid && !IsWindows) {
     RNSound.setCategory(value, mixWithOthers);
+  }
+};
+
+Sound.setMode = function(value) {
+  if (!IsAndroid && !IsWindows) {
+    RNSound.setMode(value);
   }
 };
 
