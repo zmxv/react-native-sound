@@ -272,7 +272,7 @@ Deprecated. Use the static method `Sound.setCategory` instead.
 
 `value` {string} Sets AVAudioSession category, which allows playing sound in background, stop sound playback when phone is locked, etc. Parameter options: "Ambient", "SoloAmbient", "Playback", "Record", "PlayAndRecord", "AudioProcessing", "MultiRoute".
 
-More info about each category can be found in https://developer.apple.com/library/ios/documentation/AVFoundation/Reference/AVAudioSession_ClassReference/#//apple_ref/doc/constant_group/Audio_Session_Categories
+More info about each category can be found in https://developer.apple.com/library/content/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/AudioSessionCategoriesandModes/AudioSessionCategoriesandModes.html
 
 `mixWithOthers` {boolean} can be set to true to force mixing with other audio sessions.
 
