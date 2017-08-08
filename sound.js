@@ -159,7 +159,21 @@ Sound.prototype.setCurrentTime = function(value) {
 Sound.prototype.setSpeakerphoneOn = function(value) {
   if (IsAndroid) {
     RNSound.setSpeakerphoneOn(this._key, value);
+  } else if (!IsAndroid && !IsWindows) {
+    RNSound.setSpeakerphoneOn(value);
   }
+};
+
+Sound.prototype.isPlaying = function() {
+  if (this._loaded) {
+    return RNSound.isPlaying(this._key);
+  } else {
+    return Promise.resolve(false);
+  }
+};
+
+Sound.prototype.isHeadsetPluggedIn = function() {
+  return RNSound.isHeadsetPluggedIn();
 };
 
 // ios only
@@ -186,9 +200,9 @@ Sound.setActive = function(value) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
+Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth = false) {
   if (!IsAndroid && !IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+    RNSound.setCategory(value, mixWithOthers, allowBluetooth);
   }
 };
 
