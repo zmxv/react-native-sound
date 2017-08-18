@@ -14,6 +14,7 @@ Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
 Resume | ✓ | ✓ | ✓
 Stop | ✓ | ✓ | ✓
+Reset |  | ✓ | 
 Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
@@ -151,6 +152,9 @@ whoosh.play((success) => {
     console.log('successfully finished playing');
   } else {
     console.log('playback failed due to audio decoding errors');
+    // reset the player to its uninitialized state (android only)
+    // this is the only option to recover after an error occured and use the player again
+    whoosh.reset();
   }
 });
 
@@ -215,6 +219,9 @@ Pause the sound.
 `callback` {?function()} Optional callback function that gets called when the sound has been stopped.
 
 Stop playback and set the seek position to 0.
+
+### `reset()`
+Reset the audio player to its uninitialized state (Android only)
 
 ### `release()`
 Release the audio player resource associated with the instance.
