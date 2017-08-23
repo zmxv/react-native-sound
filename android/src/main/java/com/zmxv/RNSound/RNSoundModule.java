@@ -1,5 +1,6 @@
 package com.zmxv.RNSound;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
+
 import android.util.Log;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
@@ -198,6 +200,28 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     if (player != null) {
       player.setVolume(left, right);
     }
+  }
+
+  @ReactMethod
+  public void getSystemVolume(final Callback callback) {
+    try {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+      callback.invoke(NULL, (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+    } catch (Exception error) {
+      WritableMap e = Arguments.createMap();
+      e.putInt("code", -1);
+      e.putString("message", error.getMessage());
+      callback.invoke(e);
+    }
+  }
+
+  @ReactMethod
+  public void setSystemVolume(final Float value) {
+    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+    int volume = Math.round(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * value);
+    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
   }
 
   @ReactMethod
