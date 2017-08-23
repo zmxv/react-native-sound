@@ -184,6 +184,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void reset(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.reset();
+    }
+  }
+
+  @ReactMethod
   public void release(final Integer key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {

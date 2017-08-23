@@ -74,6 +74,13 @@ Sound.prototype.stop = function(callback) {
   return this;
 };
 
+Sound.prototype.reset = function() {
+  if (this._loaded && IsAndroid) {
+    RNSound.reset(this._key);
+  }
+  return this;
+};
+
 Sound.prototype.release = function() {
   if (this._loaded) {
     RNSound.release(this._key);
