@@ -1,4 +1,4 @@
-# react-native-sound
+# react-native-sound [![Gitter chat](https://badges.gitter.im/gitterHQ/services.png)](https://gitter.im/react-native-sound/developers)
 
 React Native module for playing sound clips on iOS, Android, and Windows.
 
