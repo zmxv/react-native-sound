@@ -1,5 +1,6 @@
 package com.zmxv.RNSound;
 
+import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -113,6 +114,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         return null;
       }
       return mediaPlayer;
+    }
+
+    if (fileName.startsWith("asset:/")){
+        try {
+            AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+            return mediaPlayer;
+        } catch(IOException e) {
+            Log.e("RNSoundModule", "Exception", e);
+            return null;
+        }
     }
 
     File file = new File(fileName);
