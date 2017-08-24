@@ -7,7 +7,7 @@ var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSourc
 var nextKey = 0;
 
 function isRelativePath(path) {
-  return !/^(\/|http(s?))/.test(path);
+  return !/^(\/|http(s?)|asset)/.test(path);
 }
 
 function Sound(filename, basePath, onError, options) {
@@ -70,6 +70,13 @@ Sound.prototype.pause = function(callback) {
 Sound.prototype.stop = function(callback) {
   if (this._loaded) {
     RNSound.stop(this._key, () => { callback && callback() });
+  }
+  return this;
+};
+
+Sound.prototype.reset = function() {
+  if (this._loaded && IsAndroid) {
+    RNSound.reset(this._key);
   }
   return this;
 };

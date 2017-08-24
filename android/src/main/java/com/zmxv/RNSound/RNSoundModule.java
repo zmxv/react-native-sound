@@ -117,6 +117,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return mediaPlayer;
     }
 
+    if (fileName.startsWith("asset:/")){
+        try {
+            AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+            return mediaPlayer;
+        } catch(IOException e) {
+            Log.e("RNSoundModule", "Exception", e);
+            return null;
+        }
+    }
+
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
@@ -183,6 +196,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       player.seekTo(0);
     }
     callback.invoke();
+  }
+
+  @ReactMethod
+  public void reset(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.reset();
+    }
   }
 
   @ReactMethod
