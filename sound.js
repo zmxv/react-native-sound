@@ -43,7 +43,7 @@ function Sound(filename, basePath, onError, options) {
     if (error === null) {
       this._loaded = true;
     }
-    onError && onError(error);
+    onError && onError(error, props);
   });
 }
 
