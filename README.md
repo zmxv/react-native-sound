@@ -264,7 +264,7 @@ Return the loop count of the audio player. The default is `0` which means to pla
 `value` {number} Seek to a particular playback point in seconds.
 
 ### `setSpeed(value)`
-`value` {number} Speed of the audio playback (iOS Only).
+`value` {number} Speed of the audio playback.
 
 ### `setSpeakerphoneOn(value)`
 `speaker` {boolean} Sets the speakerphone on or off (Android only).
