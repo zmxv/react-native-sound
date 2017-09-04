@@ -181,6 +181,8 @@ Sound.prototype.setCurrentTime = function(value) {
 Sound.prototype.setSpeakerphoneOn = function(value) {
   if (IsAndroid) {
     RNSound.setSpeakerphoneOn(this._key, value);
+  } else if (!IsAndroid && !IsWindows) {
+    RNSound.setSpeakerphoneOn(value);
   }
 };
 

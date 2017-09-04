@@ -267,9 +267,14 @@ Return the loop count of the audio player. The default is `0` which means to pla
 `value` {number} Speed of the audio playback.
 
 ### `setSpeakerphoneOn(value)`
-`speaker` {boolean} Sets the speakerphone on or off (Android only).
+`speaker` {boolean} Sets the speakerphone on or off (Android and iOS only).
 
 It requires this permission in your AndroidManifest: `<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>`
+
+### `setAudioStream(value)`
+`value` {string} Sets MediaPlayer audio stream type (Android only).
+
+Parameter options: "ALARM", "DTMF", "MUSIC", "NOTIFICATION", "RING", "SYSTEM", "VOICE_CALL".
 
 ### `enableInSilenceMode(enabled)` (deprecated)
 `enabled` {boolean} Whether to enable playback in silence mode (iOS only).

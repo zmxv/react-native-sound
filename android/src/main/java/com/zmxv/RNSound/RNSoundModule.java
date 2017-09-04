@@ -41,6 +41,27 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void prepare(final String fileName, final Integer key, final ReadableMap options, final Callback callback) {
+    int audioStreamType = AudioManager.STREAM_MUSIC;
+    if (options.hasKey("audioStreamType")) {
+      String audioStreamTypeStr = options.getString("audioStreamType");
+      if (audioStreamTypeStr.equals("ALARM")) {
+        audioStreamType = AudioManager.STREAM_ALARM;
+      } else if (audioStreamTypeStr.equals("DTMF")) {
+        audioStreamType = AudioManager.STREAM_DTMF;
+      } else if (audioStreamTypeStr.equals("MUSIC")) {
+        audioStreamType = AudioManager.STREAM_MUSIC;
+      } else if (audioStreamTypeStr.equals("NOTIFICATION")) {
+        audioStreamType = AudioManager.STREAM_NOTIFICATION;
+      } else if (audioStreamTypeStr.equals("RING")) {
+        audioStreamType = AudioManager.STREAM_RING;
+      } else if (audioStreamTypeStr.equals("SYSTEM")) {
+        audioStreamType = AudioManager.STREAM_SYSTEM;
+      } else if (audioStreamTypeStr.equals("VOICE_CALL")) {
+        audioStreamType = AudioManager.STREAM_VOICE_CALL;
+      } else {
+        audioStreamType = AudioManager.STREAM_MUSIC;
+      }
+    }
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
@@ -50,6 +71,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
 
     final RNSoundModule module = this;
+    
+    player.setAudioStreamType(audioStreamType);
 
     player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
       boolean callbackWasCalled = false;
@@ -103,11 +126,18 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   protected MediaPlayer createMediaPlayer(final String fileName) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     if (res != 0) {
-      return MediaPlayer.create(this.context, res);
+      String resFilename = "android.resource://" + this.context.getPackageName() + "/raw/" + fileName;
+      MediaPlayer mediaPlayer = new MediaPlayer();
+      try {
+        mediaPlayer.setDataSource(this.context, Uri.parse(resFilename));
+      } catch(IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        return null;
+      }
+      return mediaPlayer;
     }
     if(fileName.startsWith("http://") || fileName.startsWith("https://")) {
       MediaPlayer mediaPlayer = new MediaPlayer();
-      mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
         mediaPlayer.setDataSource(fileName);
@@ -134,8 +164,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
-      // Mediaplayer is already prepared here.
-      return MediaPlayer.create(this.context, uri);
+      MediaPlayer mediaPlayer = new MediaPlayer();
+      try {
+        mediaPlayer.setDataSource(this.context, uri);
+      } catch(IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        return null;
+      }
+      return mediaPlayer;
     }
     return null;
   }
@@ -285,9 +321,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
-      player.setAudioStreamType(AudioManager.STREAM_MUSIC);
       AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
-      audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
       audioManager.setSpeakerphoneOn(speaker);
     }
   }
