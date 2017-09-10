@@ -157,6 +157,10 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
     player = [[AVAudioPlayer alloc] initWithData:data error:&error];
   }
+  else if ([fileName hasPrefix:@"ipod-library://"]) {
+    fileNameUrl = [NSURL URLWithString:fileName];
+    player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl error:&error];
+  }
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
     player = [[AVAudioPlayer alloc]
