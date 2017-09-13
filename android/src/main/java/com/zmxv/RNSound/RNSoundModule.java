@@ -250,9 +250,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void setSpeed(final Integer key, final Float speed) {
-    MediaPlayer player = this.playerPool.get(key);
-    if (player != null) {
-      player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+      MediaPlayer player = this.playerPool.get(key);
+      if (player != null) {
+        player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+      }
     }
   }
 
