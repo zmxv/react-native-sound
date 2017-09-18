@@ -14,7 +14,6 @@ function Sound(filename, basePath, onError, options) {
   var asset = resolveAssetSource(filename);
   if (asset) {
     this._filename = asset.uri;
-    onError = basePath;
   } else {
     this._filename = basePath ? basePath + '/' + filename : filename;
 
