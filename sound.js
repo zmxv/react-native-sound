@@ -209,7 +209,7 @@ Sound.setActive = function(value) {
 };
 
 Sound.setCategory = function(value, mixWithOthers = false) {
-  if (!IsAndroid && !IsWindows) {
+  if (!IsWindows) {
     RNSound.setCategory(value, mixWithOthers);
   }
 };
