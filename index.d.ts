@@ -4,6 +4,7 @@
 // TypeScript Version: 2.3.2
 
 type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute'
+type AudioManagerAudioStreamType = 'ALARM' | 'DTMF' | 'MUSIC' | 'NOTIFICATION' | 'RING' | 'SYSTEM' | 'VOICE_CALL'
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
@@ -30,8 +31,9 @@ export default class Sound {
    *
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param allowBluetooth Can be set to true to allow bluetooth handsfree devices.
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean, allowBluetooth: boolean): void
 
   /**
    * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
@@ -46,8 +48,9 @@ export default class Sound {
    * @param filename Either absolute or relative path to the sound file
    * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
    * @param onError Optional callback function if loading file failed
+   * @param options Optional feature 
    */
-  constructor(filename: string, basePath: string, onError: (error: any) => void)
+  constructor(filename: string, basePath: string, onError: (error: any) => void, options: { audioStreamType: AudioManagerAudioStreamType })
 
   /**
    * Return true if the sound has been loaded.
@@ -163,4 +166,14 @@ export default class Sound {
    * @param value
    */
   setSpeakerphoneOn(value: boolean): void
+
+  /**
+   * Return promise with isPlaying.
+   */
+  isPlaying(): Promise<boolean>
+
+  /**
+   * Return promise with isHeadsetPluggedIn.
+   */
+  isHeadsetPluggedIn(): Promise<boolean>
 }

@@ -105,7 +105,7 @@ RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
 }
 
 RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
-    mixWithOthers:(BOOL)mixWithOthers) {
+    mixWithOthers:(BOOL)mixWithOthers allowBluetooth:(BOOL)allowBluetooth) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
   NSString *category = nil;
 
@@ -130,8 +130,14 @@ RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
   }
 
   if (category) {
-    if (mixWithOthers) {
-        [session setCategory: category withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
+    if (mixWithOthers && !allowBluetooth) {
+      [session setCategory: category withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
+    } else if (!mixWithOthers && allowBluetooth) {
+      [session setCategory: category withOptions:AVAudioSessionCategoryOptionAllowBluetooth error: nil];
+    } else if (mixWithOthers && allowBluetooth) {
+      [session setCategory: category
+               withOptions:AVAudioSessionCategoryOptionMixWithOthers|AVAudioSessionCategoryOptionAllowBluetooth
+                     error: nil];
     } else {
       [session setCategory: category error: nil];
     }
@@ -257,6 +263,42 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
     callback(@[@(player.currentTime), @(player.isPlaying)]);
   } else {
     callback(@[@(-1), @(false)]);
+  }
+}
+
+RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  AVAudioSessionCategoryOptions categoryOptions = [session categoryOptions];
+  if (enabled) {
+    categoryOptions = categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
+  } else {
+    categoryOptions = categoryOptions & ~AVAudioSessionCategoryOptionDefaultToSpeaker;
+  }
+  [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions: categoryOptions error: &error];
+}
+
+RCT_REMAP_METHOD(isHeadsetPluggedIn,
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+
+  BOOL headphonesLocated = NO;
+  for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
+    headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
+  }
+  resolve(@(headphonesLocated));
+}
+
+RCT_REMAP_METHOD(isPlaying,
+                 playerKey:(nonnull NSNumber*)key
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  AVAudioPlayer* player = [self playerForKey:key];
+  if (player) {
+    resolve(@(player.isPlaying));
+  } else {
+    resolve(@(false));
   }
 }
 
