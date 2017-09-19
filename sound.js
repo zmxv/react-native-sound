@@ -222,7 +222,7 @@ Sound.setActive = function(value) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth) {
+Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth = false) {
   if (!IsAndroid && !IsWindows) {
     RNSound.setCategory(value, mixWithOthers, allowBluetooth);
   }
