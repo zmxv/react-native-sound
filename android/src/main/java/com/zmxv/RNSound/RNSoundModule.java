@@ -1,5 +1,7 @@
 package com.zmxv.RNSound;
 
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
+
 import android.util.Log;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
@@ -149,6 +152,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       return mediaPlayer;
     }
 
+    if (fileName.startsWith("asset:/")){
+        try {
+            AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+            return mediaPlayer;
+        } catch(IOException e) {
+            Log.e("RNSoundModule", "Exception", e);
+            return null;
+        }
+    }
+
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
@@ -224,6 +240,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void reset(final Integer key) {
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.reset();
+    }
+  }
+
+  @ReactMethod
   public void release(final Integer key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
@@ -238,6 +262,28 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     if (player != null) {
       player.setVolume(left, right);
     }
+  }
+
+  @ReactMethod
+  public void getSystemVolume(final Callback callback) {
+    try {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+      callback.invoke(NULL, (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+    } catch (Exception error) {
+      WritableMap e = Arguments.createMap();
+      e.putInt("code", -1);
+      e.putString("message", error.getMessage());
+      callback.invoke(e);
+    }
+  }
+
+  @ReactMethod
+  public void setSystemVolume(final Float value) {
+    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+    int volume = Math.round(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * value);
+    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
   }
 
   @ReactMethod

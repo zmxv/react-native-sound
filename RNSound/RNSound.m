@@ -72,6 +72,38 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
+RCT_EXPORT_METHOD(setActive:(BOOL)active) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setActive: active error: nil];
+}
+
+RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSString *mode = nil;
+
+  if ([modeName isEqual: @"Default"]) {
+    mode = AVAudioSessionModeDefault;
+  } else if ([modeName isEqual: @"VoiceChat"]) {
+    mode = AVAudioSessionModeVoiceChat;
+  } else if ([modeName isEqual: @"VideoChat"]) {
+    mode = AVAudioSessionModeVideoChat;
+  } else if ([modeName isEqual: @"GameChat"]) {
+    mode = AVAudioSessionModeGameChat;
+  } else if ([modeName isEqual: @"VideoRecording"]) {
+    mode = AVAudioSessionModeVideoRecording;
+  } else if ([modeName isEqual: @"Measurement"]) {
+    mode = AVAudioSessionModeMeasurement;
+  } else if ([modeName isEqual: @"MoviePlayback"]) {
+    mode = AVAudioSessionModeMoviePlayback;
+  } else if ([modeName isEqual: @"SpokenAudio"]) {
+    mode = AVAudioSessionModeSpokenAudio;
+  }
+
+  if (mode) {
+    [session setMode: mode error: nil];
+  }
+}
+
 RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
     mixWithOthers:(BOOL)mixWithOthers allowBluetooth:(BOOL)allowBluetooth) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -130,6 +162,10 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
     NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
     player = [[AVAudioPlayer alloc] initWithData:data error:&error];
+  }
+  else if ([fileName hasPrefix:@"ipod-library://"]) {
+    fileNameUrl = [NSURL URLWithString:fileName];
+    player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl error:&error];
   }
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
