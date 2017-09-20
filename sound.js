@@ -203,24 +203,24 @@ Sound.prototype.isHeadsetPluggedIn = function() {
 
 Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {
   console.log('Register headset plug change event listener');
-  if (IsAndroid) {
+  if (this.headsetPluggedInSubscription != null) {
+    console.warn('Headset plug change event listener is already registered');
+    return;
+  }
 
-  } else if (!IsWindows) {
+  if (!IsWindows) {
     // Remove route change listener first
-    RNSound.removeRouteChangeListener();
     RNSound.addRouteChangeListener();
     this.headsetPluggedInSubscription = eventEmitter.addListener(
       'RouteChange',
-      (object) => console.log(object)
+      headsetPluggedInListener,
     );
   }
 };
 
 Sound.unregisterHeadsetPlugChangeListener = function() {
   console.log('Unregister headset plug change event listener');
-  if (IsAndroid) {
-    
-  } else if (!IsWindows) {
+  if (!IsWindows) {
     if (this.headsetPluggedInSubscription != null) {
       RNSound.removeRouteChangeListener();
       this.headsetPluggedInSubscription.remove();
