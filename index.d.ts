@@ -15,6 +15,11 @@ export default class Sound {
   static CACHES: string
 
   /**
+   * Return promise with isHeadsetPluggedIn.
+   */
+  static isHeadsetPlugged(): Promise<boolean>
+
+  /**
    * Register a listener for changes of headsetPluggedIn
    */
   static registerHeadsetPlugChangeListener(): void
@@ -181,9 +186,4 @@ export default class Sound {
    * Return promise with isPlaying.
    */
   isPlaying(): Promise<boolean>
-
-  /**
-   * Return promise with isHeadsetPluggedIn.
-   */
-  isHeadsetPluggedIn(): Promise<boolean>
 }

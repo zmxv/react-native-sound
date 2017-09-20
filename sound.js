@@ -197,12 +197,12 @@ Sound.prototype.isPlaying = function() {
   }
 };
 
-Sound.prototype.isHeadsetPluggedIn = function() {
+Sound.isHeadsetPlugged = function() {
   return RNSound.isHeadsetPluggedIn();
 };
 
 Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {
-  console.log('Register headset plug change event listener');
+  // console.log('Register headset plug change event listener');
   if (this.headsetPluggedInSubscription != null) {
     console.warn('Headset plug change event listener is already registered');
     return;
@@ -219,7 +219,7 @@ Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {
 };
 
 Sound.unregisterHeadsetPlugChangeListener = function() {
-  console.log('Unregister headset plug change event listener');
+  // console.log('Unregister headset plug change event listener');
   if (!IsWindows) {
     if (this.headsetPluggedInSubscription != null) {
       RNSound.removeRouteChangeListener();
