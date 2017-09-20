@@ -57,6 +57,11 @@
 
 RCT_EXPORT_MODULE();
 
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"RouteChange"];
+}
+
 -(NSDictionary *)constantsToExport {
   return @{@"IsAndroid": [NSNumber numberWithBool:NO],
            @"MainBundlePath": [[NSBundle mainBundle] bundlePath],
@@ -281,13 +286,41 @@ RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
 RCT_REMAP_METHOD(isHeadsetPluggedIn,
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-  AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+  BOOL headsetPlugged = [self isHeadsetPluggedIn];
+  resolve(@(headsetPlugged));
+}
 
-  BOOL headphonesLocated = NO;
-  for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
-    headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
-  }
-  resolve(@(headphonesLocated));
+- (BOOL)isHeadsetPluggedIn {
+    AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+    
+    BOOL headphonesLocated = NO;
+    for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
+        headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
+    }
+    return headphonesLocated;
+}
+
+- (void)routeChange:(NSNotification*)notification {
+    NSLog(@"CALLBACK");
+    BOOL headsetPlugged = [self isHeadsetPluggedIn];
+
+    [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPluggedIn": headsetPlugged ? @YES : @NO}];
+}
+
+RCT_EXPORT_METHOD(addRouteChangeListener) {
+    NSLog(@"Observer registered");
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(routeChange:) // selector //@selector(callback)
+                                                 name:@"AVAudioSessionRouteChangeNotification"
+                                               object:[AVAudioSession sharedInstance]];
+
+}
+
+RCT_EXPORT_METHOD(removeRouteChangeListener) {
+    NSLog(@"Observer unregistered");
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:@"AVAudioSessionRouteChangeNotification"
+                                                object: [AVAudioSession sharedInstance]];
 }
 
 RCT_REMAP_METHOD(isPlaying,

@@ -15,6 +15,16 @@ export default class Sound {
   static CACHES: string
 
   /**
+   * Register a listener for changes of headsetPluggedIn
+   */
+  static registerHeadsetPlugChangeListener(): void
+  
+  /**
+   * Unregister the attached listener for changes of headsetPluggedIn
+   */
+  static unregisterHeadsetPlugChangeListener(): void
+
+  /**
    * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
    * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
    * to regain access to the audio stack.

@@ -1,6 +1,9 @@
 package com.zmxv.RNSound;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -12,10 +15,12 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
@@ -23,12 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 public class RNSoundModule extends ReactContextBaseJavaModule {
   Map<Integer, MediaPlayer> playerPool = new HashMap<>();
   ReactApplicationContext context;
   final static Object NULL = null;
+  BroadcastReceiver broadcastReceiverHeadsetPlugged = null;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
@@ -347,11 +354,50 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
   }
 
+  private void sendEvent(ReactContext reactContext,
+                         String eventName,
+                         @Nullable WritableMap params) {
+    reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit(eventName, params);
+  }
+
   @ReactMethod
   public void isHeadsetPluggedIn(Promise promise) {
+    boolean headphonesLocated = isHeadsetPlugged();
+    promise.resolve(headphonesLocated);
+  }
+
+  private boolean isHeadsetPlugged() {
     AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
     boolean headphonesLocated = audioManager.isWiredHeadsetOn() || audioManager.isBluetoothA2dpOn() || audioManager.isBluetoothScoOn();
-    promise.resolve(headphonesLocated);
+    return headphonesLocated;
+  }
+
+  @ReactMethod
+  public void addRouteChangeListener() {
+    IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+    final ReactContext reactContext = this.context;
+    broadcastReceiverHeadsetPlugged = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+          // Use isHeadsetPlugged() for consistency
+          WritableMap params = Arguments.createMap();
+          params.putBoolean("isHeadsetPlugged", isHeadsetPlugged());
+          sendEvent(reactContext, "RouteChange", params);
+        }
+      }
+    };
+    reactContext.registerReceiver(broadcastReceiverHeadsetPlugged, filter);
+  }
+
+  @ReactMethod
+  public void removeRouteChangeListener() {
+    if (broadcastReceiverHeadsetPlugged != null) {
+      this.context.unregisterReceiver(broadcastReceiverHeadsetPlugged);
+      broadcastReceiverHeadsetPlugged = null;
+    }
   }
 
   @Override

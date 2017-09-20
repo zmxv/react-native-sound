@@ -1,10 +1,13 @@
 'use strict';
 
-var RNSound = require('react-native').NativeModules.RNSound;
+var { NativeModules, NativeEventEmitter } = require('react-native');
+var RNSound = NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
 var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
 var nextKey = 0;
+
+const eventEmitter = new NativeEventEmitter(RNSound);
 
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
@@ -197,6 +200,35 @@ Sound.prototype.isPlaying = function() {
 Sound.prototype.isHeadsetPluggedIn = function() {
   return RNSound.isHeadsetPluggedIn();
 };
+
+Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {
+  console.log('Register headset plug change event listener');
+  if (this.headsetPluggedInSubscription != null) {
+    console.warn('Headset plug change event listener is already registered');
+    return;
+  }
+
+  if (!IsWindows) {
+    // Remove route change listener first
+    RNSound.addRouteChangeListener();
+    this.headsetPluggedInSubscription = eventEmitter.addListener(
+      'RouteChange',
+      headsetPluggedInListener,
+    );
+  }
+};
+
+Sound.unregisterHeadsetPlugChangeListener = function() {
+  console.log('Unregister headset plug change event listener');
+  if (!IsWindows) {
+    if (this.headsetPluggedInSubscription != null) {
+      RNSound.removeRouteChangeListener();
+      this.headsetPluggedInSubscription.remove();
+      this.headsetPluggedInSubscription = null;
+    }
+  }
+  
+}
 
 // ios only
 
