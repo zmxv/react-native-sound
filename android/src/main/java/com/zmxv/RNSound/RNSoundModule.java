@@ -363,7 +363,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void isHeadsetPluggedIn(Promise promise) {
+  public void isHeadsetPlugged(Promise promise) {
     boolean headphonesLocated = isHeadsetPlugged();
     promise.resolve(headphonesLocated);
   }
