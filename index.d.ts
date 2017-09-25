@@ -15,6 +15,16 @@ export default class Sound {
   static CACHES: string
 
   /**
+   * (Android Only) Adjusts stream volum.
+   * Parameter: Please refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   *
+   * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param direction The direction to adjust the volume. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param flags One or more flags. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   */
+  static adjustStreamVolume(streamType: number, direction: number, flags: number): void
+
+  /**
    * Return promise with isHeadsetPluggedIn.
    */
   static isHeadsetPlugged(): Promise<boolean>
