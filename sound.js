@@ -198,7 +198,7 @@ Sound.prototype.isPlaying = function() {
 };
 
 Sound.isHeadsetPlugged = function() {
-  return RNSound.isHeadsetPluggedIn();
+  return RNSound.isHeadsetPlugged();
 };
 
 Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {

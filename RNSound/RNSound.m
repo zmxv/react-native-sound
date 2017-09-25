@@ -283,14 +283,14 @@ RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
   [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions: categoryOptions error: &error];
 }
 
-RCT_REMAP_METHOD(isHeadsetPluggedIn,
+RCT_REMAP_METHOD(isHeadsetPlugged,
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-  BOOL headsetPlugged = [self isHeadsetPluggedIn];
+  BOOL headsetPlugged = [self isHeadsetPlugged];
   resolve(@(headsetPlugged));
 }
 
-- (BOOL)isHeadsetPluggedIn {
+- (BOOL)isHeadsetPlugged {
     AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
     
     BOOL headphonesLocated = NO;
@@ -302,9 +302,9 @@ RCT_REMAP_METHOD(isHeadsetPluggedIn,
 
 - (void)routeChange:(NSNotification*)notification {
     NSLog(@"CALLBACK");
-    BOOL headsetPlugged = [self isHeadsetPluggedIn];
+    BOOL headsetPlugged = [self isHeadsetPlugged];
 
-    [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPluggedIn": headsetPlugged ? @YES : @NO}];
+    [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPlugged": headsetPlugged ? @YES : @NO}];
 }
 
 RCT_EXPORT_METHOD(addRouteChangeListener) {
