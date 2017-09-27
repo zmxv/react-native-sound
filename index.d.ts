@@ -89,6 +89,11 @@ export default class Sound {
   getNumberOfChannels(): number
 
   /**
+   * Return the time of audio (second)
+   */
+  getDuration(): number
+  
+  /**
    * Return the volume of the audio player (not the system-wide volume),
    * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
    */
