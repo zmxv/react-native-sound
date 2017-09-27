@@ -301,7 +301,6 @@ RCT_REMAP_METHOD(isHeadsetPlugged,
 }
 
 - (void)routeChange:(NSNotification*)notification {
-    NSLog(@"CALLBACK");
     BOOL headsetPlugged = [self isHeadsetPlugged];
 
     [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPlugged": headsetPlugged ? @YES : @NO}];
