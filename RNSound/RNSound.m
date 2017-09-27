@@ -307,7 +307,6 @@ RCT_REMAP_METHOD(isHeadsetPlugged,
 }
 
 RCT_EXPORT_METHOD(addRouteChangeListener) {
-    NSLog(@"Observer registered");
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(routeChange:) // selector //@selector(callback)
                                                  name:@"AVAudioSessionRouteChangeNotification"
@@ -316,7 +315,6 @@ RCT_EXPORT_METHOD(addRouteChangeListener) {
 }
 
 RCT_EXPORT_METHOD(removeRouteChangeListener) {
-    NSLog(@"Observer unregistered");
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:@"AVAudioSessionRouteChangeNotification"
                                                 object: [AVAudioSession sharedInstance]];
