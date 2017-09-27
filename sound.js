@@ -197,6 +197,12 @@ Sound.prototype.isPlaying = function() {
   }
 };
 
+Sound.adjustStreamVolume = function(streamType, direction, flags) {
+  if (IsAndroid) {
+    RNSound.adjustStreamVolume(streamType, direction, flags);
+  }
+}
+
 Sound.isHeadsetPlugged = function() {
   return RNSound.isHeadsetPlugged();
 };
