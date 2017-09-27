@@ -15,7 +15,7 @@ export default class Sound {
   static CACHES: string
 
   /**
-   * (Android Only) Adjusts stream volum.
+   * (Android Only) Adjusts stream volume.
    * Parameter: Please refer constants in https://developer.android.com/reference/android/media/AudioManager.html
    *
    * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
