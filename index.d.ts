@@ -7,7 +7,7 @@ type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' 
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
-export default class Sound {
+declare class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
   static LIBRARY: string
@@ -169,3 +169,5 @@ export default class Sound {
    */
   setSpeakerphoneOn(value: boolean): void
 }
+
+export = Sound;
