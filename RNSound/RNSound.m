@@ -18,12 +18,16 @@
     AVAudioSessionRouteChangeReason audioSessionRouteChangeReason = [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
     AVAudioSessionInterruptionType audioSessionInterruptionType   = [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
     AVAudioPlayer* player = [self playerForKey:self._key];
-    //if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
-    // NSLog(@"in");
-    //}
-    //if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
-    // Resumed?
-    //}
+    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
+        if (player) {
+            [player play];
+        }
+    }
+    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
+        if (player) {
+            [player play];
+        }
+    }
     if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable){
         if (player) {
             [player pause];
