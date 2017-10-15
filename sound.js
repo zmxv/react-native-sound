@@ -203,6 +203,12 @@ Sound.adjustStreamVolume = function(streamType, direction, flags) {
   }
 }
 
+Sound.setStreamMute = function(streamType, state) {
+  if (IsAndroid) {
+    RNSound.setStreamMute(streamType, state);
+  }
+}
+
 Sound.isHeadsetPlugged = function() {
   return RNSound.isHeadsetPlugged();
 };

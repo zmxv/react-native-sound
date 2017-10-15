@@ -406,6 +406,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     audioManager.adjustStreamVolume(streamType, direction, flags);
   }
 
+  @ReactMethod
+  public void setStreamMute(final int streamType, final boolean state) {
+    AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
+    audioManager.setStreamMute(streamType, state);
+  }
+
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();

@@ -25,6 +25,15 @@ export default class Sound {
   static adjustStreamVolume(streamType: number, direction: number, flags: number): void
 
   /**
+   * (Android Only) Mute or unmute an audio stream.
+   * Parameter: Please refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   *
+   * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param state
+   */
+  static setStreamMute(streamType: number, state: boolean): void
+
+  /**
    * Return promise with isHeadsetPluggedIn.
    */
   static isHeadsetPlugged(): Promise<boolean>
