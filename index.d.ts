@@ -31,7 +31,7 @@ export default class Sound {
    * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
    * @param state
    */
-  static setStreamVolume(streamType: number, state: boolean): void
+  static setStreamMute(streamType: number, state: boolean): void
 
   /**
    * Return promise with isHeadsetPluggedIn.
