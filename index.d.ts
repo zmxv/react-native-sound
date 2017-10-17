@@ -7,7 +7,7 @@ type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' 
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
-declare class Sound {
+export default class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
   static LIBRARY: string
@@ -89,11 +89,6 @@ declare class Sound {
   getNumberOfChannels(): number
 
   /**
-   * Return the time of audio (second)
-   */
-  getDuration(): number
-  
-  /**
    * Return the volume of the audio player (not the system-wide volume),
    * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
    */
@@ -169,5 +164,3 @@ declare class Sound {
    */
   setSpeakerphoneOn(value: boolean): void
 }
-
-export = Sound;
