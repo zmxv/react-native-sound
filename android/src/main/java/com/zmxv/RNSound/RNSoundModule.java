@@ -84,8 +84,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     final RNSoundModule module = this;
     final int audioStreamTypeFinal = audioStreamType;
     
-    player.setAudioStreamType(audioStreamTypeFinal);
-
     if (module.category != null) {
       Integer category = null;
       switch (module.category) {
@@ -106,6 +104,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         player.setAudioStreamType(category);
       }
     }
+
+    player.setAudioStreamType(audioStreamTypeFinal);
 
     player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
       boolean callbackWasCalled = false;
@@ -199,14 +199,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
-      MediaPlayer mediaPlayer = new MediaPlayer();
-      try {
-        mediaPlayer.setDataSource(this.context, uri);
-      } catch(IOException e) {
-        Log.e("RNSoundModule", "Exception", e);
-        return null;
-      }
-      return mediaPlayer;
+      // Mediaplayer is already prepared here.
+      return MediaPlayer.create(this.context, uri);
     }
     return null;
   }
