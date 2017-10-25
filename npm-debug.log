@@ -1,0 +1,112 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@3.10.3
+3 info using node@v6.5.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/karan/Projects/react-native-sound',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/karan/.npm/react-native-sound/0.10.4/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/karan/.npm correctMkdir not in flight; initializing
+10 info lifecycle react-native-sound@0.10.4~prepublish: react-native-sound@0.10.4
+11 silly lifecycle react-native-sound@0.10.4~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ '/Users/karan/.npm/react-native-sound/0.10.4/package.tgz',
+12 verbose tar pack   '/Users/karan/Projects/react-native-sound' ]
+13 verbose tarball /Users/karan/.npm/react-native-sound/0.10.4/package.tgz
+14 verbose folder /Users/karan/Projects/react-native-sound
+15 verbose addLocalTarball adding from inside cache /Users/karan/.npm/react-native-sound/0.10.4/package.tgz
+16 verbose correctMkdir /Users/karan/.npm correctMkdir not in flight; initializing
+17 silly cache afterAdd react-native-sound@0.10.4
+18 verbose afterAdd /Users/karan/.npm/react-native-sound/0.10.4/package/package.json not in flight; writing
+19 verbose correctMkdir /Users/karan/.npm correctMkdir not in flight; initializing
+20 verbose afterAdd /Users/karan/.npm/react-native-sound/0.10.4/package/package.json written
+21 silly publish { name: 'react-native-sound',
+21 silly publish   version: '0.10.4',
+21 silly publish   description: 'React Native module for playing sound clips on iOS, Android, and Windows',
+21 silly publish   main: 'sound.js',
+21 silly publish   typings: 'index.d.ts',
+21 silly publish   repository:
+21 silly publish    { type: 'git',
+21 silly publish      url: 'git+https://github.com/zmxv/react-native-sound.git' },
+21 silly publish   keywords: [ 'react-native', 'react-component', 'sound', 'audio' ],
+21 silly publish   author:
+21 silly publish    { name: 'Zhen Wang',
+21 silly publish      email: 'z@zmxv.com',
+21 silly publish      url: 'http://blog.zmxv.com' },
+21 silly publish   license: 'MIT',
+21 silly publish   peerDependencies: { 'react-native': '>=0.8.0' },
+21 silly publish   readme: '# react-native-sound\n\nReact Native module for playing sound clips on iOS, Android, and Windows.\n\n## Feature matrix\n\nFeature | iOS | Android | Windows\n---|---|---|---\nLoad sound from the app bundle | ✓ | ✓ | ✓\nLoad sound from other directories | ✓ | ✓ | ✓\nLoad sound from the network | ✓ | ✓ |\nPlay sound | ✓ | ✓ | ✓\nPlayback completion callback | ✓ | ✓ | ✓\nPause | ✓ | ✓ | ✓\nResume | ✓ | ✓ | ✓\nStop | ✓ | ✓ | ✓\nReset |  | ✓ | \nRelease resource | ✓ | ✓ | ✓\nGet duration | ✓ | ✓ | ✓\nGet number of channels | ✓ |   |\nGet/set volume | ✓ | ✓ | ✓\nGet/set system volume |   | ✓ |\nGet/set pan | ✓ |   |\nGet/set loops | ✓ | ✓ | ✓\nGet/set current time | ✓ | ✓ | ✓\nSet speed | ✓ | ✓ |\n\n## Installation\n\nFirst install the npm package from your app directory:\n\n```javascript\nnpm install react-native-sound --save\n```\n\nThen link it automatically using:\n\n```javascript\nreact-native link react-native-sound\n```\n\n### Manual Installation Notes\n\nPlease see the Wiki for these details https://github.com/zmxv/react-native-sound/wiki/Installation\n\n\n## Help with React-Native-Sound\n* For react-native-sound developers  [![Gitter chat](https://badges.gitter.im/gitterHQ/services.png)](https://gitter.im/react-native-sound/developers)\n* For help using react-native-sound  [![Gitter chat](https://badges.gitter.im/gitterHQ/services.png)](https://gitter.im/react-native-sound/Help)\n\n## Demo project\n\nhttps://github.com/zmxv/react-native-sound-demo\n\n## Basic usage\n\nFirst you\'ll need to add audio files to your project.\n\n- Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.\n- iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)\n\n```js\n// Import the react-native-sound module\nvar Sound = require(\'react-native-sound\');\n\n// Enable playback in silence mode\nSound.setCategory(\'Playback\');\n\n// Load the sound file \'whoosh.mp3\' from the app bundle\n// See notes below about preloading sounds within initialization code below.\nvar whoosh = new Sound(\'whoosh.mp3\', Sound.MAIN_BUNDLE, (error) => {\n  if (error) {\n    console.log(\'failed to load the sound\', error);\n    return;\n  }\n  // loaded successfully\n  console.log(\'duration in seconds: \' + whoosh.getDuration() + \'number of channels: \' + whoosh.getNumberOfChannels());\n});\n\n// Play the sound with an onEnd callback\nwhoosh.play((success) => {\n  if (success) {\n    console.log(\'successfully finished playing\');\n  } else {\n    console.log(\'playback failed due to audio decoding errors\');\n    // reset the player to its uninitialized state (android only)\n    // this is the only option to recover after an error occured and use the player again\n    whoosh.reset();\n  }\n});\n\n// Reduce the volume by half\nwhoosh.setVolume(0.5);\n\n// Position the sound to the full right in a stereo field\nwhoosh.setPan(1);\n\n// Loop indefinitely until stop() is called\nwhoosh.setNumberOfLoops(-1);\n\n// Get properties of the player instance\nconsole.log(\'volume: \' + whoosh.getVolume());\nconsole.log(\'pan: \' + whoosh.getPan());\nconsole.log(\'loops: \' + whoosh.getNumberOfLoops());\n\n// Seek to a specific point in seconds\nwhoosh.setCurrentTime(2.5);\n\n// Get the current playback point in seconds\nwhoosh.getCurrentTime((seconds) => console.log(\'at \' + seconds));\n\n// Pause the sound\nwhoosh.pause();\n\n// Stop the sound and rewind to the beginning\nwhoosh.stop(() => {\n  // Note: If you want to play a sound after stopping and rewinding it,\n  // it is important to call play() in a callback.\n  whoosh.play();\n});\n\n// Release the audio player resource\nwhoosh.release();\n```\n\n## Notes\n- To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.\n- You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.\n- You may reuse a `Sound` instance for multiple playbacks.\n- On iOS, the module wraps `AVAudioPlayer` that supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/CoreAudioOverview/SupportedAudioFormatsMacOSX/SupportedAudioFormatsMacOSX.html\n- On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html\n- You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.\n',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: '05d2c1ac59ba56942a768a89e36a6f78f88e47f3',
+21 silly publish   bugs: { url: 'https://github.com/zmxv/react-native-sound/issues' },
+21 silly publish   homepage: 'https://github.com/zmxv/react-native-sound#readme',
+21 silly publish   _id: 'react-native-sound@0.10.4',
+21 silly publish   scripts: {},
+21 silly publish   _shasum: '39848064acf18af65a98cada7b2095fab1606b4e',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name react-native-sound
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry data Result {
+26 silly mapToRegistry   raw: 'react-native-sound',
+26 silly mapToRegistry   scope: null,
+26 silly mapToRegistry   escapedName: 'react-native-sound',
+26 silly mapToRegistry   name: 'react-native-sound',
+26 silly mapToRegistry   rawSpec: '',
+26 silly mapToRegistry   spec: 'latest',
+26 silly mapToRegistry   type: 'tag' }
+27 silly mapToRegistry uri https://registry.npmjs.org/react-native-sound
+28 verbose publish registryBase https://registry.npmjs.org/
+29 silly publish uploading /Users/karan/.npm/react-native-sound/0.10.4/package.tgz
+30 verbose request uri https://registry.npmjs.org/react-native-sound
+31 verbose request sending authorization for write operation
+32 info attempt registry request try #1 at 10:28:18 AM
+33 verbose request using bearer token for auth
+34 verbose request id c6c36fcd9cf16551
+35 http request PUT https://registry.npmjs.org/react-native-sound
+36 http 403 https://registry.npmjs.org/react-native-sound
+37 verbose headers { 'content-type': 'application/json',
+37 verbose headers   'cache-control': 'max-age=300',
+37 verbose headers   'content-length': '112',
+37 verbose headers   'accept-ranges': 'bytes',
+37 verbose headers   date: 'Wed, 25 Oct 2017 14:28:18 GMT',
+37 verbose headers   via: '1.1 varnish',
+37 verbose headers   connection: 'keep-alive',
+37 verbose headers   'x-served-by': 'cache-jfk8146-JFK',
+37 verbose headers   'x-cache': 'MISS',
+37 verbose headers   'x-cache-hits': '0',
+37 verbose headers   'x-timer': 'S1508941699.714220,VS0,VE263',
+37 verbose headers   vary: 'Accept-Encoding, Accept' }
+38 verbose request invalidating /Users/karan/.npm/registry.npmjs.org/react-native-sound on PUT
+39 error publish Failed PUT 403
+40 verbose stack Error: You do not have permission to publish "react-native-sound". Are you logged in as the correct user? : react-native-sound
+40 verbose stack     at makeError (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+40 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+40 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+40 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:200:22)
+40 verbose stack     at emitTwo (events.js:106:13)
+40 verbose stack     at Request.emit (events.js:191:7)
+40 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1067:10)
+40 verbose stack     at emitOne (events.js:101:20)
+40 verbose stack     at Request.emit (events.js:188:7)
+40 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:988:12)
+41 verbose statusCode 403
+42 verbose pkgid react-native-sound
+43 verbose cwd /Users/karan/Projects/react-native-sound
+44 error Darwin 15.6.0
+45 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "publish"
+46 error node v6.5.0
+47 error npm  v3.10.3
+48 error code E403
+49 error You do not have permission to publish "react-native-sound". Are you logged in as the correct user? : react-native-sound
+50 error If you need help, you may report this error at:
+50 error     <https://github.com/npm/npm/issues>
+51 verbose exit [ 1, true ]

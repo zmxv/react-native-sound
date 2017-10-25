@@ -1,12 +1,12 @@
 {
-  "name": "react-native-sound",
+  "name": "datacubed/react-native-sound",
   "version": "0.10.4",
   "description": "React Native module for playing sound clips on iOS, Android, and Windows",
   "main": "sound.js",
   "typings": "index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zmxv/react-native-sound.git"
+    "url": "git+https://github.com/humanprojectinc/react-native-sound.git"
   },
   "keywords": [
     "react-native",
