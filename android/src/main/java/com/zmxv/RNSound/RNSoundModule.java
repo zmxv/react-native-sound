@@ -162,7 +162,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         }
     }
 
-    File file = new File(fileName);
+    File file = new File(fileName.substring(7));
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
       // Mediaplayer is already prepared here.
