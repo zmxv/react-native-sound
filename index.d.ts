@@ -8,7 +8,7 @@ type AudioManagerAudioStreamType = 'ALARM' | 'DTMF' | 'MUSIC' | 'NOTIFICATION' |
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
-export default class Sound {
+declare class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
   static LIBRARY: string
@@ -126,6 +126,11 @@ export default class Sound {
   getNumberOfChannels(): number
 
   /**
+   * Return the time of audio (second)
+   */
+  getDuration(): number
+  
+  /**
    * Return the volume of the audio player (not the system-wide volume),
    * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
    */
@@ -206,3 +211,5 @@ export default class Sound {
    */
   isPlaying(): Promise<boolean>
 }
+
+export = Sound;

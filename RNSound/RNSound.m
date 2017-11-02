@@ -253,7 +253,6 @@ RCT_EXPORT_METHOD(setSpeed:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)v
   }
 }
 
-
 RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
