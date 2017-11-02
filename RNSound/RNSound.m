@@ -11,35 +11,6 @@
   NSMutableDictionary* _callbackPool;
 }
 
-@synthesize _key = _key;
-
-- (void)audioSessionChangeObserver:(NSNotification *)notification{
-    NSDictionary* userInfo = notification.userInfo;
-    AVAudioSessionRouteChangeReason audioSessionRouteChangeReason = [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
-    AVAudioSessionInterruptionType audioSessionInterruptionType   = [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
-    AVAudioPlayer* player = [self playerForKey:self._key];
-    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
-        if (player) {
-            [player play];
-        }
-    }
-    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
-        if (player) {
-            [player play];
-        }
-    }
-    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable){
-        if (player) {
-            [player pause];
-        }
-    }
-    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeBegan){
-        if (player) {
-            [player pause];
-        }
-    }
-}
-
 -(NSMutableDictionary*) playerPool {
   if (!_playerPool) {
     _playerPool = [NSMutableDictionary new];
@@ -221,9 +192,6 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
 }
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
-  [[AVAudioSession sharedInstance] setActive:YES error:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionChangeObserver:) name:AVAudioSessionRouteChangeNotification object:nil];
-  self._key = key;
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
@@ -254,8 +222,6 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
     [player stop];
     [[self callbackPool] removeObjectForKey:player];
     [[self playerPool] removeObjectForKey:key];
-    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    [notificationCenter removeObserver:self];
   }
 }
 
@@ -286,7 +252,6 @@ RCT_EXPORT_METHOD(setSpeed:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)v
     player.rate = [value floatValue];
   }
 }
-
 
 RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
   AVAudioPlayer* player = [self playerForKey:key];

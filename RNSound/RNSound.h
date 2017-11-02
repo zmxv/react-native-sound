@@ -9,5 +9,4 @@
 
 @interface RNSound : RCTEventEmitter <RCTBridgeModule, AVAudioPlayerDelegate>
 
-@property (nonatomic, weak) NSNumber* _key;
 @end
