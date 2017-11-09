@@ -48,6 +48,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
+      callback.invoke(e, NULL);
       return;
     }
 
