@@ -11,6 +11,35 @@
   NSMutableDictionary* _callbackPool;
 }
 
+@synthesize _key = _key;
+
+- (void)audioSessionChangeObserver:(NSNotification *)notification{
+    NSDictionary* userInfo = notification.userInfo;
+    AVAudioSessionRouteChangeReason audioSessionRouteChangeReason = [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
+    AVAudioSessionInterruptionType audioSessionInterruptionType   = [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
+    AVAudioPlayer* player = [self playerForKey:self._key];
+    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
+        if (player) {
+            [player play];
+        }
+    }
+    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
+        if (player) {
+            [player play];
+        }
+    }
+    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable){
+        if (player) {
+            [player pause];
+        }
+    }
+    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeBegan){
+        if (player) {
+            [player pause];
+        }
+    }
+}
+
 -(NSMutableDictionary*) playerPool {
   if (!_playerPool) {
     _playerPool = [NSMutableDictionary new];
@@ -72,6 +101,38 @@ RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
   [session setActive: enabled error: nil];
 }
 
+RCT_EXPORT_METHOD(setActive:(BOOL)active) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setActive: active error: nil];
+}
+
+RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSString *mode = nil;
+
+  if ([modeName isEqual: @"Default"]) {
+    mode = AVAudioSessionModeDefault;
+  } else if ([modeName isEqual: @"VoiceChat"]) {
+    mode = AVAudioSessionModeVoiceChat;
+  } else if ([modeName isEqual: @"VideoChat"]) {
+    mode = AVAudioSessionModeVideoChat;
+  } else if ([modeName isEqual: @"GameChat"]) {
+    mode = AVAudioSessionModeGameChat;
+  } else if ([modeName isEqual: @"VideoRecording"]) {
+    mode = AVAudioSessionModeVideoRecording;
+  } else if ([modeName isEqual: @"Measurement"]) {
+    mode = AVAudioSessionModeMeasurement;
+  } else if ([modeName isEqual: @"MoviePlayback"]) {
+    mode = AVAudioSessionModeMoviePlayback;
+  } else if ([modeName isEqual: @"SpokenAudio"]) {
+    mode = AVAudioSessionModeSpokenAudio;
+  }
+
+  if (mode) {
+    [session setMode: mode error: nil];
+  }
+}
+
 RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
     mixWithOthers:(BOOL)mixWithOthers) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -125,6 +186,10 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
     player = [[AVAudioPlayer alloc] initWithData:data error:&error];
   }
+  else if ([fileName hasPrefix:@"ipod-library://"]) {
+    fileNameUrl = [NSURL URLWithString:fileName];
+    player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl error:&error];
+  }
   else {
     fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
     player = [[AVAudioPlayer alloc]
@@ -145,6 +210,9 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
 }
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
+  [[AVAudioSession sharedInstance] setActive:YES error:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionChangeObserver:) name:AVAudioSessionRouteChangeNotification object:nil];
+  self._key = key;
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
@@ -175,6 +243,8 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
     [player stop];
     [[self callbackPool] removeObjectForKey:player];
     [[self playerPool] removeObjectForKey:key];
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter removeObserver:self];
   }
 }
 
