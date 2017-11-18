@@ -82,10 +82,8 @@ Sound.prototype.reset = function() {
 };
 
 Sound.prototype.release = function() {
-  if (this._loaded) {
-    RNSound.release(this._key);
-    this._loaded = false;
-  }
+  RNSound.release(this._key);
+  this._loaded = false;
   return this;
 };
 

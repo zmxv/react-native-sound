@@ -82,7 +82,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         if (callbackWasCalled) return;
         callbackWasCalled = true;
 
-        module.playerPool.put(key, mp);
         WritableMap props = Arguments.createMap();
         props.putDouble("duration", mp.getDuration() * .001);
         try {
@@ -114,6 +113,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         return true;
       }
     });
+
+    module.playerPool.put(key, player);
 
     try {
       player.prepareAsync();
