@@ -121,9 +121,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       } else {
         player.prepareAsync();
       }
-    } catch (IllegalStateException ignored) {
+    } catch (Exception ignored) {
       // When loading files from a file, we useMediaPlayer.create, which actually
       // prepares the audio for us already. So we catch and ignore this error
+      Log.e("RNSoundModule", "Exception", ignored);
     }
   }
 
