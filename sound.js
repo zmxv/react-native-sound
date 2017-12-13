@@ -4,10 +4,19 @@ var RNSound = require('react-native').NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
 var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
-var nextKey = 0;
 
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
+}
+
+// Hash function to compute key from the filename
+function djb2Code(str) {
+  var hash = 5381, i, char;
+  for (i = 0; i < str.length; i++) {
+      char = str.charCodeAt(i);
+      hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+  }
+  return hash;
 }
 
 function Sound(filename, basePath, onError, options) {
@@ -24,7 +33,7 @@ function Sound(filename, basePath, onError, options) {
   }
 
   this._loaded = false;
-  this._key = nextKey++;
+  this._key = djb2Code(filename);
   this._duration = -1;
   this._numberOfChannels = -1;
   this._volume = 1;
