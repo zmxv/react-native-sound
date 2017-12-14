@@ -294,4 +294,9 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
   }
 }
 
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
 @end
