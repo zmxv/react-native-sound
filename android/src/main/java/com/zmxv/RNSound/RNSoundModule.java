@@ -329,7 +329,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       MediaPlayer player = this.playerPool.get(key);
       if (player != null) {
-        player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+        if (player.isPlaying()) {
+          player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+        } else {
+          player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
+          player.pause();
+        }
       }
     }
   }
