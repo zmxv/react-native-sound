@@ -42,7 +42,7 @@ declare class Sound {
    * Register a listener for changes of headsetPluggedIn
    */
   static registerHeadsetPlugChangeListener(): void
-  
+
   /**
    * Unregister the attached listener for changes of headsetPluggedIn
    */
@@ -82,7 +82,7 @@ declare class Sound {
    * @param filename Either absolute or relative path to the sound file
    * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
    * @param onError Optional callback function if loading file failed
-   * @param options Optional feature 
+   * @param options Optional feature
    */
   constructor(filename: string, basePath: string, onError: (error: any) => void, options: { audioStreamType: AudioManagerAudioStreamType })
 
@@ -129,7 +129,7 @@ declare class Sound {
    * Return the time of audio (second)
    */
   getDuration(): number
-  
+
   /**
    * Return the volume of the audio player (not the system-wide volume),
    * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
@@ -207,9 +207,9 @@ declare class Sound {
   setSpeakerphoneOn(value: boolean): void
 
   /**
-   * Return promise with isPlaying.
+   * Return whether the audio player is currently playing or not
    */
-  isPlaying(): Promise<boolean>
+  isPlaying(): boolean
 }
 
 export = Sound;

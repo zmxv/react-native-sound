@@ -47,6 +47,7 @@
   if (key == nil) return;
 
   @synchronized(key) {
+    [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
       callback(@[@(flag)]);
@@ -59,7 +60,7 @@ RCT_EXPORT_MODULE();
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"RouteChange"];
+    return @[@"RouteChange", @"onPlayChange"];
 }
 
 -(NSDictionary *)constantsToExport {
@@ -196,6 +197,7 @@ RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
+    [self setOnPlay:YES forPlayerKey:key];
   }
 }
 
@@ -291,7 +293,7 @@ RCT_REMAP_METHOD(isHeadsetPlugged,
 
 - (BOOL)isHeadsetPlugged {
     AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
-    
+
     BOOL headphonesLocated = NO;
     for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
         headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
@@ -303,6 +305,11 @@ RCT_REMAP_METHOD(isHeadsetPlugged,
     BOOL headsetPlugged = [self isHeadsetPlugged];
 
     [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPlugged": headsetPlugged ? @YES : @NO}];
+}
+
+- (void)setOnPlay:(BOOL)isPlaying forPlayerKey:(nonnull NSNumber*)playerKey {
+
+    [self sendEventWithName:@"onPlayChange" body:@{@"isPlaying": isPlaying ? @YES : @NO, @"playerKey": playerKey}];
 }
 
 RCT_EXPORT_METHOD(addRouteChangeListener) {
@@ -317,18 +324,6 @@ RCT_EXPORT_METHOD(removeRouteChangeListener) {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:@"AVAudioSessionRouteChangeNotification"
                                                 object: [AVAudioSession sharedInstance]];
-}
-
-RCT_REMAP_METHOD(isPlaying,
-                 playerKey:(nonnull NSNumber*)key
-                 resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
-  AVAudioPlayer* player = [self playerForKey:key];
-  if (player) {
-    resolve(@(player.isPlaying));
-  } else {
-    resolve(@(false));
-  }
 }
 
 @end

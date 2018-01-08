@@ -44,6 +44,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     this.category = null;
   }
 
+  private void setOnPlay(boolean isPlaying, final Integer playerKey) {
+    final ReactContext reactContext = this.context;
+    WritableMap params = Arguments.createMap();
+    params.putBoolean("isPlaying", isPlaying);
+    params.putInt("playerKey", playerKey);
+    sendEvent(reactContext, "onPlayChange", params);
+  }
+
   @Override
   public String getName() {
     return "RNSound";
@@ -83,7 +91,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
     final RNSoundModule module = this;
     final int audioStreamTypeFinal = audioStreamType;
-    
+
     if (module.category != null) {
       Integer category = null;
       switch (module.category) {
@@ -214,6 +222,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   public void play(final Integer key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player == null) {
+      setOnPlay(false, key);
       callback.invoke(false);
       return;
     }
@@ -226,6 +235,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       @Override
       public synchronized void onCompletion(MediaPlayer mp) {
         if (!mp.isLooping()) {
+          setOnPlay(false, key);
           if (callbackWasCalled) return;
           callbackWasCalled = true;
           try {
@@ -241,6 +251,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
       @Override
       public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+        setOnPlay(false, key);
         if (callbackWasCalled) return true;
         callbackWasCalled = true;
         callback.invoke(false);
@@ -248,6 +259,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       }
     });
     player.start();
+    setOnPlay(true, key);
   }
 
   @ReactMethod
@@ -375,16 +387,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void enable(final Boolean enabled) {
     // no op
-  }
-
-  @ReactMethod
-  public void isPlaying(final Integer key, Promise promise) {
-    MediaPlayer player = this.playerPool.get(key);
-    if (player != null) {
-      promise.resolve(player.isPlaying());
-    } else {
-      promise.resolve(false);
-    }
   }
 
   private void sendEvent(ReactContext reactContext,
