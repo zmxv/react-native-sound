@@ -210,7 +210,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
         if (callbackWasCalled) return true;
         callbackWasCalled = true;
-        callback.invoke(false);
+        try {
+          callback.invoke(true);
+        } catch (Exception e) {
+          //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+        }
         return true;
       }
     });
