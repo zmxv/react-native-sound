@@ -52,6 +52,11 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 
 https://github.com/zmxv/react-native-sound-demo
 
+## Permission
+
+* Android
+  * android.permission.MODIFY_AUDIO_SETTINGS: for setSpeakerphoneOn
+
 ## Basic usage
 
 First you'll need to add audio files to your project.

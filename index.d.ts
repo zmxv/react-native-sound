@@ -4,6 +4,7 @@
 // TypeScript Version: 2.3.2
 
 type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute'
+type AudioManagerAudioStreamType = 'ALARM' | 'DTMF' | 'MUSIC' | 'NOTIFICATION' | 'RING' | 'SYSTEM' | 'VOICE_CALL'
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
@@ -12,6 +13,40 @@ declare class Sound {
   static DOCUMENT: string
   static LIBRARY: string
   static CACHES: string
+
+  /**
+   * (Android Only) Adjusts stream volume.
+   * Parameter: Please refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   *
+   * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param direction The direction to adjust the volume. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param flags One or more flags. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   */
+  static adjustStreamVolume(streamType: number, direction: number, flags: number): void
+
+  /**
+   * (Android Only) Mute or unmute an audio stream.
+   * Parameter: Please refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   *
+   * @param streamType The stream type to adjust. Refer constants in https://developer.android.com/reference/android/media/AudioManager.html
+   * @param state
+   */
+  static setStreamMute(streamType: number, state: boolean): void
+
+  /**
+   * Return promise with isHeadsetPluggedIn.
+   */
+  static isHeadsetPlugged(): Promise<boolean>
+
+  /**
+   * Register a listener for changes of headsetPluggedIn
+   */
+  static registerHeadsetPlugChangeListener(): void
+
+  /**
+   * Unregister the attached listener for changes of headsetPluggedIn
+   */
+  static unregisterHeadsetPlugChangeListener(): void
 
   /**
    * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
@@ -30,8 +65,9 @@ declare class Sound {
    *
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param allowBluetooth Can be set to true to allow bluetooth handsfree devices.
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean, allowBluetooth: boolean): void
 
   /**
    * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
@@ -46,8 +82,9 @@ declare class Sound {
    * @param filename Either absolute or relative path to the sound file
    * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
    * @param onError Optional callback function if loading file failed
+   * @param options Optional feature
    */
-  constructor(filename: string, basePath: string, onError: (error: any) => void)
+  constructor(filename: string, basePath: string, onError: (error: any) => void, options: { audioStreamType: AudioManagerAudioStreamType })
 
   /**
    * Return true if the sound has been loaded.
@@ -92,7 +129,7 @@ declare class Sound {
    * Return the time of audio (second)
    */
   getDuration(): number
-  
+
   /**
    * Return the volume of the audio player (not the system-wide volume),
    * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
@@ -168,6 +205,11 @@ declare class Sound {
    * @param value
    */
   setSpeakerphoneOn(value: boolean): void
+
+  /**
+   * Return whether the audio player is currently playing or not
+   */
+  isPlaying(): boolean
 }
 
 export = Sound;

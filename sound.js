@@ -1,10 +1,13 @@
 'use strict';
 
-var RNSound = require('react-native').NativeModules.RNSound;
+var { NativeModules, NativeEventEmitter } = require('react-native');
+var RNSound = NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
 var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
 var nextKey = 0;
+
+var eventEmitter = new NativeEventEmitter(RNSound);
 
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
@@ -23,7 +26,32 @@ function Sound(filename, basePath, onError, options) {
     }
   }
 
+  this.registerOnPlay = function() {
+    if (this.onPlaySubscription != null) {
+      console.warn('On Play change event listener is already registered');
+      return;
+    }
+
+    if (!IsWindows) {
+      this.onPlaySubscription = eventEmitter.addListener(
+        'onPlayChange',
+        (param) => {
+          const { isPlaying, playerKey } = param;
+          if (playerKey === this._key) {
+            if (isPlaying) {
+              this._playing = true;
+            }
+            else {
+              this._playing = false;
+            }
+          }
+        },
+      );
+    }
+  }
+
   this._loaded = false;
+  this._playing = false;
   this._key = nextKey++;
   this._duration = -1;
   this._numberOfChannels = -1;
@@ -42,6 +70,7 @@ function Sound(filename, basePath, onError, options) {
     }
     if (error === null) {
       this._loaded = true;
+      this.registerOnPlay();
     }
     onError && onError(error, props);
   });
@@ -54,7 +83,15 @@ Sound.prototype.isLoaded = function() {
 Sound.prototype.play = function(onEnd) {
   if (this._loaded) {
     RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
-  } else {
+    if (IsAndroid) {
+      // For Android
+      // Manually call native setSpeed() after native play() to apply current speed.
+      // Native setSpeed method should be called only if the media player is already playing.
+      // To prevent android from playing automatically when setSpeed is called.
+      RNSound.setSpeed(this._key, this._speed);
+    }
+  }
+  else {
     onEnd && onEnd(false);
   }
   return this;
@@ -62,14 +99,20 @@ Sound.prototype.play = function(onEnd) {
 
 Sound.prototype.pause = function(callback) {
   if (this._loaded) {
-    RNSound.pause(this._key, () => { callback && callback() });
+    RNSound.pause(this._key, () => {
+      this._playing = false;
+      callback && callback();
+    });
   }
   return this;
 };
 
 Sound.prototype.stop = function(callback) {
   if (this._loaded) {
-    RNSound.stop(this._key, () => { callback && callback() });
+    RNSound.stop(this._key, () => {
+      this._playing = false;
+      callback && callback();
+    });
   }
   return this;
 };
@@ -77,6 +120,7 @@ Sound.prototype.stop = function(callback) {
 Sound.prototype.reset = function() {
   if (this._loaded && IsAndroid) {
     RNSound.reset(this._key);
+    this._playing = false;
   }
   return this;
 };
@@ -85,6 +129,12 @@ Sound.prototype.release = function() {
   if (this._loaded) {
     RNSound.release(this._key);
     this._loaded = false;
+    if (!IsWindows) {
+      if (this.onPlaySubscription != null) {
+        this.onPlaySubscription.remove();
+        this.onPlaySubscription = null;
+      }
+    }
   }
   return this;
 };
@@ -114,7 +164,7 @@ Sound.prototype.setVolume = function(value) {
 };
 
 Sound.prototype.getSystemVolume = function(callback) {
-  if(IsAndroid) {
+  if (IsAndroid) {
     RNSound.getSystemVolume(callback);
   }
   return this;
@@ -155,10 +205,17 @@ Sound.prototype.setNumberOfLoops = function(value) {
 };
 
 Sound.prototype.setSpeed = function(value) {
-  this._setSpeed = value;
+  this._speed = value;
   if (this._loaded) {
-    if (!IsWindows) {
+    if (!IsWindows && !IsAndroid) {
       RNSound.setSpeed(this._key, value);
+    } else if (IsAndroid) {
+      // For Android
+      // Call native setSpeed method only if the media player is already playing.
+      // To prevent android from playing automatically when setSpeed is called.
+      if (this._playing) {
+        RNSound.setSpeed(this._key, value);
+      }
     }
   }
   return this;
@@ -181,8 +238,58 @@ Sound.prototype.setCurrentTime = function(value) {
 Sound.prototype.setSpeakerphoneOn = function(value) {
   if (IsAndroid) {
     RNSound.setSpeakerphoneOn(this._key, value);
+  } else if (!IsAndroid && !IsWindows) {
+    RNSound.setSpeakerphoneOn(value);
   }
 };
+
+Sound.prototype.isPlaying = function() {
+  return this._playing;
+};
+
+Sound.adjustStreamVolume = function(streamType, direction, flags) {
+  if (IsAndroid) {
+    RNSound.adjustStreamVolume(streamType, direction, flags);
+  }
+}
+
+Sound.setStreamMute = function(streamType, state) {
+  if (IsAndroid) {
+    RNSound.setStreamMute(streamType, state);
+  }
+}
+
+Sound.isHeadsetPlugged = function() {
+  return RNSound.isHeadsetPlugged();
+};
+
+Sound.registerHeadsetPlugChangeListener = function(headsetPluggedInListener) {
+  // console.log('Register headset plug change event listener');
+  if (this.headsetPluggedInSubscription != null) {
+    console.warn('Headset plug change event listener is already registered');
+    return;
+  }
+
+  if (!IsWindows) {
+    // Remove route change listener first
+    RNSound.addRouteChangeListener();
+    this.headsetPluggedInSubscription = eventEmitter.addListener(
+      'RouteChange',
+      headsetPluggedInListener,
+    );
+  }
+};
+
+Sound.unregisterHeadsetPlugChangeListener = function() {
+  // console.log('Unregister headset plug change event listener');
+  if (!IsWindows) {
+    if (this.headsetPluggedInSubscription != null) {
+      RNSound.removeRouteChangeListener();
+      this.headsetPluggedInSubscription.remove();
+      this.headsetPluggedInSubscription = null;
+    }
+  }
+}
 
 // ios only
 
@@ -208,9 +315,9 @@ Sound.setActive = function(value) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
-  if (!IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+Sound.setCategory = function(value, mixWithOthers = false, allowBluetooth = false) {
+  if (!IsAndroid && !IsWindows) {
+    RNSound.setCategory(value, mixWithOthers, allowBluetooth);
   }
 };
 

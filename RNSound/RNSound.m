@@ -11,35 +11,6 @@
   NSMutableDictionary* _callbackPool;
 }
 
-@synthesize _key = _key;
-
-- (void)audioSessionChangeObserver:(NSNotification *)notification{
-    NSDictionary* userInfo = notification.userInfo;
-    AVAudioSessionRouteChangeReason audioSessionRouteChangeReason = [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
-    AVAudioSessionInterruptionType audioSessionInterruptionType   = [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
-    AVAudioPlayer* player = [self playerForKey:self._key];
-    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
-        if (player) {
-            [player play];
-        }
-    }
-    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
-        if (player) {
-            [player play];
-        }
-    }
-    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable){
-        if (player) {
-            [player pause];
-        }
-    }
-    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeBegan){
-        if (player) {
-            [player pause];
-        }
-    }
-}
-
 -(NSMutableDictionary*) playerPool {
   if (!_playerPool) {
     _playerPool = [NSMutableDictionary new];
@@ -76,6 +47,7 @@
   if (key == nil) return;
 
   @synchronized(key) {
+    [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
       callback(@[@(flag)]);
@@ -85,6 +57,11 @@
 }
 
 RCT_EXPORT_MODULE();
+
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"RouteChange", @"onPlayChange"];
+}
 
 -(NSDictionary *)constantsToExport {
   return @{@"IsAndroid": [NSNumber numberWithBool:NO],
@@ -134,7 +111,7 @@ RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
 }
 
 RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
-    mixWithOthers:(BOOL)mixWithOthers) {
+    mixWithOthers:(BOOL)mixWithOthers allowBluetooth:(BOOL)allowBluetooth) {
   AVAudioSession *session = [AVAudioSession sharedInstance];
   NSString *category = nil;
 
@@ -159,8 +136,14 @@ RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName
   }
 
   if (category) {
-    if (mixWithOthers) {
-        [session setCategory: category withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
+    if (mixWithOthers && !allowBluetooth) {
+      [session setCategory: category withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
+    } else if (!mixWithOthers && allowBluetooth) {
+      [session setCategory: category withOptions:AVAudioSessionCategoryOptionAllowBluetooth error: nil];
+    } else if (mixWithOthers && allowBluetooth) {
+      [session setCategory: category
+               withOptions:AVAudioSessionCategoryOptionMixWithOthers|AVAudioSessionCategoryOptionAllowBluetooth
+                     error: nil];
     } else {
       [session setCategory: category error: nil];
     }
@@ -210,13 +193,11 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
 }
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
-  [[AVAudioSession sharedInstance] setActive:YES error:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionChangeObserver:) name:AVAudioSessionRouteChangeNotification object:nil];
-  self._key = key;
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
+    [self setOnPlay:YES forPlayerKey:key];
   }
 }
 
@@ -243,8 +224,6 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
     [player stop];
     [[self callbackPool] removeObjectForKey:player];
     [[self playerPool] removeObjectForKey:key];
-    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    [notificationCenter removeObserver:self];
   }
 }
 
@@ -276,7 +255,6 @@ RCT_EXPORT_METHOD(setSpeed:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)v
   }
 }
 
-
 RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
@@ -292,6 +270,60 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
   } else {
     callback(@[@(-1), @(false)]);
   }
+}
+
+RCT_EXPORT_METHOD(setSpeakerphoneOn:(BOOL)enabled) {
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  AVAudioSessionCategoryOptions categoryOptions = [session categoryOptions];
+  if (enabled) {
+    categoryOptions = categoryOptions | AVAudioSessionCategoryOptionDefaultToSpeaker;
+  } else {
+    categoryOptions = categoryOptions & ~AVAudioSessionCategoryOptionDefaultToSpeaker;
+  }
+  [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions: categoryOptions error: &error];
+}
+
+RCT_REMAP_METHOD(isHeadsetPlugged,
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  BOOL headsetPlugged = [self isHeadsetPlugged];
+  resolve(@(headsetPlugged));
+}
+
+- (BOOL)isHeadsetPlugged {
+    AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+
+    BOOL headphonesLocated = NO;
+    for( AVAudioSessionPortDescription *portDescription in route.outputs ) {
+        headphonesLocated |= ( [portDescription.portType isEqualToString:AVAudioSessionPortHeadphones] );
+    }
+    return headphonesLocated;
+}
+
+- (void)routeChange:(NSNotification*)notification {
+    BOOL headsetPlugged = [self isHeadsetPlugged];
+
+    [self sendEventWithName:@"RouteChange" body:@{@"isHeadsetPlugged": headsetPlugged ? @YES : @NO}];
+}
+
+- (void)setOnPlay:(BOOL)isPlaying forPlayerKey:(nonnull NSNumber*)playerKey {
+
+    [self sendEventWithName:@"onPlayChange" body:@{@"isPlaying": isPlaying ? @YES : @NO, @"playerKey": playerKey}];
+}
+
+RCT_EXPORT_METHOD(addRouteChangeListener) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(routeChange:) // selector //@selector(callback)
+                                                 name:@"AVAudioSessionRouteChangeNotification"
+                                               object:[AVAudioSession sharedInstance]];
+
+}
+
+RCT_EXPORT_METHOD(removeRouteChangeListener) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:@"AVAudioSessionRouteChangeNotification"
+                                                object: [AVAudioSession sharedInstance]];
 }
 
 @end
