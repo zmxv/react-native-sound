@@ -353,7 +353,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     callback.invoke(player.getCurrentPosition() * .001, player.isPlaying());
   }
 
-  
   //turn speaker on
   @ReactMethod
   public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
