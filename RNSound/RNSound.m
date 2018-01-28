@@ -24,7 +24,7 @@
         }
     }
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
-        if (player) {
+        if (player && player.isPlaying) {
             [player play];
         }
     }
