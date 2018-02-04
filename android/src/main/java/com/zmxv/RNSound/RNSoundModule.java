@@ -179,10 +179,17 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
     File file = new File(fileName);
     if (file.exists()) {
-      Uri uri = Uri.fromFile(file);
-      // Mediaplayer is already prepared here.
-      return MediaPlayer.create(this.context, uri);
+      mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+      Log.i("RNSoundModule", fileName);
+      try {
+          mediaPlayer.setDataSource(fileName);
+      } catch(IOException e) {
+          Log.e("RNSoundModule", "Exception", e);
+          return null;
+      }
+      return mediaPlayer;
     }
+    
     return null;
   }
 
