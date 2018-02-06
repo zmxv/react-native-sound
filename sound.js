@@ -90,13 +90,6 @@ Sound.prototype.isLoaded = function() {
 Sound.prototype.play = function(onEnd) {
   if (this._loaded) {
     RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
-    if (IsAndroid) {
-      // For Android
-      // Manually call native setSpeed() after native play() to apply current speed.
-      // Native setSpeed method should be called only if the media player is already playing.
-      // To prevent android from playing automatically when setSpeed is called.
-      RNSound.setSpeed(this._key, this._speed);
-    }
   } else {
     onEnd && onEnd(false);
   }
@@ -213,15 +206,8 @@ Sound.prototype.setNumberOfLoops = function(value) {
 Sound.prototype.setSpeed = function(value) {
   this._speed = value;
   if (this._loaded) {
-    if (!IsWindows && !IsAndroid) {
+    if (!IsWindows) {
       RNSound.setSpeed(this._key, value);
-    } else if (IsAndroid) {
-      // For Android
-      // Call native setSpeed method only if the media player is already playing.
-      // To prevent android from playing automatically when setSpeed is called.
-      if (this._playing) {
-        RNSound.setSpeed(this._key, value);
-      }
     }
   }
   return this;
