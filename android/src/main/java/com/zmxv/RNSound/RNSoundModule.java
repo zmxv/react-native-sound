@@ -189,12 +189,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   @ReactMethod
   public void play(final Integer key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
+
     if (player == null) {
       if (callback != null) {
           callback.invoke(false);
       }
       return;
     }
+    
     if (player.isPlaying()) {
       return;
     }
@@ -202,9 +204,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     // Request audio focus in Android system
     if (!this.mixWithOthers) {
       AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-      
       audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
       this.focusedPlayerKey = key;
     }
 
@@ -224,6 +224,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         }
       }
     });
+
     player.setOnErrorListener(new OnErrorListener() {
       boolean callbackWasCalled = false;
 
@@ -266,9 +267,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     if (!this.mixWithOthers && key == this.focusedPlayerKey) {
       AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
       audioManager.abandonAudioFocus(this);
+      this.focusedPlayerKey = null;
     }
 
-    callback.invoke();
+    if (callback != null) {
+      callback.invoke();
+    }
   }
 
   @ReactMethod
@@ -290,6 +294,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       if (!this.mixWithOthers && key == this.focusedPlayerKey) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         audioManager.abandonAudioFocus(this);
+        this.focusedPlayerKey = null;
       }
     }
   }
