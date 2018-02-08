@@ -59,7 +59,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     final RNSoundModule module = this;
 
     if (module.category != null) {
-      Double category = null;
+      Integer category = null;
       switch (module.category) {
         case "Playback":
           category = AudioManager.STREAM_MUSIC;
