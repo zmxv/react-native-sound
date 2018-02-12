@@ -25,13 +25,13 @@ import java.io.IOException;
 import android.util.Log;
 
 public class RNSoundModule extends ReactContextBaseJavaModule implements AudioManager.OnAudioFocusChangeListener {
-  Map<Integer, MediaPlayer> playerPool = new HashMap<>();
+  Map<Double, MediaPlayer> playerPool = new HashMap<>();
   ReactApplicationContext context;
   final static Object NULL = null;
   String category;
   Boolean mixWithOthers = true;
 
-  Integer focusedPlayerKey;
+  Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange;
 
   public RNSoundModule(ReactApplicationContext context) {
@@ -54,7 +54,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void prepare(final String fileName, final Integer key, final ReadableMap options, final Callback callback) {
+  public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
@@ -195,7 +195,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void play(final Integer key, final Callback callback) {
+  public void play(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player == null) {
       setOnPlay(false, key);
@@ -255,7 +255,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void pause(final Integer key, final Callback callback) {
+  public void pause(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
@@ -267,7 +267,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void stop(final Integer key, final Callback callback) {
+  public void stop(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
@@ -284,7 +284,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void reset(final Integer key) {
+  public void reset(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.reset();
@@ -292,7 +292,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void release(final Integer key) {
+  public void release(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.release();
@@ -307,7 +307,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void setVolume(final Integer key, final Float left, final Float right) {
+  public void setVolume(final Double key, final Float left, final Float right) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setVolume(left, right);
@@ -337,7 +337,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void setLooping(final Integer key, final Boolean looping) {
+  public void setLooping(final Double key, final Boolean looping) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setLooping(looping);
@@ -345,7 +345,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void setSpeed(final Integer key, final Float speed) {
+  public void setSpeed(final Double key, final Float speed) {
 	if (android.os.Build.VERSION.SDK_INT < 23) {
 	  Log.w("RNSoundModule", "setSpeed ignored due to sdk limit");
 	  return;
@@ -358,7 +358,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void setCurrentTime(final Integer key, final Float sec) {
+  public void setCurrentTime(final Double key, final Float sec) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.seekTo((int)Math.round(sec * 1000));
@@ -366,7 +366,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void getCurrentTime(final Integer key, final Callback callback) {
+  public void getCurrentTime(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player == null) {
       callback.invoke(-1, false);
@@ -377,7 +377,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   //turn speaker on
   @ReactMethod
-  public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
+  public void setSpeakerphoneOn(final Double key, final Boolean speaker) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setAudioStreamType(AudioManager.STREAM_MUSIC);
