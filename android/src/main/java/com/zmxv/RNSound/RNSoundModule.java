@@ -202,7 +202,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     // Request audio focus in Android system
     if (!this.mixWithOthers) {
       AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
+      
       audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
       this.focusedPlayerKey = key;
@@ -248,7 +248,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     if (player != null && player.isPlaying()) {
       player.pause();
     }
-
+    
     if (callback != null) {
       callback.invoke();
     }
@@ -261,7 +261,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       player.pause();
       player.seekTo(0);
     }
-
+    
     // Release audio focus in Android system
     if (!this.mixWithOthers && key == this.focusedPlayerKey) {
       AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -389,7 +389,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   public void onAudioFocusChange(int focusChange) {
     if (!this.mixWithOthers) {
       MediaPlayer player = this.playerPool.get(this.focusedPlayerKey);
-
+      
       if (player != null) {
         if (focusChange <= 0) {
             this.wasPlayingBeforeFocusChange = player.isPlaying();
