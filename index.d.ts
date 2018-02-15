@@ -168,6 +168,11 @@ declare class Sound {
    * @param value
    */
   setSpeakerphoneOn(value: boolean): void
+
+  /**
+   * Whether the player is playing or not.
+   */
+  isPlaying(): boolean
 }
 
 export = Sound;

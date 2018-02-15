@@ -76,6 +76,7 @@
   if (key == nil) return;
 
   @synchronized(key) {
+    [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
       callback(@[@(flag)]);
@@ -85,6 +86,11 @@
 }
 
 RCT_EXPORT_MODULE();
+
+-(NSArray<NSString *> *)supportedEvents
+  {
+    return @[@"onPlayChange"];
+  }
 
 -(NSDictionary *)constantsToExport {
   return @{@"IsAndroid": [NSNumber numberWithBool:NO],
@@ -217,6 +223,7 @@ RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
+    [self setOnPlay:YES forPlayerKey:key];
   }
 }
 
@@ -298,5 +305,7 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
 {
     return YES;
 }
-
+- (void)setOnPlay:(BOOL)isPlaying forPlayerKey:(nonnull NSNumber*)playerKey {
+  [self sendEventWithName:@"onPlayChange" body:@{@"isPlaying": isPlaying ? @YES : @NO, @"playerKey": playerKey}];
+}
 @end
