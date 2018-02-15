@@ -30,9 +30,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   final static Object NULL = null;
   String category;
   Boolean mixWithOthers = true;
-
-  Double focusedPlayerKey;
-  Boolean wasPlayingBeforeFocusChange;
+  Integer focusedPlayerKey;
+  Boolean wasPlayingBeforeFocusChange = false;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
