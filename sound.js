@@ -4,6 +4,7 @@ var RNSound = require('react-native').NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
 var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
+var eventEmitter = new NativeEventEmitter(RNSound);
 
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
@@ -32,8 +33,33 @@ function Sound(filename, basePath, onError, options) {
     }
   }
 
+  this.registerOnPlay = function() {
+    if (this.onPlaySubscription != null) {
+      console.warn('On Play change event listener is already registered');
+      return;
+    }
+
+    if (!IsWindows) {
+      this.onPlaySubscription = eventEmitter.addListener(
+        'onPlayChange',
+        (param) => {
+          const { isPlaying, playerKey } = param;
+          if (playerKey === this._key) {
+            if (isPlaying) {
+              this._playing = true;
+            }
+            else {
+              this._playing = false;
+            }
+          }
+        },
+      );
+    }
+  }
+
   this._loaded = false;
   this._key = asset ? filename : djb2Code(filename); //if the file is an asset, use the asset number as the key
+  this._playing = false;
   this._duration = -1;
   this._numberOfChannels = -1;
   this._volume = 1;
@@ -51,6 +77,7 @@ function Sound(filename, basePath, onError, options) {
     }
     if (error === null) {
       this._loaded = true;
+      this.registerOnPlay();
     }
     onError && onError(error, props);
   });
@@ -71,14 +98,20 @@ Sound.prototype.play = function(onEnd) {
 
 Sound.prototype.pause = function(callback) {
   if (this._loaded) {
-    RNSound.pause(this._key, () => { callback && callback() });
+    RNSound.pause(this._key, () => {
+      this._playing = false;
+      callback && callback();
+    });
   }
   return this;
 };
 
 Sound.prototype.stop = function(callback) {
   if (this._loaded) {
-    RNSound.stop(this._key, () => { callback && callback() });
+    RNSound.stop(this._key, () => {
+      this._playing = false;
+      callback && callback();
+    });
   }
   return this;
 };
@@ -86,6 +119,7 @@ Sound.prototype.stop = function(callback) {
 Sound.prototype.reset = function() {
   if (this._loaded && IsAndroid) {
     RNSound.reset(this._key);
+    this._playing = false;
   }
   return this;
 };
@@ -94,6 +128,12 @@ Sound.prototype.release = function() {
   if (this._loaded) {
     RNSound.release(this._key);
     this._loaded = false;
+    if (!IsWindows) {
+      if (this.onPlaySubscription != null) {
+        this.onPlaySubscription.remove();
+        this.onPlaySubscription = null;
+      }
+    }
   }
   return this;
 };
@@ -164,7 +204,7 @@ Sound.prototype.setNumberOfLoops = function(value) {
 };
 
 Sound.prototype.setSpeed = function(value) {
-  this._setSpeed = value;
+  this._speed = value;
   if (this._loaded) {
     if (!IsWindows) {
       RNSound.setSpeed(this._key, value);
@@ -199,6 +239,10 @@ Sound.prototype.setSpeakerphoneOn = function(value) {
 
 Sound.prototype.setCategory = function(value) {
   Sound.setCategory(value, false);
+}
+
+Sound.prototype.isPlaying = function() {
+  return this._playing;
 }
 
 Sound.enable = function(enabled) {
