@@ -1,10 +1,11 @@
 'use strict';
 
-var RNSound = require('react-native').NativeModules.RNSound;
+var ReactNative = require('react-native');
+var RNSound = ReactNative.NativeModules.RNSound;
 var IsAndroid = RNSound.IsAndroid;
 var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
-var eventEmitter = new NativeEventEmitter(RNSound);
+var eventEmitter = new ReactNative.NativeEventEmitter(RNSound);
 
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
