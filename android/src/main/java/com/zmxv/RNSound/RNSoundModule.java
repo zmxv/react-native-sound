@@ -24,16 +24,27 @@ import java.io.IOException;
 
 import android.util.Log;
 
-public class RNSoundModule extends ReactContextBaseJavaModule {
-  Map<Integer, MediaPlayer> playerPool = new HashMap<>();
+public class RNSoundModule extends ReactContextBaseJavaModule implements AudioManager.OnAudioFocusChangeListener {
+  Map<Double, MediaPlayer> playerPool = new HashMap<>();
   ReactApplicationContext context;
   final static Object NULL = null;
   String category;
+  Boolean mixWithOthers = true;
+  Integer focusedPlayerKey;
+  Boolean wasPlayingBeforeFocusChange = false;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
     this.context = context;
     this.category = null;
+  }
+
+  private void setOnPlay(boolean isPlaying, final Integer playerKey) {
+    final ReactContext reactContext = this.context;
+    WritableMap params = Arguments.createMap();
+    params.putBoolean("isPlaying", isPlaying);
+    params.putInt("playerKey", playerKey);
+    sendEvent(reactContext, "onPlayChange", params);
   }
 
   @Override
@@ -42,7 +53,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void prepare(final String fileName, final Integer key, final ReadableMap options, final Callback callback) {
+  public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
@@ -50,6 +61,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       e.putString("message", "resource not found");
       return;
     }
+    this.playerPool.put(key, player);
 
     final RNSoundModule module = this;
 
@@ -64,6 +76,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
           break;
         case "System":
           category = AudioManager.STREAM_SYSTEM;
+          break;
+        case "Voice":
+          category = AudioManager.STREAM_VOICE_CALL;
+          break;
+        case "Ring":
+          category = AudioManager.STREAM_RING;
           break;
         default:
           Log.e("RNSoundModule", String.format("Unrecognised category %s", module.category));
@@ -117,10 +135,15 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     module.playerPool.put(key, player);
 
     try {
-      player.prepareAsync();
-    } catch (IllegalStateException ignored) {
+      if(options.hasKey("loadSync") && options.getBoolean("loadSync")) {
+        player.prepare();
+      } else {
+        player.prepareAsync();
+      }
+    } catch (Exception ignored) {
       // When loading files from a file, we useMediaPlayer.create, which actually
       // prepares the audio for us already. So we catch and ignore this error
+      Log.e("RNSoundModule", "Exception", ignored);
     }
   }
 
@@ -165,29 +188,50 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
     File file = new File(fileName);
     if (file.exists()) {
-      Uri uri = Uri.fromFile(file);
-      // Mediaplayer is already prepared here.
-      return MediaPlayer.create(this.context, uri);
+      mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+      Log.i("RNSoundModule", fileName);
+      try {
+          mediaPlayer.setDataSource(fileName);
+      } catch(IOException e) {
+          Log.e("RNSoundModule", "Exception", e);
+          return null;
+      }
+      return mediaPlayer;
     }
+    
     return null;
   }
 
   @ReactMethod
-  public void play(final Integer key, final Callback callback) {
+  public void play(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player == null) {
-      callback.invoke(false);
+      setOnPlay(false, key);
+      if (callback != null) {
+          callback.invoke(false);
+      }
       return;
     }
     if (player.isPlaying()) {
       return;
     }
+
+    // Request audio focus in Android system
+    if (!this.mixWithOthers) {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+      audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+      this.focusedPlayerKey = key;
+    }
+
     player.setOnCompletionListener(new OnCompletionListener() {
       boolean callbackWasCalled = false;
 
       @Override
       public synchronized void onCompletion(MediaPlayer mp) {
         if (!mp.isLooping()) {
+          setOnPlay(false, key);
           if (callbackWasCalled) return;
           callbackWasCalled = true;
           try {
@@ -203,36 +247,52 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
       @Override
       public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+        setOnPlay(false, key);
         if (callbackWasCalled) return true;
         callbackWasCalled = true;
-        callback.invoke(false);
+        try {
+          callback.invoke(true);
+        } catch (Exception e) {
+          //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+        }
         return true;
       }
     });
     player.start();
+    setOnPlay(true, key);
   }
 
   @ReactMethod
-  public void pause(final Integer key, final Callback callback) {
+  public void pause(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
     }
-    callback.invoke();
+
+    if (callback != null) {
+      callback.invoke();
+    }
   }
 
   @ReactMethod
-  public void stop(final Integer key, final Callback callback) {
+  public void stop(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
       player.seekTo(0);
     }
+
+    // Release audio focus in Android system
+    if (!this.mixWithOthers && key == this.focusedPlayerKey) {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      audioManager.abandonAudioFocus(this);
+    }
+
     callback.invoke();
   }
 
   @ReactMethod
-  public void reset(final Integer key) {
+  public void reset(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.reset();
@@ -240,16 +300,22 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void release(final Integer key) {
+  public void release(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.release();
       this.playerPool.remove(key);
+
+      // Release audio focus in Android system
+      if (!this.mixWithOthers && key == this.focusedPlayerKey) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.abandonAudioFocus(this);
+      }
     }
   }
 
   @ReactMethod
-  public void setVolume(final Integer key, final Float left, final Float right) {
+  public void setVolume(final Double key, final Float left, final Float right) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setVolume(left, right);
@@ -279,7 +345,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setLooping(final Integer key, final Boolean looping) {
+  public void setLooping(final Double key, final Boolean looping) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setLooping(looping);
@@ -287,7 +353,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setSpeed(final Integer key, final Float speed) {
+  public void setSpeed(final Double key, final Float speed) {
+	if (android.os.Build.VERSION.SDK_INT < 23) {
+	  Log.w("RNSoundModule", "setSpeed ignored due to sdk limit");
+	  return;
+	}
+
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setPlaybackParams(player.getPlaybackParams().setSpeed(speed));
@@ -295,7 +366,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void setCurrentTime(final Integer key, final Float sec) {
+  public void setCurrentTime(final Double key, final Float sec) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.seekTo((int)Math.round(sec * 1000));
@@ -303,7 +374,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void getCurrentTime(final Integer key, final Callback callback) {
+  public void getCurrentTime(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
     if (player == null) {
       callback.invoke(-1, false);
@@ -314,12 +385,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   //turn speaker on
   @ReactMethod
-  public void setSpeakerphoneOn(final Integer key, final Boolean speaker) {
+  public void setSpeakerphoneOn(final Double key, final Boolean speaker) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
       player.setAudioStreamType(AudioManager.STREAM_MUSIC);
       AudioManager audioManager = (AudioManager)this.context.getSystemService(this.context.AUDIO_SERVICE);
-      audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+      if(speaker){
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+      }else{
+        audioManager.setMode(AudioManager.MODE_NORMAL);
+      }
       audioManager.setSpeakerphoneOn(speaker);
     }
   }
@@ -327,6 +402,29 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void setCategory(final String category, final Boolean mixWithOthers) {
     this.category = category;
+    this.mixWithOthers = mixWithOthers;
+  }
+
+  @Override
+  public void onAudioFocusChange(int focusChange) {
+    if (!this.mixWithOthers) {
+      MediaPlayer player = this.playerPool.get(this.focusedPlayerKey);
+
+      if (player != null) {
+        if (focusChange <= 0) {
+            this.wasPlayingBeforeFocusChange = player.isPlaying();
+
+            if (this.wasPlayingBeforeFocusChange) {
+              this.pause(this.focusedPlayerKey, null);
+            }
+        } else {
+            if (this.wasPlayingBeforeFocusChange) {
+              this.play(this.focusedPlayerKey, null);
+              this.wasPlayingBeforeFocusChange = false;
+            }
+        }
+      }
+    }
   }
 
   @ReactMethod
