@@ -24,7 +24,7 @@
         }
     }
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
-        if (player) {
+        if (player && player.isPlaying) {
             [player play];
         }
     }
@@ -76,6 +76,7 @@
   if (key == nil) return;
 
   @synchronized(key) {
+    [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
       callback(@[@(flag)]);
@@ -85,6 +86,11 @@
 }
 
 RCT_EXPORT_MODULE();
+
+-(NSArray<NSString *> *)supportedEvents
+  {
+    return @[@"onPlayChange"];
+  }
 
 -(NSDictionary *)constantsToExport {
   return @{@"IsAndroid": [NSNumber numberWithBool:NO],
@@ -182,7 +188,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
   AVAudioPlayer* player;
 
   if ([fileName hasPrefix:@"http"]) {
-    fileNameUrl = [NSURL URLWithString:[fileName stringByRemovingPercentEncoding]];
+    fileNameUrl = [NSURL URLWithString:fileName];
     NSData* data = [NSData dataWithContentsOfURL:fileNameUrl];
     player = [[AVAudioPlayer alloc] initWithData:data error:&error];
   }
@@ -191,7 +197,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl error:&error];
   }
   else {
-    fileNameUrl = [NSURL fileURLWithPath:[fileName stringByRemovingPercentEncoding]];
+    fileNameUrl = [NSURL URLWithString: fileName];
     player = [[AVAudioPlayer alloc]
               initWithContentsOfURL:fileNameUrl
               error:&error];
@@ -217,6 +223,7 @@ RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
   if (player) {
     [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
+    [self setOnPlay:YES forPlayerKey:key];
   }
 }
 
@@ -294,4 +301,11 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
   }
 }
 
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+- (void)setOnPlay:(BOOL)isPlaying forPlayerKey:(nonnull NSNumber*)playerKey {
+  [self sendEventWithName:@"onPlayChange" body:@{@"isPlaying": isPlaying ? @YES : @NO, @"playerKey": playerKey}];
+}
 @end
