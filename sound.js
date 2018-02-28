@@ -1,282 +1,264 @@
-'use strict';
+import { NativeModules, NativeEventEmitter } from 'react-native';
+import { isRelativePath, djb2Code } from './utils';
 
-var ReactNative = require('react-native');
-var RNSound = ReactNative.NativeModules.RNSound;
-var IsAndroid = RNSound.IsAndroid;
-var IsWindows = RNSound.IsWindows;
-var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
-var eventEmitter = new ReactNative.NativeEventEmitter(RNSound);
+const { RNSound } = NativeModules;
+const { IsAndroid } = RNSound;
+const eventEmitter = new NativeEventEmitter(RNSound);
 
-function isRelativePath(path) {
-  return !/^(\/|http(s?)|asset)/.test(path);
-}
+export default class Sound {
+  loaded = false;
+  key = null;
+  playing = false;
+  duration = -1;
+  numberOfChannels = -1;
+  volume = 1;
+  pan = 0;
+  numberOfLoops = 0;
+  speed = 1;
+  filename = null;
+  onPlaySubscription = null;
 
-// Hash function to compute key from the filename
-function djb2Code(str) {
-  var hash = 5381, i, char;
-  for (i = 0; i < str.length; i++) {
-      char = str.charCodeAt(i);
-      hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
-  }
-  return hash;
-}
-
-function Sound(filename, basePath, onError, options) {
-  var asset = resolveAssetSource(filename);
-  if (asset) {
-    this._filename = asset.uri;
-    onError = basePath;
-  } else {
-    this._filename = basePath ? basePath + '/' + filename : filename;
-
-    if (IsAndroid && !basePath && isRelativePath(filename)) {
-      this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
-    }
-  }
-
-  this.registerOnPlay = function() {
+  registerEventEmitter = () => {
     if (this.onPlaySubscription != null) {
       console.warn('On Play change event listener is already registered');
       return;
     }
 
-    if (!IsWindows) {
-      this.onPlaySubscription = eventEmitter.addListener(
-        'onPlayChange',
-        (param) => {
-          const { isPlaying, playerKey } = param;
-          if (playerKey === this._key) {
-            if (isPlaying) {
-              this._playing = true;
-            }
-            else {
-              this._playing = false;
-            }
+    this.onPlaySubscription = eventEmitter.addListener(
+      'onPlayChange',
+      (param) => {
+        const { isPlaying, playerKey } = param;
+
+        if (playerKey === this.key) {
+          this.playing = isPlaying;
+        }
+      },
+    );
+  }
+
+  init = (filename, basePath = null, options = {}) => {
+    this.filename = filename;
+    this.key = djb2Code(filename);
+
+    return new Promise((resolve, reject) => {
+      RNSound.prepare(this.filename, this.key, options, (error, props) => {
+        if (props) {
+          if (typeof props.duration === 'number') {
+            this.duration = props.duration;
           }
-        },
-      );
-    }
-  }
+          if (typeof props.numberOfChannels === 'number') {
+            this.numberOfChannels = props.numberOfChannels;
+          }
+        }
 
-  this._loaded = false;
-  this._key = asset ? filename : djb2Code(filename); //if the file is an asset, use the asset number as the key
-  this._playing = false;
-  this._duration = -1;
-  this._numberOfChannels = -1;
-  this._volume = 1;
-  this._pan = 0;
-  this._numberOfLoops = 0;
-  this._speed = 1;
-  RNSound.prepare(this._filename, this._key, options || {}, (error, props) => {
-    if (props) {
-      if (typeof props.duration === 'number') {
-        this._duration = props.duration;
-      }
-      if (typeof props.numberOfChannels === 'number') {
-        this._numberOfChannels = props.numberOfChannels;
-      }
-    }
-    if (error === null) {
-      this._loaded = true;
-      this.registerOnPlay();
-    }
-    onError && onError(error, props);
-  });
-}
+        if (error === null) {
+          this.loaded = true;
+          this.registerEventEmitter();
 
-Sound.prototype.isLoaded = function() {
-  return this._loaded;
-};
-
-Sound.prototype.play = function(onEnd) {
-  if (this._loaded) {
-    RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
-  } else {
-    onEnd && onEnd(false);
-  }
-  return this;
-};
-
-Sound.prototype.pause = function(callback) {
-  if (this._loaded) {
-    RNSound.pause(this._key, () => {
-      this._playing = false;
-      callback && callback();
+          resolve(this);
+        } else {
+          reject(error, props);
+        }
+      });
     });
   }
-  return this;
-};
 
-Sound.prototype.stop = function(callback) {
-  if (this._loaded) {
-    RNSound.stop(this._key, () => {
-      this._playing = false;
-      callback && callback();
+  play = () => new Promise((resolve, reject) => {
+    if (!this.loaded) return reject();
+
+    RNSound.play(this.key, () => {});
+
+    resolve();
+  })
+
+  pause = () => new Promise((resolve, reject) => {
+    if (!this.loaded) return reject();
+
+    RNSound.pause(this.key, () => {
+      this.playing = false;
+      resolve();
     });
-  }
-  return this;
-};
+  })
 
-Sound.prototype.reset = function() {
-  if (this._loaded && IsAndroid) {
-    RNSound.reset(this._key);
-    this._playing = false;
-  }
-  return this;
-};
+  stop = () => new Promise((resolve, reject) => {
+    if (!this.loaded) return reject();
 
-Sound.prototype.release = function() {
-  if (this._loaded) {
-    RNSound.release(this._key);
-    this._loaded = false;
-    if (!IsWindows) {
-      if (this.onPlaySubscription != null) {
-        this.onPlaySubscription.remove();
-        this.onPlaySubscription = null;
-      }
-    }
-  }
-  return this;
-};
+    RNSound.stop(this.key, () => {
+      this.playing = false;
+      resolve();
+    });
+  })
 
-Sound.prototype.getDuration = function() {
-  return this._duration;
-};
+  release = () => new Promise((resolve, reject) => {
+    if (!this.loaded) return reject();
 
-Sound.prototype.getNumberOfChannels = function() {
-  return this._numberOfChannels;
-};
+    RNSound.release(this.key);
 
-Sound.prototype.getVolume = function() {
-  return this._volume;
-};
+    this.loaded = false;
+    this.onPlaySubscription.remove();
+    this.onPlaySubscription = null;
 
-Sound.prototype.setVolume = function(value) {
-  this._volume = value;
-  if (this._loaded) {
-    if (IsAndroid || IsWindows) {
-      RNSound.setVolume(this._key, value, value);
+    resolve();
+  })
+
+  reset = () => new Promise((resolve, reject) => {
+    if (!this.loaded || !IsAndroid) return reject();
+
+    RNSound.reset(this.key);
+    this.loaded = false;
+
+    resolve();
+  })
+
+  // Setters
+
+  setVolume = (volume) => {
+    if (!this.loaded) return reject();
+
+    this.volume = volume;
+
+    if (IsAndroid) {
+      RNSound.setVolume(this.key, value, value);
     } else {
-      RNSound.setVolume(this._key, value);
+      RNSound.setVolume(this.key, value);
     }
   }
-  return this;
-};
 
-Sound.prototype.getSystemVolume = function(callback) {
-  if(IsAndroid) {
-    RNSound.getSystemVolume(callback);
-  }
-  return this;
-};
+  setPan = (pan) => new Promise((resolve, reject) => {
+    if (!this.loaded) reject();
 
-Sound.prototype.setSystemVolume = function(value) {
-  if (IsAndroid) {
-    RNSound.setSystemVolume(value);
-  }
-  return this;
-};
+    RNSound.setPan(this.key, this.pan = pan);
 
-Sound.prototype.getPan = function() {
-  return this._pan;
-};
+    resolve();
+  })
 
-Sound.prototype.setPan = function(value) {
-  if (this._loaded) {
-    RNSound.setPan(this._key, this._pan = value);
-  }
-  return this;
-};
+  setNumberOfLoops = (loops) => new Promise((resolve, reject) => {
+    if (!this.loaded) reject();
 
-Sound.prototype.getNumberOfLoops = function() {
-  return this._numberOfLoops;
-};
+    this.numberOfLoops = true;
 
-Sound.prototype.setNumberOfLoops = function(value) {
-  this._numberOfLoops = value;
-  if (this._loaded) {
-    if (IsAndroid || IsWindows) {
-      RNSound.setLooping(this._key, !!value);
+    if (IsAndroid) {
+      RNSound.setLooping(this.key, !!loops);
     } else {
-      RNSound.setNumberOfLoops(this._key, value);
+      RNSound.setNumberOfLoops(this.key, loops);
     }
+
+    resolve();
+  })
+
+  setSpeed = (speed) => new Promise((resolve, reject) => {
+    if (!this.loaded) reject();
+
+    this.speed = speed;
+
+    RNSound.setSpeed(this.key, speed);
+
+    resolve();
+  })
+
+  setCurrentTime = (time) => new Promise((resolve, reject) => {
+    if (!this.loaded) reject();
+
+    RNSound.setCurrentTime(this.key, time);
+
+    resolve();
+  })
+
+  // Getters
+
+  isLoaded() {
+    return this.loaded;
   }
-  return this;
-};
 
-Sound.prototype.setSpeed = function(value) {
-  this._speed = value;
-  if (this._loaded) {
-    if (!IsWindows) {
-      RNSound.setSpeed(this._key, value);
-    }
+  getDuration() {
+    return this.duration;
   }
-  return this;
-};
 
-Sound.prototype.getCurrentTime = function(callback) {
-  if (this._loaded) {
-    RNSound.getCurrentTime(this._key, callback);
+  getNumberOfChannels() {
+    return this.numberOfChannels;
   }
-};
 
-Sound.prototype.setCurrentTime = function(value) {
-  if (this._loaded) {
-    RNSound.setCurrentTime(this._key, value);
+  getVolume() {
+    return this.volume;
   }
-  return this;
-};
 
-// android only
-Sound.prototype.setSpeakerphoneOn = function(value) {
-  if (IsAndroid) {
-    RNSound.setSpeakerphoneOn(this._key, value);
+  getPan() {
+    return this.pan;
   }
-};
 
-// ios only
+  getNumberOfLoops() {
+    return this.numberOfLoops;
+  }
 
-// This is deprecated.  Call the static one instead.
+  getCurrentTime = () => new Promise((resolve, reject) => {
+    if (!this.loaded) reject();
 
-Sound.prototype.setCategory = function(value) {
-  Sound.setCategory(value, false);
-}
+    RNSound.getCurrentTime(this.key, resolve);
+  })
 
-Sound.prototype.isPlaying = function() {
-  return this._playing;
-}
+  // Android Only
 
-Sound.enable = function(enabled) {
-  RNSound.enable(enabled);
-};
+  setSystemVolume = (volume) => new Promise((resolve, reject) => {
+    if (!IsAndroid) reject();
 
-Sound.enableInSilenceMode = function(enabled) {
-  if (!IsAndroid && !IsWindows) {
+    RNSound.setSystemVolume(volume);
+
+    resolve();
+  })
+
+  getSystemVolume = () => new Promise((resolve, reject) => {
+    if (!IsAndroid) reject();
+
+    RNSound.getSystemVolume(resolve);
+  })
+
+  setSpeakerphoneOn = (value = true) => new Promise((resolve, reject) => {
+    if (!IsAndroid) reject();
+
+    RNSound.setSpeakerphoneOn(this.key, value);
+
+    resolve();
+  })
+
+  // iOS Only
+
+  enable = (enabled) => new Promise((resolve, reject) => {
+    if (IsAndroid) reject();
+
+    RNSound.enable(enabled);
+
+    resolve();
+  })
+
+  enableInSilenceMode = (enabled = true) => new Promise((resolve, reject) => {
+    if (IsAndroid) reject();
+
     RNSound.enableInSilenceMode(enabled);
-  }
-};
 
-Sound.setActive = function(value) {
-  if (!IsAndroid && !IsWindows) {
-    RNSound.setActive(value);
-  }
-};
+    resolve();
+  })
 
-Sound.setCategory = function(value, mixWithOthers = false) {
-  if (!IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
-  }
-};
+  setActive = (active = true) => new Promise((resolve, reject) => {
+    if (IsAndroid) reject();
 
-Sound.setMode = function(value) {
-  if (!IsAndroid && !IsWindows) {
-    RNSound.setMode(value);
-  }
-};
+    RNSound.setActive(active);
 
-Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
-Sound.DOCUMENT = RNSound.NSDocumentDirectory;
-Sound.LIBRARY = RNSound.NSLibraryDirectory;
-Sound.CACHES = RNSound.NSCachesDirectory;
+    resolve();
+  })
 
-module.exports = Sound;
+  setActive = (category, mixWithOthers = false) => new Promise((resolve, reject) => {
+    if (IsAndroid) reject();
+
+    RNSound.setCategory(category, mixWithOthers);
+
+    resolve();
+  })
+
+  setMode = (mode) => new Promise((resolve, reject) => {
+    if (IsAndroid) reject();
+
+    RNSound.setMode(mode);
+
+    resolve();
+  })
+}
