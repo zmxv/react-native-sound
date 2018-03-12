@@ -55,11 +55,15 @@
 }
 
 -(AVAudioPlayer*) playerForKey:(nonnull NSNumber*)key {
-  return [[self playerPool] objectForKey:key];
+  @synchronized([self playerPool]) {
+    return [[self playerPool] objectForKey:key];
+  }
 }
 
 -(NSNumber*) keyForPlayer:(nonnull AVAudioPlayer*)player {
-  return [[[self playerPool] allKeysForObject:player] firstObject];
+  @synchronized([self playerPool]) {
+    return [[[self playerPool] allKeysForObject:player] firstObject];
+  }
 }
 
 -(RCTResponseSenderBlock) callbackForKey:(nonnull NSNumber*)key {
@@ -249,7 +253,9 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
   if (player) {
     [player stop];
     [[self callbackPool] removeObjectForKey:player];
-    [[self playerPool] removeObjectForKey:key];
+    @synchronized([self playerPool]) {
+      [[self playerPool] removeObjectForKey:key];
+    }
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter removeObserver:self];
   }
