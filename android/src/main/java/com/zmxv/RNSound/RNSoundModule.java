@@ -28,12 +28,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
   Map<Integer, MediaPlayer> playerPool = new HashMap<>();
   ReactApplicationContext context;
   final static Object NULL = null;
-  String category;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
     this.context = context;
-    this.category = null;
   }
 
   @Override
@@ -52,27 +50,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
 
     final RNSoundModule module = this;
-
-    if (module.category != null) {
-      Integer category = null;
-      switch (module.category) {
-        case "Playback":
-          category = AudioManager.STREAM_MUSIC;
-          break;
-        case "Ambient":
-          category = AudioManager.STREAM_NOTIFICATION;
-          break;
-        case "System":
-          category = AudioManager.STREAM_SYSTEM;
-          break;
-        default:
-          Log.e("RNSoundModule", String.format("Unrecognised category %s", module.category));
-          break;
-      }
-      if (category != null) {
-        player.setAudioStreamType(category);
-      }
-    }
 
     player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
       boolean callbackWasCalled = false;
@@ -125,20 +102,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
-    MediaPlayer mediaPlayer = new MediaPlayer();
     if (res != 0) {
-      try {
-        AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
-        mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-        afd.close();
-      } catch (IOException e) {
-        Log.e("RNSoundModule", "Exception", e);
-        return null;
-      }
-      return mediaPlayer;
+      return MediaPlayer.create(this.context, res);
     }
-
-    if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
+    if(fileName.startsWith("http://") || fileName.startsWith("https://")) {
+      MediaPlayer mediaPlayer = new MediaPlayer();
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
@@ -153,6 +121,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     if (fileName.startsWith("asset:/")){
         try {
             AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
+            MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
             descriptor.close();
             return mediaPlayer;
@@ -321,11 +290,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
       audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
       audioManager.setSpeakerphoneOn(speaker);
     }
-  }
-
-  @ReactMethod
-  public void setCategory(final String category, final Boolean mixWithOthers) {
-    this.category = category;
   }
 
   @ReactMethod
