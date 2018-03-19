@@ -55,78 +55,78 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
-#### Automatic linking
-Use [`react-native-asset`](https://github.com/unimonkiez/react-native-asset) instead of `react-native link`, which also supports `.mp3` files, and works the same.  
-
-#### Manual linking
+Fellow these steps
+1. Link your `.mp3` to `Android` and `iOS` projects, with either methods:
+  - **Automatic linking**  
+Use [`react-native-asset`](https://github.com/unimonkiez/react-native-asset) instead of `react-native link`, which also supports `.mp3` files, and works the same.
+  - **Manual linking**  
 First you'll need to add audio files to your project.
+    - Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
+    - iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)  
+2. Add usage to your javascript code:  
+  ```js
+  // Import the react-native-sound module
+  var Sound = require('react-native-sound');
 
-- Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
-- iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)
+  // Enable playback in silence mode
+  Sound.setCategory('Playback');
 
-```js
-// Import the react-native-sound module
-var Sound = require('react-native-sound');
+  // Load the sound file 'whoosh.mp3' from the app bundle
+  // See notes below about preloading sounds within initialization code below.
+  var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // loaded successfully
+    console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
+  });
 
-// Enable playback in silence mode
-Sound.setCategory('Playback');
+  // Play the sound with an onEnd callback
+  whoosh.play((success) => {
+    if (success) {
+      console.log('successfully finished playing');
+    } else {
+      console.log('playback failed due to audio decoding errors');
+      // reset the player to its uninitialized state (android only)
+      // this is the only option to recover after an error occured and use the player again
+      whoosh.reset();
+    }
+  });
 
-// Load the sound file 'whoosh.mp3' from the app bundle
-// See notes below about preloading sounds within initialization code below.
-var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
-  if (error) {
-    console.log('failed to load the sound', error);
-    return;
-  }
-  // loaded successfully
-  console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-});
+  // Reduce the volume by half
+  whoosh.setVolume(0.5);
 
-// Play the sound with an onEnd callback
-whoosh.play((success) => {
-  if (success) {
-    console.log('successfully finished playing');
-  } else {
-    console.log('playback failed due to audio decoding errors');
-    // reset the player to its uninitialized state (android only)
-    // this is the only option to recover after an error occured and use the player again
-    whoosh.reset();
-  }
-});
+  // Position the sound to the full right in a stereo field
+  whoosh.setPan(1);
 
-// Reduce the volume by half
-whoosh.setVolume(0.5);
+  // Loop indefinitely until stop() is called
+  whoosh.setNumberOfLoops(-1);
 
-// Position the sound to the full right in a stereo field
-whoosh.setPan(1);
+  // Get properties of the player instance
+  console.log('volume: ' + whoosh.getVolume());
+  console.log('pan: ' + whoosh.getPan());
+  console.log('loops: ' + whoosh.getNumberOfLoops());
 
-// Loop indefinitely until stop() is called
-whoosh.setNumberOfLoops(-1);
+  // Seek to a specific point in seconds
+  whoosh.setCurrentTime(2.5);
 
-// Get properties of the player instance
-console.log('volume: ' + whoosh.getVolume());
-console.log('pan: ' + whoosh.getPan());
-console.log('loops: ' + whoosh.getNumberOfLoops());
+  // Get the current playback point in seconds
+  whoosh.getCurrentTime((seconds) => console.log('at ' + seconds));
 
-// Seek to a specific point in seconds
-whoosh.setCurrentTime(2.5);
+  // Pause the sound
+  whoosh.pause();
 
-// Get the current playback point in seconds
-whoosh.getCurrentTime((seconds) => console.log('at ' + seconds));
+  // Stop the sound and rewind to the beginning
+  whoosh.stop(() => {
+    // Note: If you want to play a sound after stopping and rewinding it,
+    // it is important to call play() in a callback.
+    whoosh.play();
+  });
 
-// Pause the sound
-whoosh.pause();
-
-// Stop the sound and rewind to the beginning
-whoosh.stop(() => {
-  // Note: If you want to play a sound after stopping and rewinding it,
-  // it is important to call play() in a callback.
-  whoosh.play();
-});
-
-// Release the audio player resource
-whoosh.release();
-```
+  // Release the audio player resource
+  whoosh.release();
+  ```
 
 ## Notes
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
