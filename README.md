@@ -55,7 +55,10 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 https://github.com/zmxv/react-native-sound-demo
 
 ## Basic usage
+#### Automatic linking
+Use [`react-native-asset`](https://github.com/unimonkiez/react-native-asset) instead of `react-native link`, which also supports `.mp3` files, and works the same.  
 
+#### Manual linking
 First you'll need to add audio files to your project.
 
 - Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
