@@ -293,12 +293,25 @@ RCT_EXPORT_METHOD(setCurrentTime:(nonnull NSNumber*)key withValue:(nonnull NSNum
 
 RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
                   withCallback:(RCTResponseSenderBlock)callback) {
-  AVAudioPlayer* player = [self playerForKey:key];
-  if (player) {
-    callback(@[@(player.currentTime), @(player.isPlaying)]);
-  } else {
-    callback(@[@(-1), @(false)]);
-  }
+    AVAudioPlayer* player = [self playerForKey:key];
+    if (player) {
+        if (!player.isMeteringEnabled) {
+            [player setMeteringEnabled:YES];
+        }
+        
+        [player updateMeters];
+        
+        float audioLevel = 0;
+        for (NSUInteger channel = 0; channel < player.numberOfChannels; channel++) {
+            audioLevel += [player averagePowerForChannel:channel];
+        }
+        audioLevel /= player.numberOfChannels;
+        NSDictionary *data = @{@"seconds" : [NSNumber numberWithFloat:player.currentTime],
+                               @"audioLevel" : [NSNumber numberWithFloat:audioLevel]};
+        callback(@[data, @(player.isPlaying)]);
+    } else {
+        callback(@[@{@"seconds" : @(-1)}, @(false)]);
+    }
 }
 
 + (BOOL)requiresMainQueueSetup
