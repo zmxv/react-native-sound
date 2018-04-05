@@ -18,5 +18,13 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.8.0"
+  },
+  "rnpm": {
+    "commands": {
+      "prelink": "node node_modules/react-native-sound/scripts/patch"
+    }
+  },
+  "dependencies": {
+    "mpath": "^0.4.0"
   }
 }
