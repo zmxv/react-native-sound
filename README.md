@@ -54,6 +54,12 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 
 https://github.com/zmxv/react-native-sound-demo
 
+## Player
+
+<img src="https://github.com/benevbright/react-native-sound-playerview/blob/master/docs/demo.gif?raw=true">
+
+https://github.com/benevbright/react-native-sound-playerview
+
 ## Basic usage
 
 First you'll need to add audio files to your project.
