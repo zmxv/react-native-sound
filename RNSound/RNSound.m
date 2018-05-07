@@ -198,7 +198,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl error:&error];
   }
   else {
-    fileNameUrl = [NSURL URLWithString: fileName];
+    fileNameUrl = [NSURL fileURLWithPath:fileName];
     player = [[AVAudioPlayer alloc]
               initWithContentsOfURL:fileNameUrl
               error:&error];
