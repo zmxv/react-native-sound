@@ -186,6 +186,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
   NSError* error;
   NSURL* fileNameUrl;
   AVAudioPlayer* player;
+  AVURLAsset *asset;
 
   if ([fileName hasPrefix:@"http"]) {
     fileNameUrl = [NSURL URLWithString:fileName];
@@ -201,6 +202,7 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     player = [[AVAudioPlayer alloc]
               initWithContentsOfURL:fileNameUrl
               error:&error];
+    asset = [[AVURLAsset alloc] initWithURL:fileNameUrl options:[NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:YES], AVURLAssetPreferPreciseDurationAndTimingKey, nil]];
   }
 
   if (player) {
@@ -208,7 +210,8 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
     player.enableRate = YES;
     [player prepareToPlay];
     [[self playerPool] setObject:player forKey:key];
-    callback(@[[NSNull null], @{@"duration": @(player.duration),
+    NSTimeInterval duration = asset ? CMTimeGetSeconds(asset.duration) : player.duration;
+    callback(@[[NSNull null], @{@"duration": @(duration),
                                 @"numberOfChannels": @(player.numberOfChannels)}]);
   } else {
     callback(@[RCTJSErrorFromNSError(error)]);
