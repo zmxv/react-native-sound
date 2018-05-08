@@ -123,6 +123,10 @@ whoosh.stop(() => {
 
 // Release the audio player resource
 whoosh.release();
+
+// Turn speaker phone on (android only)
+whoosh.setSpeakerphoneOn(true);
+
 ```
 
 ## Notes
