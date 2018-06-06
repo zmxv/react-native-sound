@@ -11,6 +11,29 @@ function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
 }
 
+function calculateRelativeVolume(volume, pan) {
+  // calculates a lower volume relative to the pan value
+  const relativeVolume = (volume * (1 - Math.abs(pan)));
+  return Number(relativeVolume.toFixed(1));
+}
+
+function setAndroidVolumes(sound) {
+  // calculates the volumes for left and right channels
+  if (sound._pan) {
+    const relativeVolume = calculateRelativeVolume(sound._volume, sound._pan);
+    if (sound._pan < 0) {
+      // left is louder
+      RNSound.setVolume(sound._key, sound._volume, relativeVolume);
+    } else {
+      // right is louder
+      RNSound.setVolume(sound._key, relativeVolume, sound._volume);
+    }
+  } else {
+    // no panning, same volume on both channels
+    RNSound.setVolume(sound._key, sound._volume, sound._volume);
+  }
+}
+
 // Hash function to compute key from the filename
 function djb2Code(str) {
   var hash = 5381, i, char;
@@ -154,10 +177,24 @@ Sound.prototype.getVolume = function() {
 Sound.prototype.setVolume = function(value) {
   this._volume = value;
   if (this._loaded) {
-    if (IsAndroid || IsWindows) {
-      RNSound.setVolume(this._key, value, value);
+    if (IsAndroid) {
+      setAndroidVolumes(this)
     } else {
       RNSound.setVolume(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setPan = function(value) {
+  this._pan = value;
+  if (this._loaded) {
+    if (IsWindows) {
+      throw new Error('#setPan not supported on windows');
+    } else if (IsAndroid) {
+      setAndroidVolumes(this)
+    } else {
+      RNSound.setPan(this._key, value);
     }
   }
   return this;
@@ -179,13 +216,6 @@ Sound.prototype.setSystemVolume = function(value) {
 
 Sound.prototype.getPan = function() {
   return this._pan;
-};
-
-Sound.prototype.setPan = function(value) {
-  if (this._loaded) {
-    RNSound.setPan(this._key, this._pan = value);
-  }
-  return this;
 };
 
 Sound.prototype.getNumberOfLoops = function() {
