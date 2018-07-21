@@ -364,6 +364,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
+  public void setPitch(final Double key, final Float pitch) {
+    if (android.os.Build.VERSION.SDK_INT < 23) {
+      Log.w("RNSoundModule", "setPitch ignored due to sdk limit");
+      return;
+    }
+
+    MediaPlayer player = this.playerPool.get(key);
+    if (player != null) {
+      player.setPlaybackParams(player.getPlaybackParams().setPitch(pitch));
+    }
+  }
+
+  @ReactMethod
   public void setCurrentTime(final Double key, final Float sec) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
