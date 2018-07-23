@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
@@ -30,7 +31,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   final static Object NULL = null;
   String category;
   Boolean mixWithOthers = true;
-  Integer focusedPlayerKey;
+  Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange = false;
 
   public RNSoundModule(ReactApplicationContext context) {
@@ -39,12 +40,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     this.category = null;
   }
 
-  private void setOnPlay(boolean isPlaying, final Integer playerKey) {
+  private void setOnPlay(boolean isPlaying, final Double playerKey) {
     final ReactContext reactContext = this.context;
     WritableMap params = Arguments.createMap();
     params.putBoolean("isPlaying", isPlaying);
-    params.putInt("playerKey", playerKey);
-    sendEvent(reactContext, "onPlayChange", params);
+    params.putDouble("playerKey", playerKey);
   }
 
   @Override
@@ -61,7 +61,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       e.putString("message", "resource not found");
       return;
     }
-    this.playerPool.put(key, player);
 
     final RNSoundModule module = this;
 
