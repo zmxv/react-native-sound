@@ -248,7 +248,7 @@ RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player stop];
-    [[self callbackPool] removeObjectForKey:player];
+    [[self callbackPool] removeObjectForKey:key];
     [[self playerPool] removeObjectForKey:key];
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter removeObserver:self];
