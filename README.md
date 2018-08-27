@@ -92,7 +92,7 @@ whoosh.play((success) => {
 });
 
 // Reduce the volume by half
-whoosh.setVolume(0.5);
+whoosh.setVolume(0.05);
 
 // Position the sound to the full right in a stereo field
 whoosh.setPan(1);
