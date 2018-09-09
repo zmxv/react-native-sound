@@ -7,6 +7,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.media.AudioManager;
+import android.app.Activity;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -23,7 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
 
+// AH
 import android.util.Log;
+import com.facebook.react.modules.network.ForwardingCookieHandler;
+import java.util.List;
+import java.util.Iterator;
+import java.net.URISyntaxException;
+import java.net.URI;
+//
 
 public class RNSoundModule extends ReactContextBaseJavaModule implements AudioManager.OnAudioFocusChangeListener {
   Map<Double, MediaPlayer> playerPool = new HashMap<>();
@@ -33,11 +41,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   Boolean mixWithOthers = true;
   Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange = false;
+  private ForwardingCookieHandler mCookieHandler;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
     this.context = context;
     this.category = null;
+    this.mCookieHandler = new ForwardingCookieHandler(context);
   }
 
   private void setOnPlay(boolean isPlaying, final Double playerKey) {
@@ -54,6 +64,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   @ReactMethod
   public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
+    
+    
     MediaPlayer player = createMediaPlayer(fileName);
     if (player == null) {
       WritableMap e = Arguments.createMap();
@@ -147,7 +159,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
+    
     MediaPlayer mediaPlayer = new MediaPlayer();
+    
+    //MediaPlayer mediaPlayer = MediaPlayer.create(this.getCurrentActivity(), fileName);
     if (res != 0) {
       try {
         AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
@@ -164,8 +179,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
-        mediaPlayer.setDataSource(fileName);
-      } catch(IOException e) {
+
+        Map<String, String> cookieHeader = getCookieHeader(fileName);
+
+        Uri uri = Uri.parse(fileName);
+        mediaPlayer.setDataSource(this.context, uri, cookieHeader);
+
+      } catch(Exception e) {
         Log.e("RNSoundModule", "Exception", e);
         return null;
       }
@@ -198,6 +218,30 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     }
     
     return null;
+  }
+
+  private Map getCookieHeader(String fileName) {
+    Map<String, String> cookieHeader = new HashMap<>();
+    try {
+      URI cookieURI = new URI(fileName);
+      Map<String, List<String>> cookieMap = mCookieHandler.get(cookieURI, new HashMap<String, List<String>>());
+      Log.i("RNSoundModule", "cookieMap: " + cookieMap);
+
+      Object c[] = cookieMap.get("Cookie").toArray();      
+      String path = cookieURI.getPath();
+      String host = cookieURI.getHost();
+      List list = cookieMap.get("Cookie");
+
+      Log.i("RNSoundPlayer", "Cookie list: " + list);
+      for (Iterator<String> it = list.iterator(); it.hasNext();) {
+        String cookeValue = it.next();
+        cookieHeader.put("Cookie", "DOMAIN="+ host + "; " + "PATH=" + path + "; " + cookeValue + "\r\n");
+      }
+    }
+    catch (Exception e) {
+      Log.e("RNSoundModule", "Exception", e);  
+    }
+    return cookieHeader;
   }
 
   @ReactMethod
@@ -352,10 +396,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   @ReactMethod
   public void setSpeed(final Double key, final Float speed) {
-	if (android.os.Build.VERSION.SDK_INT < 23) {
-	  Log.w("RNSoundModule", "setSpeed ignored due to sdk limit");
-	  return;
-	}
+  if (android.os.Build.VERSION.SDK_INT < 23) {
+    Log.w("RNSoundModule", "setSpeed ignored due to sdk limit");
+    return;
+  }
 
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
