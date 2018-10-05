@@ -72,10 +72,10 @@
 
 -(void) audioPlayerDidFinishPlaying:(AVAudioPlayer*)player
                        successfully:(BOOL)flag {
-  NSNumber* key = [self keyForPlayer:player];
-  if (key == nil) return;
+  @synchronized(self) {
+    NSNumber* key = [self keyForPlayer:player];
+    if (key == nil) return;
 
-  @synchronized(key) {
     [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
