@@ -164,9 +164,7 @@ Sound.prototype.setVolume = function(value) {
 };
 
 Sound.prototype.getSystemVolume = function(callback) {
-  if(IsAndroid) {
-    RNSound.getSystemVolume(callback);
-  }
+  RNSound.getSystemVolume(callback);
   return this;
 };
 
