@@ -164,7 +164,9 @@ Sound.prototype.setVolume = function(value) {
 };
 
 Sound.prototype.getSystemVolume = function(callback) {
-  RNSound.getSystemVolume(callback);
+  if (!IsWindows) {
+    RNSound.getSystemVolume(callback);
+  }
   return this;
 };
 
