@@ -17,6 +17,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.ExceptionsManagerModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.io.File;
 import java.util.HashMap;
@@ -45,6 +46,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     WritableMap params = Arguments.createMap();
     params.putBoolean("isPlaying", isPlaying);
     params.putDouble("playerKey", playerKey);
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit("onPlayChange", params);
   }
 
   @Override
