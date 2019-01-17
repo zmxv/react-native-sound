@@ -204,12 +204,14 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
   }
 
   if (player) {
-    player.delegate = self;
-    player.enableRate = YES;
-    [player prepareToPlay];
-    [[self playerPool] setObject:player forKey:key];
-    callback(@[[NSNull null], @{@"duration": @(player.duration),
-                                @"numberOfChannels": @(player.numberOfChannels)}]);
+    @synchronized(self) {
+      player.delegate = self;
+      player.enableRate = YES;
+      [player prepareToPlay];
+      [[self playerPool] setObject:player forKey:key];
+      callback(@[[NSNull null], @{@"duration": @(player.duration),
+                                  @"numberOfChannels": @(player.numberOfChannels)}]);
+    }
   } else {
     callback(@[RCTJSErrorFromNSError(error)]);
   }
@@ -245,13 +247,15 @@ RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
 }
 
 RCT_EXPORT_METHOD(release:(nonnull NSNumber*)key) {
-  AVAudioPlayer* player = [self playerForKey:key];
-  if (player) {
-    [player stop];
-    [[self callbackPool] removeObjectForKey:key];
-    [[self playerPool] removeObjectForKey:key];
-    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    [notificationCenter removeObserver:self];
+  @synchronized(self) {
+    AVAudioPlayer* player = [self playerForKey:key];
+    if (player) {
+      [player stop];
+      [[self callbackPool] removeObjectForKey:key];
+      [[self playerPool] removeObjectForKey:key];
+      NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+      [notificationCenter removeObserver:self];
+    }
   }
 }
 
