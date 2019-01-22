@@ -8,7 +8,7 @@ var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSourc
 var eventEmitter = new ReactNative.NativeEventEmitter(RNSound);
 
 function isRelativePath(path) {
-  return !/^(\/|http(s?)|asset|file)/.test(path);
+  return !/^(\/|http(s?)|asset)/.test(path);
 }
 
 // Hash function to compute key from the filename
