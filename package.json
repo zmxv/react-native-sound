@@ -18,5 +18,8 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.8.0"
+  },
+  "dependencies": {
+    "react-native": "^0.57.8"
   }
 }

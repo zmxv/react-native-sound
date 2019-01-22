@@ -1,8 +1,33 @@
+
+buildscript {
+  repositories {
+    jcenter()
+    google()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.1.2'
+  }
+}
+
+allprojects {
+  repositories {
+    mavenLocal()
+    maven { url 'https://jitpack.io' }
+    google()
+    jcenter()
+    maven {
+      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+      url "$rootDir/../node_modules/react-native/android"
+    }
+
+  }
+}
+
 apply plugin: 'com.android.library'
 
 android {
-  compileSdkVersion 23
-  buildToolsVersion "23.0.1"
+  compileSdkVersion 24
 
   defaultConfig {
     minSdkVersion 16
@@ -16,5 +41,5 @@ android {
 }
 
 dependencies {
-  compile 'com.facebook.react:react-native:0.12.+'
+  implementation 'com.facebook.react:react-native:+'
 }
