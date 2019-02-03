@@ -257,6 +257,11 @@ RCT_EXPORT_METHOD(setVolume:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)
   }
 }
 
+RCT_EXPORT_METHOD(getSystemVolume:(RCTResponseSenderBlock)callback) {
+  AVAudioSession* session = [AVAudioSession sharedInstance];
+  callback(@[@(session.outputVolume)]);
+}
+
 RCT_EXPORT_METHOD(setPan:(nonnull NSNumber*)key withValue:(nonnull NSNumber*)value) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {

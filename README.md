@@ -21,7 +21,8 @@ Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
 Get/set volume | ✓ | ✓ | ✓
-Get/set system volume |   | ✓ |
+Get system volume | ✓ | ✓ |
+Set system volume |   | ✓ |
 Get/set pan | ✓ |   |
 Get/set loops | ✓ | ✓ | ✓
 Get/set current time | ✓ | ✓ | ✓
