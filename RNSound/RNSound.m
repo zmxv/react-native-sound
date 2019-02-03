@@ -18,11 +18,6 @@
     AVAudioSessionRouteChangeReason audioSessionRouteChangeReason = [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
     AVAudioSessionInterruptionType audioSessionInterruptionType   = [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
     AVAudioPlayer* player = [self playerForKey:self._key];
-    if (audioSessionRouteChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable){
-        if (player) {
-            [player play];
-        }
-    }
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded){
         if (player && player.isPlaying) {
             [player play];
