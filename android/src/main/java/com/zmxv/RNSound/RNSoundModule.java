@@ -316,6 +316,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
     }
   }
+	
+  @Override
+  public void onCatalystInstanceDestroy() {
+    for (Map.Entry<String, String> entry : this.playerPool.entrySet()) {
+      release(entry.getKey());
+    }
+  }
 
   @ReactMethod
   public void setVolume(final Double key, final Float left, final Float right) {
