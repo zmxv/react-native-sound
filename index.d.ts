@@ -58,7 +58,7 @@ declare class Sound {
    * Plays the loaded file
    * @param onEnd - Optional callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it
    */
-  play(onEnd?: () => void): void
+  play(onEnd?: (success: boolean) => void): void
 
   /**
    * Pause the sound
