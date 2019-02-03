@@ -320,7 +320,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 	
   @Override
   public void onCatalystInstanceDestroy() {
-    for (Map.Entry<String, String> entry : this.playerPool.entrySet()) {
+    for (Map.Entry<Double, MediaPlayer> entry : this.playerPool.entrySet()) {
       release(entry.getKey());
     }
   }
