@@ -306,6 +306,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   public void release(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
+      player.reset();
       player.release();
       this.playerPool.remove(key);
 
