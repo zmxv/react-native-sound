@@ -16,7 +16,7 @@ Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
 Resume | ✓ | ✓ | ✓
 Stop | ✓ | ✓ | ✓
-Reset |  | ✓ | 
+Reset |  | ✓ |
 Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
@@ -84,15 +84,15 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   }
   // loaded successfully
   console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-  
+
   // Play the sound with an onEnd callback
-whoosh.play((success) => {
-  if (success) {
-    console.log('successfully finished playing');
-  } else {
-    console.log('playback failed due to audio decoding errors');
-  }
-});
+  whoosh.play((success) => {
+    if (success) {
+      console.log('successfully finished playing');
+    } else {
+      console.log('playback failed due to audio decoding errors');
+    }
+  });
 });
 
 // Reduce the volume by half
