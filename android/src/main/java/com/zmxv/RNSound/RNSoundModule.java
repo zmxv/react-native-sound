@@ -25,6 +25,8 @@ import java.util.Map;
 import java.io.IOException;
 
 import android.util.Log;
+import android.os.PowerManager;
+
 
 public class RNSoundModule extends ReactContextBaseJavaModule implements AudioManager.OnAudioFocusChangeListener {
   Map<Double, MediaPlayer> playerPool = new HashMap<>();
@@ -150,9 +152,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     }
   }
 
-  protected MediaPlayer createMediaPlayer(final String fileName) {
+  protected MediaPlayer createMediaPlayer(final String fileName, final Boolean... setWakeMode) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     MediaPlayer mediaPlayer = new MediaPlayer();
+	  
+    if ( setWakeMode.length > 0 ){
+	    mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+    }
+	  
     if (res != 0) {
       try {
         AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
