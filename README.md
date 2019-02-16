@@ -16,12 +16,13 @@ Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
 Resume | ✓ | ✓ | ✓
 Stop | ✓ | ✓ | ✓
-Reset |  | ✓ | 
+Reset |  | ✓ |
 Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
 Get/set volume | ✓ | ✓ | ✓
-Get/set system volume |   | ✓ |
+Get system volume | ✓ | ✓ |
+Set system volume |   | ✓ |
 Get/set pan | ✓ |   |
 Get/set loops | ✓ | ✓ | ✓
 Get/set current time | ✓ | ✓ | ✓
@@ -54,6 +55,12 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 
 https://github.com/zmxv/react-native-sound-demo
 
+## Player
+
+<img src="https://github.com/benevbright/react-native-sound-playerview/blob/master/docs/demo.gif?raw=true">
+
+https://github.com/benevbright/react-native-sound-playerview
+
 ## Basic usage
 
 First you'll need to add audio files to your project.
@@ -77,18 +84,15 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   }
   // loaded successfully
   console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-});
 
-// Play the sound with an onEnd callback
-whoosh.play((success) => {
-  if (success) {
-    console.log('successfully finished playing');
-  } else {
-    console.log('playback failed due to audio decoding errors');
-    // reset the player to its uninitialized state (android only)
-    // this is the only option to recover after an error occured and use the player again
-    whoosh.reset();
-  }
+  // Play the sound with an onEnd callback
+  whoosh.play((success) => {
+    if (success) {
+      console.log('successfully finished playing');
+    } else {
+      console.log('playback failed due to audio decoding errors');
+    }
+  });
 });
 
 // Reduce the volume by half

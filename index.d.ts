@@ -7,6 +7,14 @@ type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' 
 
 type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
 
+type FilenameType = string
+
+type FileType = any
+
+type BasePathType = string
+
+type CallbackType = (error: any) => void
+
 declare class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
@@ -43,11 +51,11 @@ declare class Sound {
   static setMode(mode: AVAudioSessionMode): void
 
   /**
-   * @param filename Either absolute or relative path to the sound file
-   * @param basePath Optional base path of the file. Omit this or pass '' if filename is an absolute path. Otherwise, you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES.
+   * @param filenameOrFile Either absolute or relative path to the sound file or the `require` call.
+   * @param basePathOrCallback Optional base path of the file. Omit this or pass '' if filename is an absolute path; you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES. If you are using `require` to define filepath, then set the callback function as the second argument.
    * @param callback Optional callback function called when load ends in either success or error. In the event of success, error is undefined.
    */
-  constructor(filename: string, basePath: string, callback: (error: any) => void)
+  constructor(filenameOrFile: FilenameType | FileType, basePathOrCallback?: BasePathType | CallbackType, callback?: CallbackType)
 
   /**
    * Return true if the sound has been loaded.
@@ -58,7 +66,7 @@ declare class Sound {
    * Plays the loaded file
    * @param onEnd - Optional callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it
    */
-  play(onEnd?: () => void): void
+  play(onEnd?: (success: boolean) => void): void
 
   /**
    * Pause the sound

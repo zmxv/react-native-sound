@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
@@ -45,6 +46,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     WritableMap params = Arguments.createMap();
     params.putBoolean("isPlaying", isPlaying);
     params.putDouble("playerKey", playerKey);
+    reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("onPlayChange", params);
   }
 
   @Override
@@ -59,6 +63,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
       e.putString("message", "resource not found");
+      callback.invoke(e, NULL);
       return;
     }
     this.playerPool.put(key, player);
@@ -301,6 +306,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   public void release(final Double key) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null) {
+      player.reset();
       player.release();
       this.playerPool.remove(key);
 
@@ -309,6 +315,20 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         audioManager.abandonAudioFocus(this);
       }
+    }
+  }
+	
+  @Override
+  public void onCatalystInstanceDestroy() {
+    java.util.Iterator it = this.playerPool.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry entry = (Map.Entry)it.next();
+      MediaPlayer player = (MediaPlayer)entry.getValue();
+      if (player != null) {
+        player.reset();
+        player.release();
+      }
+      it.remove();
     }
   }
 
