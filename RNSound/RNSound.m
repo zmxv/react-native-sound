@@ -213,7 +213,9 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
 }
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlock)callback) {
-  [[AVAudioSession sharedInstance] setActive:YES error:nil];
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  [session setActive:YES error:nil];
+  [session setCategory:AVAudioSessionCategoryPlayback error:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionChangeObserver:) name:AVAudioSessionRouteChangeNotification object:nil];
   self._key = key;
   AVAudioPlayer* player = [self playerForKey:key];
