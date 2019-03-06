@@ -30,7 +30,7 @@ namespace RNSoundModule
         private const String IsWindows = "IsWindows";
         private ReactContext context;
 
-        Dictionary<int, MediaPlayer> playerPool = new Dictionary<int, MediaPlayer>();
+        Dictionary<double, MediaPlayer> playerPool = new Dictionary<double, MediaPlayer>();
         static Object NULL = null;
 
 
@@ -64,7 +64,7 @@ namespace RNSoundModule
 
 
         [ReactMethod]
-        public async void prepare(String fileName, int key, JObject options, ICallback callback)
+        public async void prepare(String fileName, double key, JObject options, ICallback callback)
         {
             bool enableSMTCIntegration = true;
             JToken smtcOptionToken = options["enableSMTCIntegration"];
@@ -93,8 +93,10 @@ namespace RNSoundModule
                     callback.Invoke(e);
                     return;
                 }
-
-                this.playerPool.Add(key, player);
+                if (!this.playerPool.ContainsKey(key))
+                {
+                    this.playerPool.Add(key, player);
+                }
             });
         }
 
@@ -139,7 +141,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void play(int key, ICallback callback)
+        public void play(double key, ICallback callback)
         {
             Boolean callbackWasCalled = false;
             MediaPlayer player = null;
@@ -177,7 +179,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void pause(int key, ICallback callback)
+        public void pause(double key, ICallback callback)
         {
             MediaPlayer player = null;
 
@@ -193,7 +195,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void stop(int key, ICallback callback)
+        public void stop(double key, ICallback callback)
         {
             MediaPlayer player = null;
 
@@ -208,7 +210,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void release(int key)
+        public void release(double key)
         {
             MediaPlayer player = null;
 
@@ -222,7 +224,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void setVolume(int key, float volume)
+        public void setVolume(double key, float volume)
         {
             MediaPlayer player = null;
 
@@ -237,7 +239,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void setLooping(int key, bool looping)
+        public void setLooping(double key, bool looping)
         {
             MediaPlayer player = null;
 
@@ -251,7 +253,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void setCurrentTime(int key, float seconds)
+        public void setCurrentTime(double key, float seconds)
         {
             MediaPlayer player = null;
 
@@ -265,7 +267,7 @@ namespace RNSoundModule
         }
 
         [ReactMethod]
-        public void getCurrentTime(int key, ICallback callback)
+        public void getCurrentTime(double key, ICallback callback)
         {
             MediaPlayer player = null;
 
