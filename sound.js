@@ -7,7 +7,7 @@ var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSourc
 var nextKey = 0;
 
 function isRelativePath(path) {
-  return !/^(\/|http(s?)|asset)/.test(path);
+  return !/^(\/|http(s?)|asset|file)/.test(path);
 }
 
 function Sound(filename, basePath, onError, options) {
