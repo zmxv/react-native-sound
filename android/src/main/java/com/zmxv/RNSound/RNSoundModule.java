@@ -131,6 +131,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
         }
     }
 
+    if (fileName.startsWith("file:/")){
+      try {
+        mediaPlayer.setDataSource(fileName);
+      } catch(IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        return null;
+      }
+      return mediaPlayer;
+    }
+
     File file = new File(fileName);
     if (file.exists()) {
       Uri uri = Uri.fromFile(file);
