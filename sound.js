@@ -175,7 +175,14 @@ Sound.prototype.getPan = function() {
 
 Sound.prototype.setPan = function(value) {
   if (this._loaded) {
-    RNSound.setPan(this._key, this._pan = value);
+    if (IsAndroid) {
+      var leftVolume = value < 0 ? this._volume * (1 - Math.abs(value)) : this._volume;
+      var rightVolume = value > 0 ? this._volume * (1 - value) : this._volume;
+      this._pan = value; //should this be outside of if(this._loaded)like setVolume?
+      RNSound.setVolume(this._key, rightVolume, leftVolume);
+    } else {
+      RNSound.setPan(this._key, this._pan = value);  
+    }
   }
   return this;
 };
