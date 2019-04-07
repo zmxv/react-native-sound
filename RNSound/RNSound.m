@@ -1,4 +1,4 @@
-#import "RNSound.h"
+#import <React/RCTConvert.h>
 
 #if __has_include("RCTUtils.h")
     #import "RCTUtils.h"
@@ -221,6 +221,21 @@ RCT_EXPORT_METHOD(play:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
     [[self callbackPool] setObject:[callback copy] forKey:key];
     [player play];
     [self setOnPlay:YES forPlayerKey:key];
+  }
+}
+
+RCT_EXPORT_METHOD(playAll:(nonnull NSArray*)keys withCallback:(RCTResponseSenderBlock)callback) {
+  [[AVAudioSession sharedInstance] setActive:YES error:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionChangeObserver:) name:AVAudioSessionRouteChangeNotification object:nil];
+  
+  for (NSNumber *key in keys) {
+    self._key = key;
+    AVAudioPlayer* player = [self playerForKey:key];
+    if (player) {
+      [[self callbackPool] setObject:[callback copy] forKey:key];
+      [player play];
+      [self setOnPlay:YES forPlayerKey:key];
+    }
   }
 }
 
