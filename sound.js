@@ -175,24 +175,7 @@ Sound.prototype.getPan = function() {
 
 Sound.prototype.setPan = function(value) {
   if (this._loaded) {
-    if (IsAndroid || IsWindows) {
-      var right = this.getVolume();
-      var left = this.getVolume();
-
-      if (value === -1) {
-          left = 0;
-          this._pan = -1;
-      } else if (value === 1) {
-          right = 0;
-          this._pan = 1;
-      } else if (value === 0) {
-        this._pan = 0;
-      }
-
-      RNSound.setVolume(this._key, left, right);
-    } else {
-      RNSound.setPan(this._key, this._pan = value);
-    }
+    RNSound.setPan(this._key, this._pan = value);
   }
   return this;
 };
@@ -272,7 +255,7 @@ Sound.setActive = function(value) {
 };
 
 Sound.setCategory = function(value, mixWithOthers = false) {
-  if (!IsAndroid && !IsWindows) {
+  if (!IsWindows) {
     RNSound.setCategory(value, mixWithOthers);
   }
 };

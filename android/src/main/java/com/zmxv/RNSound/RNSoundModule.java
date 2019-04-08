@@ -38,6 +38,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
     this.context = context;
+    this.category = null;
   }
 
   private void setOnPlay(boolean isPlaying, final Double playerKey) {
@@ -151,11 +152,20 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   protected MediaPlayer createMediaPlayer(final String fileName) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
+    MediaPlayer mediaPlayer = new MediaPlayer();
     if (res != 0) {
-      return MediaPlayer.create(this.context, res);
+      try {
+        AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
+        mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        afd.close();
+      } catch (IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        return null;
+      }
+      return mediaPlayer;
     }
-    if(fileName.startsWith("http://") || fileName.startsWith("https://")) {
-      MediaPlayer mediaPlayer = new MediaPlayer();
+
+    if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
@@ -170,7 +180,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     if (fileName.startsWith("asset:/")){
         try {
             AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
-            MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
             descriptor.close();
             return mediaPlayer;
@@ -181,7 +190,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     }
 
     if (fileName.startsWith("file:/")){
-      MediaPlayer mediaPlayer = new MediaPlayer();
       try {
         mediaPlayer.setDataSource(fileName);
       } catch(IOException e) {
