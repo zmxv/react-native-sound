@@ -2,6 +2,8 @@
 
 React Native module for playing sound clips on iOS, Android, and Windows.
 
+'NOTE: React-native-sound does not support streaming'. See #353 for more info. Of course, we would welcome a PR if someone wants to take this on.
+
 ## Feature matrix
 
 Feature | iOS | Android | Windows
@@ -14,12 +16,13 @@ Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
 Resume | ✓ | ✓ | ✓
 Stop | ✓ | ✓ | ✓
-Reset |  | ✓ | 
+Reset |  | ✓ |
 Release resource | ✓ | ✓ | ✓
 Get duration | ✓ | ✓ | ✓
 Get number of channels | ✓ |   |
 Get/set volume | ✓ | ✓ | ✓
-Get/set system volume |   | ✓ |
+Get system volume | ✓ | ✓ |
+Set system volume |   | ✓ |
 Get/set pan | ✓ |   |
 Get/set loops | ✓ | ✓ | ✓
 Get/set current time | ✓ | ✓ | ✓
@@ -52,6 +55,12 @@ Please see the Wiki for these details https://github.com/zmxv/react-native-sound
 
 https://github.com/zmxv/react-native-sound-demo
 
+## Player
+
+<img src="https://github.com/benevbright/react-native-sound-playerview/blob/master/docs/demo.gif?raw=true">
+
+https://github.com/benevbright/react-native-sound-playerview
+
 ## Basic usage
 
 First you'll need to add audio files to your project.
@@ -75,18 +84,15 @@ var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
   }
   // loaded successfully
   console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-});
 
-// Play the sound with an onEnd callback
-whoosh.play((success) => {
-  if (success) {
-    console.log('successfully finished playing');
-  } else {
-    console.log('playback failed due to audio decoding errors');
-    // reset the player to its uninitialized state (android only)
-    // this is the only option to recover after an error occured and use the player again
-    whoosh.reset();
-  }
+  // Play the sound with an onEnd callback
+  whoosh.play((success) => {
+    if (success) {
+      console.log('successfully finished playing');
+    } else {
+      console.log('playback failed due to audio decoding errors');
+    }
+  });
 });
 
 // Reduce the volume by half
@@ -129,4 +135,5 @@ whoosh.release();
 - You may reuse a `Sound` instance for multiple playbacks.
 - On iOS, the module wraps `AVAudioPlayer` that supports aac, aiff, mp3, wav etc. The full list of supported formats can be found at https://developer.apple.com/library/content/documentation/MusicAudio/Conceptual/CoreAudioOverview/SupportedAudioFormatsMacOSX/SupportedAudioFormatsMacOSX.html
 - On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html
+- On Android, the absolute path can start with '/sdcard/'. So, if you want to access a sound called "my_sound.mp3" on Downloads folder, the absolute path will be: '/sdcard/Downloads/my_sound.mp3'.
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
