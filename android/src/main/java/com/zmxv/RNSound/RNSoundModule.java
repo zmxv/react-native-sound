@@ -14,12 +14,14 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
@@ -206,9 +208,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void playAll(final Double[] keys, final Callback callback) {
-    for (int i = 0; i < keys.length; i++) {
-      final Double key = keys[i];
+  public void playAll(final ReadableArray keys, final Callback callback) {
+    for (int i = 0; i < keys.size(); i++) {
+      final Double key = keys.getDouble(i);
       MediaPlayer player = this.playerPool.get(key);
       if (player == null) {
         setOnPlay(false, key);
