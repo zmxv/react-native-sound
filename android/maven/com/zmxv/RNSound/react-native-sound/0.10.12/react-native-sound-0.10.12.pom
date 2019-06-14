@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.zmxv.RNSound</groupId>
+  <artifactId>react-native-sound</artifactId>
+  <version>0.10.12</version>
+  <packaging>aar</packaging>
+  <name>React Native Sound</name>
+  <description>React Native module for playing sound clips on iOS, Android, and Windows</description>
+  <url>null</url>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>null/blob/master/null</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>zmxv</id>
+      <name>Zhen Wang (http://blog.zmxv.com)</name>
+    </developer>
+  </developers>
+</project>
