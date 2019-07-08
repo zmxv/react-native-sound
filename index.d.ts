@@ -39,7 +39,7 @@ declare class Sound {
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): void
 
   /**
    * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
