@@ -1,4 +1,4 @@
-/>>uu#import "RNSound.h"
+#import "RNSound.h"
 
 #if __has_include("RCTUtils.h")
     #import "RCTUtils.h"
