@@ -34,6 +34,13 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   Boolean mixWithOthers = true;
   Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange = false;
+	/**
+	 * Number of loops for the sound.
+	 * -1 - play inifity
+	 * 0 - play once
+	 * 1 - play twice etc.
+	 */
+	Integer loops = 0;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
@@ -201,7 +208,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       return mediaPlayer;
     }
-    
+
     return null;
   }
 
@@ -234,6 +241,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       @Override
       public synchronized void onCompletion(MediaPlayer mp) {
         if (!mp.isLooping()) {
+		  if (this.loops > 0) {
+			mp.start();
+			this.loops--;
+			return;
+		  }
           setOnPlay(false, key);
           if (callbackWasCalled) return;
           callbackWasCalled = true;
@@ -317,7 +329,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
     }
   }
-	
+
   @Override
   public void onCatalystInstanceDestroy() {
     java.util.Iterator it = this.playerPool.entrySet().iterator();
@@ -368,6 +380,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     if (player != null) {
       player.setLooping(looping);
     }
+  }
+
+  @ReactMethod
+  public void setNumberOfLoops(final Integer key, final Integer loops) {
+	if (loops == -1) {
+	  MediaPlayer player = this.playerPool.get(key);
+		if (player != null) {
+			player.setLooping(true);
+		}
+	}
+	else {
+	  this.loops = loops;
+	}
   }
 
   @ReactMethod
