@@ -345,7 +345,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     try {
       AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-      callback.invoke(NULL, (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+      callback.invoke((float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
     } catch (Exception error) {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
