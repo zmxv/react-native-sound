@@ -74,7 +74,7 @@
     [self setOnPlay:NO forPlayerKey:key];
     RCTResponseSenderBlock callback = [self callbackForKey:key];
     if (callback) {
-      callback(@[@(flag)]);
+      callback([NSArray arrayWithObjects:[NSNumber numberWithBool:flag], nil]);
       [[self callbackPool] removeObjectForKey:key];
     }
   }
@@ -83,17 +83,17 @@
 RCT_EXPORT_MODULE();
 
 -(NSArray<NSString *> *)supportedEvents
-  {
-    return @[@"onPlayChange"];
-  }
+{
+  return [NSArray arrayWithObjects: @"onPlayChange", nil];
+}
 
 -(NSDictionary *)constantsToExport {
-  return @{@"IsAndroid": [NSNumber numberWithBool:NO],
-           @"MainBundlePath": [[NSBundle mainBundle] bundlePath],
-           @"NSDocumentDirectory": [self getDirectory:NSDocumentDirectory],
-           @"NSLibraryDirectory": [self getDirectory:NSLibraryDirectory],
-           @"NSCachesDirectory": [self getDirectory:NSCachesDirectory],
-           };
+  return [NSDictionary dictionaryWithObjectsAndKeys:
+          [NSNumber numberWithBool:NO], @"IsAndroid",
+          [[NSBundle mainBundle] bundlePath], @"MainBundlePath",
+          [self getDirectory:NSDocumentDirectory], @"NSDocumentDirectory",
+          [self getDirectory:NSLibraryDirectory], @"NSLibraryDirectory",
+          [self getDirectory:NSCachesDirectory], @"NSCachesDirectory", nil];
 }
 
 RCT_EXPORT_METHOD(enable:(BOOL)enabled) {
@@ -204,11 +204,10 @@ RCT_EXPORT_METHOD(prepare:(NSString*)fileName
       player.enableRate = YES;
       [player prepareToPlay];
       [[self playerPool] setObject:player forKey:key];
-      callback(@[[NSNull null], @{@"duration": @(player.duration),
-                                  @"numberOfChannels": @(player.numberOfChannels)}]);
+      callback([NSArray arrayWithObjects:[NSNull null], [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithDouble:player.duration], @"duration", [NSNumber numberWithUnsignedInteger:player.numberOfChannels], @"numberOfChannels", nil], nil]);
     }
   } else {
-    callback(@[RCTJSErrorFromNSError(error)]);
+    callback([NSArray arrayWithObjects:RCTJSErrorFromNSError(error), nil]);
   }
 }
 
@@ -228,7 +227,7 @@ RCT_EXPORT_METHOD(pause:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBl
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
     [player pause];
-    callback(@[]);
+    callback([NSArray array]);
   }
 }
 
@@ -237,7 +236,7 @@ RCT_EXPORT_METHOD(stop:(nonnull NSNumber*)key withCallback:(RCTResponseSenderBlo
   if (player) {
     [player stop];
     player.currentTime = 0;
-    callback(@[]);
+    callback([NSArray array]);
   }
 }
 
@@ -299,9 +298,9 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)key
                   withCallback:(RCTResponseSenderBlock)callback) {
   AVAudioPlayer* player = [self playerForKey:key];
   if (player) {
-    callback(@[@(player.currentTime), @(player.isPlaying)]);
+    callback([NSArray arrayWithObjects:[NSNumber numberWithDouble:player.currentTime], [NSNumber numberWithBool: player.isPlaying], nil]);
   } else {
-    callback(@[@(-1), @(false)]);
+    callback([NSArray arrayWithObjects:[NSNumber numberWithInteger:-1], [NSNumber numberWithBool:NO], nil]);
   }
 }
 
@@ -320,6 +319,6 @@ RCT_EXPORT_METHOD(setSpeakerPhone:(BOOL) on) {
     return YES;
 }
 - (void)setOnPlay:(BOOL)isPlaying forPlayerKey:(nonnull NSNumber*)playerKey {
-  [self sendEventWithName:@"onPlayChange" body:@{@"isPlaying": isPlaying ? @YES : @NO, @"playerKey": playerKey}];
+  [self sendEventWithName:@"onPlayChange" body:[NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: isPlaying ? YES : NO], @"isPlaying", playerKey, @"playerKey", nil]];
 }
 @end
