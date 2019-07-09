@@ -22,4 +22,21 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+# Jetbrains
+.idea
 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# dotenv environment variables file
+.env
