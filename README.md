@@ -12,6 +12,7 @@ Load sound from the app bundle | ✓ | ✓ | ✓
 Load sound from other directories | ✓ | ✓ | ✓
 Load sound from the network | ✓ | ✓ |
 Play sound | ✓ | ✓ | ✓
+Play multiple sounds | ✓ | ✓ |
 Playback completion callback | ✓ | ✓ | ✓
 Pause | ✓ | ✓ | ✓
 Resume | ✓ | ✓ | ✓

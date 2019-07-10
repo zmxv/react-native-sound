@@ -14,12 +14,14 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
@@ -203,6 +205,69 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     }
     
     return null;
+  }
+
+  @ReactMethod
+  public void playAll(final ReadableArray keys, final Callback callback) {
+    for (int i = 0; i < keys.size(); i++) {
+      final Double key = keys.getDouble(i);
+      MediaPlayer player = this.playerPool.get(key);
+      if (player == null) {
+        setOnPlay(false, key);
+        if (callback != null) {
+            callback.invoke(false);
+        }
+        return;
+      }
+      if (player.isPlaying()) {
+        return;
+      }
+
+      // Request audio focus in Android system
+      if (!this.mixWithOthers) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+        this.focusedPlayerKey = key;
+      }
+
+      player.setOnCompletionListener(new OnCompletionListener() {
+        boolean callbackWasCalled = false;
+
+        @Override
+        public synchronized void onCompletion(MediaPlayer mp) {
+          if (!mp.isLooping()) {
+            setOnPlay(false, key);
+            if (callbackWasCalled) return;
+            callbackWasCalled = true;
+            try {
+              callback.invoke(true);
+            } catch (Exception e) {
+                //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+            }
+          }
+        }
+      });
+      player.setOnErrorListener(new OnErrorListener() {
+        boolean callbackWasCalled = false;
+
+        @Override
+        public synchronized boolean onError(MediaPlayer mp, int what, int extra) {
+          setOnPlay(false, key);
+          if (callbackWasCalled) return true;
+          callbackWasCalled = true;
+          try {
+            callback.invoke(true);
+          } catch (Exception e) {
+            //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+          }
+          return true;
+        }
+      });
+      player.start();
+      setOnPlay(true, key);
+    }
   }
 
   @ReactMethod
