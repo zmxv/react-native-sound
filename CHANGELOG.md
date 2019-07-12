@@ -5,6 +5,7 @@
 New features:
 
 - Add support for `Sound.setCategory('Alarm')` on Android
+- Update Visual Studio path definition to support Windows UWP in CI.
 
 Bug fixes:
 
