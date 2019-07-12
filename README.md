@@ -175,11 +175,13 @@ whoosh.release();
 - [The State of Audio Libraries in React Native (Oct. 2018)][medium]
 - [react-native-audio-toolkit][]
 - [react-native-video][] (also plays audio)
+- [Expo Audio SDK][]
 - [#media on awesome-react-native][#media]
 
 [medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4"
 [react-native-audio-toolkit]: https://github.com/react-native-community/react-native-audio-toolkit
 [react-native-video]: https://github.com/react-native-community/react-native-video
+[expo audio sdk]: https://docs.expo.io/versions/latest/sdk/audio/
 [#media]: http://www.awesome-react-native.com/#media
 
 ## Contributing
