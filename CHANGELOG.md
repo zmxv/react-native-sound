@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.10.13
+## 0.11.0
+
+New features:
+
+- Add support for `Sound.setCategory('Alarm')` on Android
 
 Bug fixes:
 
