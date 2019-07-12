@@ -18,5 +18,13 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.8.0"
+  },
+  "scripts": {
+    "clang-format": "node scripts/clang-format.js",
+    "clang-format:check": "node scripts/clang-format.js --check"
+  },
+  "devDependencies": {
+    "glob": "^7.1.4",
+    "promisify-child-process": "^3.1.1"
   }
 }

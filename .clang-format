@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ObjCSpaceAfterProperty: true
+
+# Looks like this option is coming, but isn't ready yet.
+# https://reviews.llvm.org/rL356613
+#IndentPPDirectives: BeforeHash
