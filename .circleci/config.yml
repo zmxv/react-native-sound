@@ -8,9 +8,15 @@ jobs:
       - checkout
       - run:
           name: Install container dependencies
+          # https://apt.llvm.org/
           command: |
+            wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+            sudo apt-get install software-properties-common # Get add-apt-repository
+            sudo add-apt-repository "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-8 main"
             sudo apt-get update -y
-            sudo apt-get install -y clang-format
+            sudo apt-get install -y clang-format-8
+            sudo ln -s /usr/bin/clang-format-8 /usr/bin/clang-format
+            clang-format --version
       - run:
           name: Install npm dependencies
           command: yarn
