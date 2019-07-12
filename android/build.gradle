@@ -1,4 +1,16 @@
+buildscript {
+  repositories {
+    google()
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.1.4'
+  }
+}
+
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
@@ -19,6 +31,86 @@ android {
   }
 }
 
+repositories {
+  google()
+  jcenter()
+  maven {
+    url "$projectDir/../node_modules/react-native/android"
+  }
+  mavenCentral()
+}
+
 dependencies {
   compileOnly 'com.facebook.react:react-native:+'
+}
+
+def configureReactNativePom(def pom) {
+  def packageJson = new groovy.json.JsonSlurper().parseText(file('../package.json').text)
+
+  pom.project {
+    name "React Native Sound"
+    artifactId packageJson.name
+    version = packageJson.version
+    group = "com.zmxv.RNSound"
+    description packageJson.description
+    url packageJson.repository.baseUrl
+
+    licenses {
+      license {
+        name packageJson.license
+        url packageJson.repository.baseUrl + '/blob/master/' + packageJson.licenseFilename
+        distribution 'repo'
+      }
+    }
+
+    developers {
+      developer {
+        id 'zmxv'
+        name packageJson.author.name
+      }
+    }
+  }
+}
+
+afterEvaluate { project ->
+
+  task androidJavadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += files(android.bootClasspath)
+    classpath += files(project.getConfigurations().getByName('compile').asList())
+    include '**/*.java'
+  }
+
+  task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
+    classifier = 'javadoc'
+    from androidJavadoc.destinationDir
+  }
+
+  task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+    include '**/*.java'
+  }
+
+  android.libraryVariants.all { variant ->
+    def name = variant.name.capitalize()
+    task "jar${name}"(type: Jar, dependsOn: variant.javaCompile) {
+      from variant.javaCompile.destinationDir
+    }
+  }
+
+  artifacts {
+    archives androidSourcesJar
+    archives androidJavadocJar
+  }
+
+  task installArchives(type: Upload) {
+    configuration = configurations.archives
+    repositories.mavenDeployer {
+      // Deploy to react-native-event-bridge/maven, ready to publish to npm
+      repository url: "file://${projectDir}/../android/maven"
+
+      configureReactNativePom pom
+    }
+  }
 }

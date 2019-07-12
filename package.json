@@ -14,8 +14,14 @@
     "sound",
     "audio"
   ],
-  "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
+  "author": {
+    "name": "Zhen Wang (http://blog.zmxv.com)",
+    "email": "z@zmxv.com"
+  },
   "license": "MIT",
+  "devDependencies": {
+    "react-native": "0.59.9"
+  },
   "peerDependencies": {
     "react-native": ">=0.8.0"
   },
