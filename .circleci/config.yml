@@ -10,7 +10,7 @@ jobs:
           name: Install container dependencies
           command: |
             sudo apt-get update -y
-            sudo apt-get install -y clang-format
+            sudo apt-get install -y clang-format-8
             clang-format --version
       - run:
           name: Install npm dependencies
