@@ -1,10 +1,26 @@
 # react-native-sound
 
+[![](https://img.shields.io/npm/v/react-native-sound.svg?style=flat-square)][npm]
+[![](https://img.shields.io/npm/l/react-native-sound.svg?style=flat-square)][npm]
+[![](https://img.shields.io/npm/dm/react-native-sound.svg?style=flat-square)][npm]
+
+[npm]: https://www.npmjs.com/package/react-native-sound
+
 React Native module for playing sound clips on iOS, Android, and Windows.
 
-'NOTE: React-native-sound does not support streaming'. See [#353](https://github.com/zmxv/react-native-sound/issues/353) for more info. Of course, we would welcome a PR if someone wants to take this on.
+Be warned, this software is alpha quality and may have bugs. Test on your own
+and use at your own risk!
 
 ## Feature matrix
+
+React-native-sound does not support streaming. See [#353][] for more info.
+Of course, we would welcome a PR if someone wants to take this on.
+
+In iOS, the library uses [AVAudioPlayer][], not [AVPlayer][].
+
+[#353]: https://github.com/zmxv/react-native-sound/issues/353
+[AVAudioPlayer]: https://developer.apple.com/documentation/avfoundation/avaudioplayer
+[AVPlayer]: https://developer.apple.com/documentation/avfoundation/avplayer
 
 Feature | iOS | Android | Windows
 ---|---|---|---
@@ -42,14 +58,29 @@ Then link it automatically using:
 react-native link react-native-sound
 ```
 
+**If you encounter this error**
+
+```
+undefined is not an object (evaluating 'RNSound.IsAndroid')
+```
+
+**know that this is the most common build issue.** See [#592][] and the several
+issues linked from it for possible resolution. A pull request with improved
+documentation on this would be welcome!
+
+[#592]: https://github.com/zmxv/react-native-sound/issues/592
+
 ### Manual Installation Notes
 
 Please see the Wiki for these details https://github.com/zmxv/react-native-sound/wiki/Installation
 
 
 ## Help with React-Native-Sound
-* For react-native-sound developers  [![Gitter chat](https://badges.gitter.im/gitterHQ/services.png)](https://gitter.im/react-native-sound/developers)
-* For help using react-native-sound  [![Gitter chat](https://badges.gitter.im/gitterHQ/services.png)](https://gitter.im/react-native-sound/Help)
+
+* For react-native-sound developers  [![][gitter badge]](https://gitter.im/react-native-sound/developers)
+* For help using react-native-sound  [![][gitter badge]](https://gitter.im/react-native-sound/Help)
+
+[gitter badge]: https://img.shields.io/gitter/room/react-native-sound/developers.svg?format=flat-square
 
 ## Demo project
 
@@ -130,6 +161,7 @@ whoosh.release();
 ```
 
 ## Notes
+
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
 - You may reuse a `Sound` instance for multiple playbacks.
@@ -137,3 +169,28 @@ whoosh.release();
 - On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html
 - On Android, the absolute path can start with '/sdcard/'. So, if you want to access a sound called "my_sound.mp3" on Downloads folder, the absolute path will be: '/sdcard/Downloads/my_sound.mp3'.
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
+
+## Audio on React Native
+
+- [The State of Audio Libraries in React Native (Oct. 2018)][medium]
+- [react-native-audio-toolkit][]
+- [react-native-video][] (also plays audio)
+- [Expo Audio SDK][]
+- [#media on awesome-react-native][#media]
+
+[medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4"
+[react-native-audio-toolkit]: https://github.com/react-native-community/react-native-audio-toolkit
+[react-native-video]: https://github.com/react-native-community/react-native-video
+[expo audio sdk]: https://docs.expo.io/versions/latest/sdk/audio/
+[#media]: http://www.awesome-react-native.com/#media
+
+## Contributing
+
+Pull requests welcome with bug fixes, documentation improvements, and
+enhancements.
+
+When making big changes, please open an issue first to discuss.
+
+## License
+
+This project is licensed under the MIT License.
