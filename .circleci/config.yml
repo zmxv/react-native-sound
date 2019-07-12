@@ -11,6 +11,7 @@ jobs:
           command: |
             sudo apt-get update -y
             sudo apt-get install -y clang-format
+            clang-format --version
       - run:
           name: Install npm dependencies
           command: yarn
