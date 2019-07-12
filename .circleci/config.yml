@@ -15,6 +15,7 @@ jobs:
             sudo add-apt-repository "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch-8 main"
             sudo apt-get update -y
             sudo apt-get install -y clang-format-8
+            sudo ln -s /usr/local/bin/clang-format-8 /usr/local/bin/clang-format
             clang-format --version
       - run:
           name: Install npm dependencies
