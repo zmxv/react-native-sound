@@ -7,18 +7,10 @@ var IsWindows = RNSound.IsWindows;
 var resolveAssetSource = require("react-native/Libraries/Image/resolveAssetSource");
 var eventEmitter = new ReactNative.NativeEventEmitter(RNSound);
 
+var nextKey = 0;
+
 function isRelativePath(path) {
   return !/^(\/|http(s?)|asset)/.test(path);
-}
-
-// Hash function to compute key from the filename
-function djb2Code(str) {
-  var hash = 5381, i, char;
-  for (i = 0; i < str.length; i++) {
-      char = str.charCodeAt(i);
-      hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
-  }
-  return hash;
 }
 
 function Sound(filename, basePath, onError, options) {
@@ -59,7 +51,7 @@ function Sound(filename, basePath, onError, options) {
   }
 
   this._loaded = false;
-  this._key = asset ? filename : djb2Code(filename); //if the file is an asset, use the asset number as the key
+  this._key = nextKey++;
   this._playing = false;
   this._duration = -1;
   this._numberOfChannels = -1;
@@ -164,7 +156,7 @@ Sound.prototype.setVolume = function(value) {
 };
 
 Sound.prototype.getSystemVolume = function(callback) {
-  if(IsAndroid) {
+  if(!IsWindows) {
     RNSound.getSystemVolume(callback);
   }
   return this;
@@ -273,6 +265,12 @@ Sound.setMode = function(value) {
     RNSound.setMode(value);
   }
 };
+
+Sound.setSpeakerPhone = function(value) {
+  if (!IsAndroid && !IsWindows) {
+    RNSound.setSpeakerPhone(value)
+  }
+}
 
 Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
 Sound.DOCUMENT = RNSound.NSDocumentDirectory;

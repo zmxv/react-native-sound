@@ -1,6 +1,6 @@
 {
   "name": "react-native-sound",
-  "version": "0.10.9",
+  "version": "0.10.12",
   "description": "React Native module for playing sound clips on iOS, Android, and Windows",
   "main": "sound.js",
   "typings": "index.d.ts",
@@ -18,5 +18,13 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">=0.8.0"
+  },
+  "scripts": {
+    "clang-format": "node scripts/clang-format.js",
+    "clang-format:check": "node scripts/clang-format.js --check"
+  },
+  "devDependencies": {
+    "glob": "^7.1.4",
+    "promisify-child-process": "^3.1.1"
   }
 }
