@@ -241,9 +241,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       @Override
       public synchronized void onCompletion(MediaPlayer mp) {
         if (!mp.isLooping()) {
-		  if (this.loops > 0) {
+		  if (loops > 0) {
 			mp.start();
-			this.loops--;
+			loops--;
 			return;
 		  }
           setOnPlay(false, key);
