@@ -178,7 +178,7 @@ whoosh.release();
 - [Expo Audio SDK][]
 - [#media on awesome-react-native][#media]
 
-[medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4"
+[medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4
 [react-native-audio-toolkit]: https://github.com/react-native-community/react-native-audio-toolkit
 [react-native-video]: https://github.com/react-native-community/react-native-video
 [expo audio sdk]: https://docs.expo.io/versions/latest/sdk/audio/
