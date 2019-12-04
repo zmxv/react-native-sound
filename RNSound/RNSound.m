@@ -195,7 +195,7 @@ RCT_EXPORT_METHOD(prepare
     NSURL *fileNameUrl;
     AVAudioPlayer *player;
 
-    if ([fileName hasPrefix:@"http"]) {
+    if ([fileName hasPrefix:@"http"] || [fileName hasPrefix:@"data:audio/"]) {
         fileNameUrl = [NSURL URLWithString:fileName];
         NSData *data = [NSData dataWithContentsOfURL:fileNameUrl];
         player = [[AVAudioPlayer alloc] initWithData:data error:&error];
