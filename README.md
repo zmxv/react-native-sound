@@ -165,7 +165,7 @@ whoosh.release();
 Second parameter will be ```null``` 
 
 ```
-var whoosh = new Sound(LINK_TO_THE_FILE, null , (error) => {
+var file_name = new Sound(LINK_TO_THE_FILE, null , (error) => {
   if (error) {
     console.log('failed to load the sound', error);
     return;
