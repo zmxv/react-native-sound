@@ -162,7 +162,7 @@ whoosh.release();
 
 ## To Load Files from Network
 
-*Second paramter will be ```null``` *
+Second parameter will be ```null``` 
 
 ```
 var whoosh = new Sound(LINK_TO_THE_FILE, null , (error) => {
