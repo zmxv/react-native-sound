@@ -198,7 +198,7 @@ RCT_EXPORT_METHOD(prepare
     if ([fileName hasPrefix:@"http"] || [fileName hasPrefix:@"data:audio/"]) {
         fileNameUrl = [NSURL URLWithString:fileName];
         NSData *data = [NSData dataWithContentsOfURL:fileNameUrl];
-        player = [[AVAudioPlayer alloc] initWithData:data error:&error];
+        player = [[AVAudioPlayer alloc] initWithData:data fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
     } else if ([fileName hasPrefix:@"ipod-library://"]) {
         fileNameUrl = [NSURL URLWithString:fileName];
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl
