@@ -177,6 +177,7 @@ whoosh.release();
 - [react-native-video][] (also plays audio)
 - [Expo Audio SDK][]
 - [#media on awesome-react-native][#media]
+- [react-native-use-sound](https://github.com/remigallego/react-native-use-sound) A Hook for sound for React Native built on top of react-native-sound.
 
 [medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4
 [react-native-audio-toolkit]: https://github.com/react-native-community/react-native-audio-toolkit
