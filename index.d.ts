@@ -27,7 +27,6 @@ declare class Sound {
    * to regain access to the audio stack.
    *
    * @param category AVAudioSession category
-   * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
    */
   static setActive(active: boolean): void
 
