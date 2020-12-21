@@ -97,6 +97,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       if (category != null) {
         player.setAudioStreamType(category);
+        context.getCurrentActivity().setVolumeControlStream(category);
       }
     }
 
