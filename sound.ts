@@ -136,7 +136,7 @@ export class Sound extends EventEmitter {
   }
 
   public async stop(): Promise<void> {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       !this.isPlaying
         ? reject('Cannot stop ' + this._filename + ',  which is currently not played!')
         : this.RNSound.stop(this.key, () => {
@@ -213,8 +213,8 @@ export class Sound extends EventEmitter {
     })
   }
 
-  public getSystemVolume(): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public getSystemVolume(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       if(!this.isWindows) {
         this.RNSound.getSystemVolume(resolve);
       } else {
