@@ -15,7 +15,9 @@
   ],
   "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
   "license": "MIT",
-  "peerDependencies": {},
+  "peerDependencies": {
+    "react-native": ">=0.8.0"
+  },
   "scripts": {
     "clang-format": "node scripts/clang-format.js",
     "clang-format:check": "node scripts/clang-format.js --check"
