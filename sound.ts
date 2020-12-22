@@ -1,5 +1,5 @@
 import * as React from "react-native"
-import {EmitterSubscription, EventEmitter} from "react-native";
+import {EmitterSubscription} from "react-native";
 
 declare type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute' | 'Alarm'
 declare type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio'
@@ -10,16 +10,18 @@ export interface SoundOptions {
   readonly enableSMTCIntegration?: boolean
 }
 
-export class Sound extends EventEmitter {
-  protected readonly RNSound: any = React.NativeModules.RNSound
-  private readonly MAIN_BUNDLE: string = this.RNSound.MainBundlePath
-  private readonly DOCUMENT: string = this.RNSound.NSDocumentDirectory
-  private readonly LIBRARY: string = this.RNSound.NSLibraryDirectory
-  private readonly CACHES: string = this.RNSound.NSCachesDirectory
-  protected readonly isAndroid: boolean = this.RNSound.IsAndroid
-  protected readonly isWindows: boolean = this.RNSound.IsWindows
+const RNSound: any = React.NativeModules.RNSound
+const ee: React.NativeEventEmitter = new React.NativeEventEmitter(RNSound)
+
+export class Sound {
+  private readonly MAIN_BUNDLE: string = RNSound.MainBundlePath
+  private readonly DOCUMENT: string = RNSound.NSDocumentDirectory
+  private readonly LIBRARY: string = RNSound.NSLibraryDirectory
+  private readonly CACHES: string = RNSound.NSCachesDirectory
+  protected readonly isAndroid: boolean = RNSound.IsAndroid
+  protected readonly isWindows: boolean = RNSound.IsWindows
   protected isPlaying: boolean = false
-  protected isLoaded: boolean = false
+  protected _isLoaded: boolean = false
   private readonly basePath: string = ''
   private readonly _filename: string
   private readonly rejectOnUnsupportedFeature: boolean = false
@@ -33,7 +35,6 @@ export class Sound extends EventEmitter {
   private speed: number = 1
 
   constructor(filename: string, basePath?: SoundBasePath, options?: SoundOptions) {
-    super()
     if(options?.rejectOnUnsupportedFeature) {
       this.rejectOnUnsupportedFeature = true
     }
@@ -65,7 +66,7 @@ export class Sound extends EventEmitter {
       }
     }
 
-    this.RNSound.prepare(this._filename, this.key, options || {}, (error: any, props: { duration: any, numberOfChannels: any}) => {
+    RNSound.prepare(this._filename, this.key, options || {}, (error: any, props: { duration: any, numberOfChannels: any}) => {
       if(props) {
         if(typeof props.duration === 'number') {
           this.duration = props.duration
@@ -76,7 +77,11 @@ export class Sound extends EventEmitter {
       }
 
       if (error === null) {
-        this.registerOnPlay().then(() => this.isLoaded = true)
+        this.registerOnPlay().then(() => {
+          this._isLoaded = true
+          ee.emit('loaded')
+        }).catch(console.error)
+        return
       }
 
       if(error) {
@@ -93,15 +98,16 @@ export class Sound extends EventEmitter {
     return new Promise((resolve, reject) => {
       if(!this.onPlaySubscription) {
         if(!this.isWindows) {
-          this.onPlaySubscription = this.addListener(
+          this.onPlaySubscription = ee.addListener(
             'onPlayChange',
-            (param) => {
+            (param: any) => {
               const {isPlaying, playerKey} = param
               if (playerKey === this.key) {
                 this.isPlaying = isPlaying
               }
             }
           )
+          resolve()
         } else {
           if(this.rejectOnUnsupportedFeature) {
             reject('Cannot get system volume for ' + this._filename + ', this is an Android and iOS feature!')
@@ -109,15 +115,17 @@ export class Sound extends EventEmitter {
             resolve()
           }
         }
+      } else {
+        resolve()
       }
     })
   }
 
   public async play(): Promise<any> {
     return new Promise((resolve, reject) => {
-      !this.isLoaded
+      !this._isLoaded
         ? reject(this._filename + 'is not yet ready!')
-        : this.RNSound.play(this.key, (success: any) => {
+        : RNSound.play(this.key, (success: any) => {
           this.isPlaying = true
           resolve(success)
         })
@@ -128,7 +136,7 @@ export class Sound extends EventEmitter {
     return new Promise((resolve, reject) => {
       !this.isPlaying
         ? reject('Cannot pause ' + this._filename + ', which is currently not played!')
-        : this.RNSound.pause(this.key, () => {
+        : RNSound.pause(this.key, () => {
           this.isPlaying = false
           resolve()
         })
@@ -139,7 +147,7 @@ export class Sound extends EventEmitter {
     return new Promise<void>((resolve, reject) => {
       !this.isPlaying
         ? reject('Cannot stop ' + this._filename + ',  which is currently not played!')
-        : this.RNSound.stop(this.key, () => {
+        : RNSound.stop(this.key, () => {
           this.isPlaying = false
           resolve()
         })
@@ -150,10 +158,10 @@ export class Sound extends EventEmitter {
   public async reset(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if(this.isAndroid) {
-        if(!this.isLoaded) {
+        if(!this._isLoaded) {
           reject('Cannot reset ' + this._filename + ' which is not yet loaded!')
         } else {
-          this.RNSound.reset(this.key)
+          RNSound.reset(this.key)
           this.isPlaying = false
           resolve()
         }
@@ -163,9 +171,9 @@ export class Sound extends EventEmitter {
 
   public async release(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if(this.isLoaded) {
-        this.RNSound.release(this.key);
-        this.isLoaded = false;
+      if(this._isLoaded) {
+        RNSound.release(this.key);
+        this._isLoaded = false;
         if(!this.isWindows) {
           if(this.onPlaySubscription != null) {
             this.onPlaySubscription.remove();
@@ -193,7 +201,7 @@ export class Sound extends EventEmitter {
 
   public async setVolume(volume: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if(this.isLoaded) {
+      if(this._isLoaded) {
         if(volume < 0 || volume > 1) {
           reject('Volume must be a value between 0.0 and 1.0!')
           return
@@ -201,10 +209,10 @@ export class Sound extends EventEmitter {
 
         this.volume = volume
         if (this.isAndroid || this.isWindows) {
-          this.RNSound.setVolume(this.key, volume, volume)
+          RNSound.setVolume(this.key, volume, volume)
           resolve()
         } else {
-          this.RNSound.setVolume(this.key, volume)
+          RNSound.setVolume(this.key, volume)
           resolve()
         }
       } else {
@@ -216,7 +224,7 @@ export class Sound extends EventEmitter {
   public getSystemVolume(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if(!this.isWindows) {
-        this.RNSound.getSystemVolume(resolve);
+        RNSound.getSystemVolume(resolve);
       } else {
         if(this.rejectOnUnsupportedFeature) {
           reject('Cannot get system volume for ' + this._filename + ', this is an Android and iOS feature!')
@@ -235,7 +243,7 @@ export class Sound extends EventEmitter {
       }
 
       if(this.isAndroid) {
-        this.RNSound.setSystemVolume(volume)
+        RNSound.setSystemVolume(volume)
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -258,9 +266,9 @@ export class Sound extends EventEmitter {
         return
       }
 
-      if(this.isLoaded) {
+      if(this._isLoaded) {
         this.pan = pan
-        this.RNSound.setPan(this.key, pan);
+        RNSound.setPan(this.key, pan);
         resolve()
       } else {
         reject('Cannot set pan count for ' + this._filename + ', the file is not loaded!')
@@ -275,11 +283,11 @@ export class Sound extends EventEmitter {
   public async setNumberOfLoops(loops: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.numberOfLoops = loops;
-      if(this.isLoaded) {
+      if(this._isLoaded) {
         if(this.isAndroid || this.isWindows) {
-          this.RNSound.setLooping(this.key, !!loops);
+          RNSound.setLooping(this.key, !!loops);
         } else {
-          this.RNSound.setNumberOfLoops(this.key, loops);
+          RNSound.setNumberOfLoops(this.key, loops);
         }
         resolve()
       } else {
@@ -290,10 +298,10 @@ export class Sound extends EventEmitter {
 
   public async setSpeed(speed: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (this.isLoaded) {
+      if (this._isLoaded) {
         if(!this.isWindows && !this.isAndroid) {
           this.speed = speed
-          this.RNSound.setSpeed(this.key, speed);
+          RNSound.setSpeed(this.key, speed);
           resolve()
         } else {
           if(this.rejectOnUnsupportedFeature) {
@@ -314,41 +322,41 @@ export class Sound extends EventEmitter {
 
   public async getCurrentTime(): Promise<number> {
     return new Promise<number>((resolve) => {
-      if(this.isLoaded) {
-        this.RNSound.getCurrentTime(this.key, resolve);
+      if(this._isLoaded) {
+        RNSound.getCurrentTime(this.key, resolve);
       }
     })
   }
 
   public async setCurrentTime(time: number): Promise<void> {
-    if(this.isLoaded) {
-      this.RNSound.setCurrentTime(this.key, time)
+    if(this._isLoaded) {
+      RNSound.setCurrentTime(this.key, time)
     }
   }
 
 // android only
   public async setSpeakerphoneOn(): Promise<void> {
     if (this.isAndroid) {
-      return this.RNSound.setSpeakerphoneOn(this.key, true)
+      return RNSound.setSpeakerphoneOn(this.key, true)
     }
   }
 
   public async setSpeakerphoneOff(): Promise<void> {
     if(this.isAndroid) {
-      this.RNSound.setSpeakerphoneOn(this.key, false);
+      RNSound.setSpeakerphoneOn(this.key, false);
     }
   }
 
   public enable(): Promise<void> {
     return new Promise<void>((resolve) => {
-      this.RNSound.enable(true)
+      RNSound.enable(true)
       resolve()
     })
   }
 
   public disable(): Promise<void> {
     return new Promise<void>((resolve) => {
-      this.RNSound.enable(false)
+      RNSound.enable(false)
       resolve()
     })
   }
@@ -356,7 +364,7 @@ export class Sound extends EventEmitter {
   public enableInSilenceMode() {
     return new Promise<void>((resolve, reject) => {
       if(!this.isAndroid && !this.isWindows) {
-        this.RNSound.enableInSilenceMode(true);
+        RNSound.enableInSilenceMode(true);
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -371,7 +379,7 @@ export class Sound extends EventEmitter {
   public disableInSilenceMode() {
     return new Promise<void>((resolve, reject) => {
       if(!this.isAndroid && !this.isWindows) {
-        this.RNSound.enableInSilenceMode(false);
+        RNSound.enableInSilenceMode(false);
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -387,7 +395,7 @@ export class Sound extends EventEmitter {
   public async setActive(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if(!this.isAndroid && !this.isWindows) {
-        this.RNSound.setActive(true)
+        RNSound.setActive(true)
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -402,7 +410,7 @@ export class Sound extends EventEmitter {
   public async setInactive(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if(!this.isAndroid && !this.isWindows) {
-        this.RNSound.setActive(false)
+        RNSound.setActive(false)
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -417,7 +425,7 @@ export class Sound extends EventEmitter {
   public async setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean = false) {
     return new Promise<void>((resolve, reject) => {
       if(!this.isWindows) {
-        this.RNSound.setCategory(category, mixWithOthers);
+        RNSound.setCategory(category, mixWithOthers);
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -432,7 +440,7 @@ export class Sound extends EventEmitter {
   public async setMode(mode: AVAudioSessionMode): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if(!this.isAndroid && !this.isWindows) {
-        this.RNSound.setMode(mode)
+        RNSound.setMode(mode)
         resolve()
       } else {
         if(this.rejectOnUnsupportedFeature) {
@@ -440,6 +448,16 @@ export class Sound extends EventEmitter {
         } else {
           resolve()
         }
+      }
+    })
+  }
+
+  public async isLoaded(): Promise<void> {
+    return new Promise<void>(resolve => {
+      if(this._isLoaded) {
+        resolve()
+      } else {
+        ee.addListener('loaded', resolve)
       }
     })
   }

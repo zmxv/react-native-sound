@@ -30,19 +30,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sound = void 0;
 const React = __importStar(require("react-native"));
-const react_native_1 = require("react-native");
-class Sound extends react_native_1.EventEmitter {
+const RNSound = React.NativeModules.RNSound;
+const ee = new React.NativeEventEmitter(RNSound);
+class Sound {
     constructor(filename, basePath, options) {
-        super();
-        this.RNSound = React.NativeModules.RNSound;
-        this.MAIN_BUNDLE = this.RNSound.MainBundlePath;
-        this.DOCUMENT = this.RNSound.NSDocumentDirectory;
-        this.LIBRARY = this.RNSound.NSLibraryDirectory;
-        this.CACHES = this.RNSound.NSCachesDirectory;
-        this.isAndroid = this.RNSound.IsAndroid;
-        this.isWindows = this.RNSound.IsWindows;
+        this.MAIN_BUNDLE = RNSound.MainBundlePath;
+        this.DOCUMENT = RNSound.NSDocumentDirectory;
+        this.LIBRARY = RNSound.NSLibraryDirectory;
+        this.CACHES = RNSound.NSCachesDirectory;
+        this.isAndroid = RNSound.IsAndroid;
+        this.isWindows = RNSound.IsWindows;
         this.isPlaying = false;
-        this.isLoaded = false;
+        this._isLoaded = false;
         this.basePath = '';
         this.rejectOnUnsupportedFeature = false;
         this.key = 0;
@@ -81,7 +80,7 @@ class Sound extends react_native_1.EventEmitter {
                 this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
             }
         }
-        this.RNSound.prepare(this._filename, this.key, options || {}, (error, props) => {
+        RNSound.prepare(this._filename, this.key, options || {}, (error, props) => {
             if (props) {
                 if (typeof props.duration === 'number') {
                     this.duration = props.duration;
@@ -91,7 +90,11 @@ class Sound extends react_native_1.EventEmitter {
                 }
             }
             if (error === null) {
-                this.registerOnPlay().then(() => this.isLoaded = true);
+                this.registerOnPlay().then(() => {
+                    this._isLoaded = true;
+                    ee.emit('loaded');
+                }).catch(console.error);
+                return;
             }
             if (error) {
                 throw error;
@@ -106,12 +109,13 @@ class Sound extends react_native_1.EventEmitter {
             return new Promise((resolve, reject) => {
                 if (!this.onPlaySubscription) {
                     if (!this.isWindows) {
-                        this.onPlaySubscription = this.addListener('onPlayChange', (param) => {
+                        this.onPlaySubscription = ee.addListener('onPlayChange', (param) => {
                             const { isPlaying, playerKey } = param;
                             if (playerKey === this.key) {
                                 this.isPlaying = isPlaying;
                             }
                         });
+                        resolve();
                     }
                     else {
                         if (this.rejectOnUnsupportedFeature) {
@@ -122,15 +126,18 @@ class Sound extends react_native_1.EventEmitter {
                         }
                     }
                 }
+                else {
+                    resolve();
+                }
             });
         });
     }
     play() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                !this.isLoaded
+                !this._isLoaded
                     ? reject(this._filename + 'is not yet ready!')
-                    : this.RNSound.play(this.key, (success) => {
+                    : RNSound.play(this.key, (success) => {
                         this.isPlaying = true;
                         resolve(success);
                     });
@@ -142,7 +149,7 @@ class Sound extends react_native_1.EventEmitter {
             return new Promise((resolve, reject) => {
                 !this.isPlaying
                     ? reject('Cannot pause ' + this._filename + ', which is currently not played!')
-                    : this.RNSound.pause(this.key, () => {
+                    : RNSound.pause(this.key, () => {
                         this.isPlaying = false;
                         resolve();
                     });
@@ -154,7 +161,7 @@ class Sound extends react_native_1.EventEmitter {
             return new Promise((resolve, reject) => {
                 !this.isPlaying
                     ? reject('Cannot stop ' + this._filename + ',  which is currently not played!')
-                    : this.RNSound.stop(this.key, () => {
+                    : RNSound.stop(this.key, () => {
                         this.isPlaying = false;
                         resolve();
                     });
@@ -165,11 +172,11 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this.isAndroid) {
-                    if (!this.isLoaded) {
+                    if (!this._isLoaded) {
                         reject('Cannot reset ' + this._filename + ' which is not yet loaded!');
                     }
                     else {
-                        this.RNSound.reset(this.key);
+                        RNSound.reset(this.key);
                         this.isPlaying = false;
                         resolve();
                     }
@@ -180,9 +187,9 @@ class Sound extends react_native_1.EventEmitter {
     release() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (this.isLoaded) {
-                    this.RNSound.release(this.key);
-                    this.isLoaded = false;
+                if (this._isLoaded) {
+                    RNSound.release(this.key);
+                    this._isLoaded = false;
                     if (!this.isWindows) {
                         if (this.onPlaySubscription != null) {
                             this.onPlaySubscription.remove();
@@ -209,18 +216,18 @@ class Sound extends react_native_1.EventEmitter {
     setVolume(volume) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (this.isLoaded) {
+                if (this._isLoaded) {
                     if (volume < 0 || volume > 1) {
                         reject('Volume must be a value between 0.0 and 1.0!');
                         return;
                     }
                     this.volume = volume;
                     if (this.isAndroid || this.isWindows) {
-                        this.RNSound.setVolume(this.key, volume, volume);
+                        RNSound.setVolume(this.key, volume, volume);
                         resolve();
                     }
                     else {
-                        this.RNSound.setVolume(this.key, volume);
+                        RNSound.setVolume(this.key, volume);
                         resolve();
                     }
                 }
@@ -233,7 +240,7 @@ class Sound extends react_native_1.EventEmitter {
     getSystemVolume() {
         return new Promise((resolve, reject) => {
             if (!this.isWindows) {
-                this.RNSound.getSystemVolume(resolve);
+                RNSound.getSystemVolume(resolve);
             }
             else {
                 if (this.rejectOnUnsupportedFeature) {
@@ -252,7 +259,7 @@ class Sound extends react_native_1.EventEmitter {
                 return;
             }
             if (this.isAndroid) {
-                this.RNSound.setSystemVolume(volume);
+                RNSound.setSystemVolume(volume);
                 resolve();
             }
             else {
@@ -275,9 +282,9 @@ class Sound extends react_native_1.EventEmitter {
                     reject('Pan must be a value between -1.0 and 1.0!');
                     return;
                 }
-                if (this.isLoaded) {
+                if (this._isLoaded) {
                     this.pan = pan;
-                    this.RNSound.setPan(this.key, pan);
+                    RNSound.setPan(this.key, pan);
                     resolve();
                 }
                 else {
@@ -293,12 +300,12 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 this.numberOfLoops = loops;
-                if (this.isLoaded) {
+                if (this._isLoaded) {
                     if (this.isAndroid || this.isWindows) {
-                        this.RNSound.setLooping(this.key, !!loops);
+                        RNSound.setLooping(this.key, !!loops);
                     }
                     else {
-                        this.RNSound.setNumberOfLoops(this.key, loops);
+                        RNSound.setNumberOfLoops(this.key, loops);
                     }
                     resolve();
                 }
@@ -311,10 +318,10 @@ class Sound extends react_native_1.EventEmitter {
     setSpeed(speed) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (this.isLoaded) {
+                if (this._isLoaded) {
                     if (!this.isWindows && !this.isAndroid) {
                         this.speed = speed;
-                        this.RNSound.setSpeed(this.key, speed);
+                        RNSound.setSpeed(this.key, speed);
                         resolve();
                     }
                     else {
@@ -338,16 +345,16 @@ class Sound extends react_native_1.EventEmitter {
     getCurrentTime() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
-                if (this.isLoaded) {
-                    this.RNSound.getCurrentTime(this.key, resolve);
+                if (this._isLoaded) {
+                    RNSound.getCurrentTime(this.key, resolve);
                 }
             });
         });
     }
     setCurrentTime(time) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.isLoaded) {
-                this.RNSound.setCurrentTime(this.key, time);
+            if (this._isLoaded) {
+                RNSound.setCurrentTime(this.key, time);
             }
         });
     }
@@ -355,33 +362,33 @@ class Sound extends react_native_1.EventEmitter {
     setSpeakerphoneOn() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isAndroid) {
-                return this.RNSound.setSpeakerphoneOn(this.key, true);
+                return RNSound.setSpeakerphoneOn(this.key, true);
             }
         });
     }
     setSpeakerphoneOff() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isAndroid) {
-                this.RNSound.setSpeakerphoneOn(this.key, false);
+                RNSound.setSpeakerphoneOn(this.key, false);
             }
         });
     }
     enable() {
         return new Promise((resolve) => {
-            this.RNSound.enable(true);
+            RNSound.enable(true);
             resolve();
         });
     }
     disable() {
         return new Promise((resolve) => {
-            this.RNSound.enable(false);
+            RNSound.enable(false);
             resolve();
         });
     }
     enableInSilenceMode() {
         return new Promise((resolve, reject) => {
             if (!this.isAndroid && !this.isWindows) {
-                this.RNSound.enableInSilenceMode(true);
+                RNSound.enableInSilenceMode(true);
                 resolve();
             }
             else {
@@ -397,7 +404,7 @@ class Sound extends react_native_1.EventEmitter {
     disableInSilenceMode() {
         return new Promise((resolve, reject) => {
             if (!this.isAndroid && !this.isWindows) {
-                this.RNSound.enableInSilenceMode(false);
+                RNSound.enableInSilenceMode(false);
                 resolve();
             }
             else {
@@ -414,7 +421,7 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.isAndroid && !this.isWindows) {
-                    this.RNSound.setActive(true);
+                    RNSound.setActive(true);
                     resolve();
                 }
                 else {
@@ -432,7 +439,7 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.isAndroid && !this.isWindows) {
-                    this.RNSound.setActive(false);
+                    RNSound.setActive(false);
                     resolve();
                 }
                 else {
@@ -450,7 +457,7 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.isWindows) {
-                    this.RNSound.setCategory(category, mixWithOthers);
+                    RNSound.setCategory(category, mixWithOthers);
                     resolve();
                 }
                 else {
@@ -468,7 +475,7 @@ class Sound extends react_native_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.isAndroid && !this.isWindows) {
-                    this.RNSound.setMode(mode);
+                    RNSound.setMode(mode);
                     resolve();
                 }
                 else {
@@ -478,6 +485,18 @@ class Sound extends react_native_1.EventEmitter {
                     else {
                         resolve();
                     }
+                }
+            });
+        });
+    }
+    isLoaded() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise(resolve => {
+                if (this._isLoaded) {
+                    resolve();
+                }
+                else {
+                    ee.addListener('loaded', resolve);
                 }
             });
         });

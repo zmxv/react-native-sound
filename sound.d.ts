@@ -1,4 +1,3 @@
-import { EventEmitter } from "react-native";
 declare type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | 'Record' | 'PlayAndRecord' | 'AudioProcessing' | 'MultiRoute' | 'Alarm';
 declare type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio';
 declare type SoundBasePath = 'MAIN_BUNDLE' | 'DOCUMENT' | 'LIBRARY' | 'CACHES' | string;
@@ -6,8 +5,7 @@ export interface SoundOptions {
     readonly rejectOnUnsupportedFeature?: boolean;
     readonly enableSMTCIntegration?: boolean;
 }
-export declare class Sound extends EventEmitter {
-    protected readonly RNSound: any;
+export declare class Sound {
     private readonly MAIN_BUNDLE;
     private readonly DOCUMENT;
     private readonly LIBRARY;
@@ -15,7 +13,7 @@ export declare class Sound extends EventEmitter {
     protected readonly isAndroid: boolean;
     protected readonly isWindows: boolean;
     protected isPlaying: boolean;
-    protected isLoaded: boolean;
+    protected _isLoaded: boolean;
     private readonly basePath;
     private readonly _filename;
     private readonly rejectOnUnsupportedFeature;
@@ -59,5 +57,6 @@ export declare class Sound extends EventEmitter {
     setInactive(): Promise<void>;
     setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): Promise<void>;
     setMode(mode: AVAudioSessionMode): Promise<void>;
+    isLoaded(): Promise<void>;
 }
 export {};
