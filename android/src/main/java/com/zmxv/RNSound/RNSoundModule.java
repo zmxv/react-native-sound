@@ -58,12 +58,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   @ReactMethod
   public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
-    MediaPlayer player = createMediaPlayer(fileName);
+    MediaPlayer player = createMediaPlayer(fileName, callback);
     if (player == null) {
-      WritableMap e = Arguments.createMap();
-      e.putInt("code", -1);
-      e.putString("message", "resource not found");
-      callback.invoke(e, NULL);
       return;
     }
     this.playerPool.put(key, player);
@@ -154,7 +150,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     }
   }
 
-  protected MediaPlayer createMediaPlayer(final String fileName) {
+  protected MediaPlayer createMediaPlayer(final String fileName, final Callback callback) {
     int res = this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName());
     MediaPlayer mediaPlayer = new MediaPlayer();
     if (res != 0) {
@@ -163,6 +159,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         afd.close();
       } catch (IOException e) {
+        WritableMap m = Arguments.createMap();
+        m.putInt("code", -1);
+        m.putString("message", e.getMessage());
+        m.putString("resource", fileName);
+        callback.invoke(m, NULL);
         Log.e("RNSoundModule", "Exception", e);
         return null;
       }
@@ -176,21 +177,31 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         mediaPlayer.setDataSource(fileName);
       } catch(IOException e) {
         Log.e("RNSoundModule", "Exception", e);
+        WritableMap m = Arguments.createMap();
+        m.putInt("code", -1);
+        m.putString("message", e.getMessage());
+        m.putString("resource", fileName);
+        callback.invoke(m, NULL);
         return null;
       }
       return mediaPlayer;
     }
 
     if (fileName.startsWith("asset:/")){
-        try {
-            AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
-            mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
-            descriptor.close();
-            return mediaPlayer;
-        } catch(IOException e) {
-            Log.e("RNSoundModule", "Exception", e);
-            return null;
-        }
+      try {
+        AssetFileDescriptor descriptor = this.context.getAssets().openFd(fileName.replace("asset:/", ""));
+        mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+        descriptor.close();
+        return mediaPlayer;
+      } catch(IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        WritableMap m = Arguments.createMap();
+        m.putInt("code", -1);
+        m.putString("message", e.getMessage());
+        m.putString("resource", fileName);
+        callback.invoke(m, NULL);
+        return null;
+      }
     }
 
     File file = new File(fileName);
@@ -198,14 +209,24 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
-          mediaPlayer.setDataSource(fileName);
+        mediaPlayer.setDataSource(fileName);
       } catch(IOException e) {
-          Log.e("RNSoundModule", "Exception", e);
-          return null;
+        Log.e("RNSoundModule", "Exception", e);
+        WritableMap m = Arguments.createMap();
+        m.putInt("code", -1);
+        m.putString("message", e.getMessage());
+        m.putString("resource", fileName);
+        callback.invoke(m, NULL);
+        return null;
       }
       return mediaPlayer;
     }
-    
+
+    WritableMap m = Arguments.createMap();
+    m.putInt("code", -1);
+    m.putString("message", "Resource not found");
+    m.putString("resource", fileName);
+    callback.invoke(m, NULL);
     return null;
   }
 
