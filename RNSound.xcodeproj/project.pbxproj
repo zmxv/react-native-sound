@@ -166,7 +166,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../react-native/React/**",
-					"$(SRCROOT)/node_moduels/react-native/React/**",
+					"$(SRCROOT)/node_modules/react-native/React/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
