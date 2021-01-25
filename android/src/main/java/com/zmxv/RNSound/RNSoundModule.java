@@ -2,11 +2,11 @@ package com.zmxv.RNSound;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
-import android.net.Uri;
-import android.media.AudioManager;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -17,14 +17,11 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.modules.core.ExceptionsManagerModule;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.IOException;
-
-import android.util.Log;
 
 public class RNSoundModule extends ReactContextBaseJavaModule implements AudioManager.OnAudioFocusChangeListener {
   Map<Double, MediaPlayer> playerPool = new HashMap<>();
@@ -192,19 +189,19 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         }
     }
 
-    File file = new File(fileName.substring(7));
+    File file = new File(fileName.replace("file:", ""));
     if (file.exists()) {
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
       Log.i("RNSoundModule", fileName);
       try {
-          mediaPlayer.setDataSource(fileName);
+          mediaPlayer.setDataSource(fileName.replace("file:", ""));
       } catch(IOException e) {
           Log.e("RNSoundModule", "Exception", e);
           return null;
       }
       return mediaPlayer;
     }
-    
+
     return null;
   }
 
@@ -320,7 +317,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
     }
   }
-	
+
   @Override
   public void onCatalystInstanceDestroy() {
     java.util.Iterator it = this.playerPool.entrySet().iterator();
