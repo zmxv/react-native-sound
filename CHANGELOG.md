@@ -1,4 +1,16 @@
 # Changelog
+## 1.0.0
+**BREAKING CHANGE**
+
+This is a full refactoring using TypeScript
+
+What's new?:
+- All async actions are now using promises instead of callback
+- Implemented some explicit methods for states
+- Added `rejectOnUnsupportedFeature {Boolean} (default: false)` to reject promises
+ when an incompatible feature is used
+- The whole library is now a class
+- Enhanced native typing
 
 ## 0.11.0
 
