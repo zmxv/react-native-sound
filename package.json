@@ -23,6 +23,7 @@
     "clang-format:check": "node scripts/clang-format.js --check"
   },
   "devDependencies": {
+    "@types/react-native": "0.64.0",
     "@types/node": "^14.14.14",
     "glob": "^7.1.4",
     "promisify-child-process": "^3.1.1",
