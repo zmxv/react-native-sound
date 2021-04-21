@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -56,16 +56,16 @@ class Sound {
             this.rejectOnUnsupportedFeature = true;
         }
         switch (basePath) {
-            case "CACHES":
+            case 'CACHES':
                 this.basePath = this.CACHES;
                 break;
-            case "DOCUMENT":
+            case 'DOCUMENT':
                 this.basePath = this.DOCUMENT;
                 break;
-            case "LIBRARY":
+            case 'LIBRARY':
                 this.basePath = this.LIBRARY;
                 break;
-            case "MAIN_BUNDLE":
+            case 'MAIN_BUNDLE':
                 this.basePath = this.MAIN_BUNDLE;
                 break;
         }
@@ -90,10 +90,12 @@ class Sound {
                 }
             }
             if (error === null) {
-                this.registerOnPlay().then(() => {
+                this.registerOnPlay()
+                    .then(() => {
                     this._isLoaded = true;
                     ee.emit('loaded');
-                }).catch(console.error);
+                })
+                    .catch(console.error);
                 return;
             }
             if (error) {
@@ -119,7 +121,9 @@ class Sound {
                     }
                     else {
                         if (this.rejectOnUnsupportedFeature) {
-                            reject('Cannot get system volume for ' + this._filename + ', this is an Android and iOS feature!');
+                            reject('Cannot get system volume for ' +
+                                this._filename +
+                                ', this is an Android and iOS feature!');
                         }
                         else {
                             resolve();
@@ -132,6 +136,10 @@ class Sound {
             });
         });
     }
+    /**
+     * Plays the loaded file
+     * @returns {Promise<any>} When playback finishes successfully or an audio decoding error interrupts it
+     */
     play() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -144,11 +152,17 @@ class Sound {
             });
         });
     }
+    /**
+     * Pause the sound
+     * @returns {Promise<void>} When sound has been paused
+     */
     pause() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 !this.isPlaying
-                    ? reject('Cannot pause ' + this._filename + ', which is currently not played!')
+                    ? reject('Cannot pause ' +
+                        this._filename +
+                        ', which is currently not played!')
                     : RNSound.pause(this.key, () => {
                         this.isPlaying = false;
                         resolve();
@@ -156,11 +170,17 @@ class Sound {
             });
         });
     }
+    /**
+     * Stop playback and set the seek position to 0.
+     * @returns {Promise<void>} When the sound has been stopped
+     */
     stop() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 !this.isPlaying
-                    ? reject('Cannot stop ' + this._filename + ',  which is currently not played!')
+                    ? reject('Cannot stop ' +
+                        this._filename +
+                        ',  which is currently not played!')
                     : RNSound.stop(this.key, () => {
                         this.isPlaying = false;
                         resolve();
@@ -168,6 +188,9 @@ class Sound {
             });
         });
     }
+    /**
+     * Reset the audio player to its uninitialized state (android only)
+     */
     reset() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -184,6 +207,9 @@ class Sound {
             });
         });
     }
+    /**
+     * Release the audio player resource associated with the instance.
+     */
     release() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -204,15 +230,30 @@ class Sound {
             });
         });
     }
+    /**
+     * @returns {number} the time of audio (second)
+     */
     getDuration() {
         return this.duration;
     }
+    /**
+     * @returns {number} the number of channels (1 for mono and 2 for stereo sound), or -1 before the sound gets loaded.
+     */
     getNumberOfChannels() {
         return this.numberOfChannels;
     }
+    /**
+     * @returns {number} the volume of the audio player (not the system-wide volume),
+     * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
+     */
     getVolume() {
         return this.volume;
     }
+    /**
+     * Set the volume
+     * @param {number} - ranging from 0.0 (silence) through 1.0 (full volume)
+     * @returns {Promise<void>}
+     */
     setVolume(volume) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -237,6 +278,10 @@ class Sound {
             });
         });
     }
+    /**
+     * iOS and Android only get Current system sound level
+     * @returns {Promise<void>} When the sound has been stopped
+     */
     getSystemVolume() {
         return new Promise((resolve, reject) => {
             if (!this.isWindows) {
@@ -244,7 +289,9 @@ class Sound {
             }
             else {
                 if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot get system volume for ' + this._filename + ', this is an Android and iOS feature!');
+                    reject('Cannot get system volume for ' +
+                        this._filename +
+                        ', this is an Android and iOS feature!');
                 }
                 else {
                     resolve();
@@ -252,6 +299,11 @@ class Sound {
             }
         });
     }
+    /**
+     * Set system volume
+     * @param {number} - ranging from 0.0 (silence) through 1.0 (full volume)
+     * @returns {Promise<void>}
+     */
     setSystemVolume(volume) {
         return new Promise((resolve, reject) => {
             if (volume < 0 || volume > 1) {
@@ -264,7 +316,9 @@ class Sound {
             }
             else {
                 if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot set system volume for ' + this._filename + ', this is an Android feature!');
+                    reject('Cannot set system volume for ' +
+                        this._filename +
+                        ', this is an Android feature!');
                 }
                 else {
                     resolve();
@@ -272,9 +326,18 @@ class Sound {
             }
         });
     }
+    /**
+     * @returns {number} the stereo pan position of the audio player (not the system-wide pan)
+     * Ranges from -1.0 (full left) through 1.0 (full right). The default value is 0.0 (center)
+     */
     getPan() {
         return this.pan;
     }
+    /**
+     * Set the pan value
+     * @param {number} - ranging from -1.0 (full left) through 1.0 (full right).
+     * @returns {Promise<void>}
+     */
     setPan(pan) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -288,14 +351,27 @@ class Sound {
                     resolve();
                 }
                 else {
-                    reject('Cannot set pan count for ' + this._filename + ', the file is not loaded!');
+                    reject('Cannot set pan count for ' +
+                        this._filename +
+                        ', the file is not loaded!');
                 }
             });
         });
     }
+    /**
+     * @returns {number} Return the loop count of the audio player.
+     * The default is 0 which means to play the sound once.
+     * A positive number specifies the number of times to return to the start and play again.
+     * A negative number indicates an indefinite loop.
+     */
     getNumberOfLoops() {
         return this.numberOfLoops;
     }
+    /**
+     * Set the loop count
+     * @param {number} - 0 means to play the sound once. A positive number specifies the number of times to return to the start and play again (iOS only). A negative number indicates an indefinite loop (iOS and Android).
+     * @returns {Promise<void>}
+     */
     setNumberOfLoops(loops) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -310,11 +386,18 @@ class Sound {
                     resolve();
                 }
                 else {
-                    reject('Cannot set loop count for ' + this._filename + ', the file is not loaded!');
+                    reject('Cannot set loop count for ' +
+                        this._filename +
+                        ', the file is not loaded!');
                 }
             });
         });
     }
+    /**
+     * Speed of the audio playback (iOS Only).
+     * @param {number}
+     * @returns {Promise<void>}
+     */
     setSpeed(speed) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -326,7 +409,9 @@ class Sound {
                     }
                     else {
                         if (this.rejectOnUnsupportedFeature) {
-                            reject('Cannot set speed for ' + this._filename + ', this is an Android feature!');
+                            reject('Cannot set speed for ' +
+                                this._filename +
+                                ', this is an iOS feature!');
                         }
                         else {
                             resolve();
@@ -334,14 +419,22 @@ class Sound {
                     }
                 }
                 else {
-                    reject('Cannot set speed for ' + this._filename + ', the file is not loaded!');
+                    reject('Cannot set speed for ' +
+                        this._filename +
+                        ', the file is not loaded!');
                 }
             });
         });
     }
+    /**
+     * @returns {number} current speed
+     */
     getCurrentSpeed() {
         return this.speed;
     }
+    /**
+     * @returns {Promise<number>} the current playback position in seconds and whether the sound is being played.
+     */
     getCurrentTime() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
@@ -351,6 +444,10 @@ class Sound {
             });
         });
     }
+    /**
+     * @param {number} - particular playback point in seconds
+     * @returns {Promise<void>}
+     */
     setCurrentTime(time) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this._isLoaded) {
@@ -358,7 +455,10 @@ class Sound {
             }
         });
     }
-    // android only
+    /**
+     * Turn speaker phone on (android only)
+     * @returns {Promise<void>}
+     */
     setSpeakerphoneOn() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isAndroid) {
@@ -366,6 +466,10 @@ class Sound {
             }
         });
     }
+    /**
+     * Turn speaker phone off (android only)
+     * @returns {Promise<void>}
+     */
     setSpeakerphoneOff() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isAndroid) {
@@ -385,6 +489,9 @@ class Sound {
             resolve();
         });
     }
+    /**
+     * Enable playback in silence mode (iOS only)
+     */
     enableInSilenceMode() {
         return new Promise((resolve, reject) => {
             if (!this.isAndroid && !this.isWindows) {
@@ -393,7 +500,9 @@ class Sound {
             }
             else {
                 if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot enable in silence mode for ' + this._filename + ', this is an iOS feature!');
+                    reject('Cannot enable in silence mode for ' +
+                        this._filename +
+                        ', this is an iOS feature!');
                 }
                 else {
                     resolve();
@@ -401,6 +510,9 @@ class Sound {
             }
         });
     }
+    /**
+     * Disable playback in silence mode (iOS only)
+     */
     disableInSilenceMode() {
         return new Promise((resolve, reject) => {
             if (!this.isAndroid && !this.isWindows) {
@@ -409,7 +521,9 @@ class Sound {
             }
             else {
                 if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot disable in silence mode for ' + this._filename + ', this is an iOS feature!');
+                    reject('Cannot disable in silence mode for ' +
+                        this._filename +
+                        ', this is an iOS feature!');
                 }
                 else {
                     resolve();
@@ -417,6 +531,13 @@ class Sound {
             }
         });
     }
+    /**
+     * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+     * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+     * to regain access to the audio stack.
+     *
+     * @returns {Promise<void>}
+     */
     setActive() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -426,7 +547,9 @@ class Sound {
                 }
                 else {
                     if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set active for ' + this._filename + ', this is an iOS feature!');
+                        reject('Cannot set active for ' +
+                            this._filename +
+                            ', this is an iOS feature!');
                     }
                     else {
                         resolve();
@@ -444,7 +567,9 @@ class Sound {
                 }
                 else {
                     if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set inactive for ' + this._filename + ', this is an iOS feature!');
+                        reject('Cannot set inactive for ' +
+                            this._filename +
+                            ', this is an iOS feature!');
                     }
                     else {
                         resolve();
@@ -453,6 +578,13 @@ class Sound {
             });
         });
     }
+    /**
+     * Sets AVAudioSession category
+     * @deprecated
+     * @param {AVAudioSessionCategory} - category
+     * @param {boolean} - mixWithOthers
+     * @returns {Promise<void>}
+     */
     setCategory(category, mixWithOthers = false) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -462,7 +594,9 @@ class Sound {
                 }
                 else {
                     if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set category for ' + this._filename + ', this is a Windows feature!');
+                        reject('Cannot set category for ' +
+                            this._filename +
+                            ', this is a Windows feature!');
                     }
                     else {
                         resolve();
@@ -471,6 +605,13 @@ class Sound {
             });
         });
     }
+    /**
+     * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
+     * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+     *
+     * @param {AVAudioSessionMode} AVAudioSession mode
+     * @returns {Promise<void>}
+     */
     setMode(mode) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -480,7 +621,9 @@ class Sound {
                 }
                 else {
                     if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set mode for ' + this._filename + ', this is an iOS feature!');
+                        reject('Cannot set mode for ' +
+                            this._filename +
+                            ', this is an iOS feature!');
                     }
                     else {
                         resolve();
@@ -489,9 +632,12 @@ class Sound {
             });
         });
     }
+    /**
+     * @returns {Promise<void>} if the sound has been loaded.
+     */
     isLoaded() {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 if (this._isLoaded) {
                     resolve();
                 }

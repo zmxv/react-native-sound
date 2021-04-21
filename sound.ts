@@ -157,6 +157,10 @@ export class Sound {
     });
   }
 
+  /**
+   * Plays the loaded file
+   * @returns {Promise<any>} When playback finishes successfully or an audio decoding error interrupts it
+   */
   public async play(): Promise<any> {
     return new Promise((resolve, reject) => {
       !this._isLoaded
@@ -168,6 +172,10 @@ export class Sound {
     });
   }
 
+  /**
+   * Pause the sound
+   * @returns {Promise<void>} When sound has been paused
+   */
   public async pause(): Promise<void> {
     return new Promise((resolve, reject) => {
       !this.isPlaying
@@ -183,6 +191,10 @@ export class Sound {
     });
   }
 
+  /**
+   * Stop playback and set the seek position to 0.
+   * @returns {Promise<void>} When the sound has been stopped
+   */
   public async stop(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       !this.isPlaying
@@ -198,6 +210,9 @@ export class Sound {
     });
   }
 
+  /**
+   * Reset the audio player to its uninitialized state (android only)
+   */
   public async reset(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this.isAndroid) {
@@ -214,6 +229,9 @@ export class Sound {
     });
   }
 
+  /**
+   * Release the audio player resource associated with the instance.
+   */
   public async release(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this._isLoaded) {
@@ -232,18 +250,33 @@ export class Sound {
     });
   }
 
-  public getDuration() {
+  /**
+   * @returns {number} the time of audio (second)
+   */
+  public getDuration(): number {
     return this.duration;
   }
 
-  public getNumberOfChannels() {
+  /**
+   * @returns {number} the number of channels (1 for mono and 2 for stereo sound), or -1 before the sound gets loaded.
+   */
+  public getNumberOfChannels(): number {
     return this.numberOfChannels;
   }
 
-  public getVolume() {
+  /**
+   * @returns {number} the volume of the audio player (not the system-wide volume),
+   * Ranges from 0.0 (silence) through 1.0 (full volume, the default)
+   */
+  public getVolume(): number {
     return this.volume;
   }
 
+  /**
+   * Set the volume
+   * @param {number} - ranging from 0.0 (silence) through 1.0 (full volume)
+   * @returns {Promise<void>}
+   */
   public async setVolume(volume: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this._isLoaded) {
@@ -266,6 +299,10 @@ export class Sound {
     });
   }
 
+  /**
+   * iOS and Android only get Current system sound level
+   * @returns {Promise<void>} When the sound has been stopped
+   */
   public getSystemVolume(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (!this.isWindows) {
@@ -284,6 +321,11 @@ export class Sound {
     });
   }
 
+  /**
+   * Set system volume
+   * @param {number} - ranging from 0.0 (silence) through 1.0 (full volume)
+   * @returns {Promise<void>}
+   */
   public setSystemVolume(volume: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (volume < 0 || volume > 1) {
@@ -308,10 +350,19 @@ export class Sound {
     });
   }
 
+  /**
+   * @returns {number} the stereo pan position of the audio player (not the system-wide pan)
+   * Ranges from -1.0 (full left) through 1.0 (full right). The default value is 0.0 (center)
+   */
   public getPan(): number {
     return this.pan;
   }
 
+  /**
+   * Set the pan value
+   * @param {number} - ranging from -1.0 (full left) through 1.0 (full right).
+   * @returns {Promise<void>}
+   */
   public async setPan(pan: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (pan < -1 || pan > 1) {
@@ -333,10 +384,20 @@ export class Sound {
     });
   }
 
+  /**
+   * @returns {number} Return the loop count of the audio player.
+   * The default is 0 which means to play the sound once.
+   * A positive number specifies the number of times to return to the start and play again.
+   * A negative number indicates an indefinite loop.
+   */
   public getNumberOfLoops(): number {
     return this.numberOfLoops;
   }
-
+  /**
+   * Set the loop count
+   * @param {number} - 0 means to play the sound once. A positive number specifies the number of times to return to the start and play again (iOS only). A negative number indicates an indefinite loop (iOS and Android).
+   * @returns {Promise<void>}
+   */
   public async setNumberOfLoops(loops: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.numberOfLoops = loops;
@@ -357,6 +418,11 @@ export class Sound {
     });
   }
 
+  /**
+   * Speed of the audio playback (iOS Only).
+   * @param {number}
+   * @returns {Promise<void>}
+   */
   public async setSpeed(speed: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this._isLoaded) {
@@ -369,7 +435,7 @@ export class Sound {
             reject(
               'Cannot set speed for ' +
                 this._filename +
-                ', this is an Android feature!',
+                ', this is an iOS feature!',
             );
           } else {
             resolve();
@@ -385,10 +451,16 @@ export class Sound {
     });
   }
 
+  /**
+   * @returns {number} current speed
+   */
   public getCurrentSpeed(): number {
     return this.speed;
   }
 
+  /**
+   * @returns {Promise<number>} the current playback position in seconds and whether the sound is being played.
+   */
   public async getCurrentTime(): Promise<number> {
     return new Promise<number>((resolve) => {
       if (this._isLoaded) {
@@ -397,19 +469,30 @@ export class Sound {
     });
   }
 
+  /**
+   * @param {number} - particular playback point in seconds
+   * @returns {Promise<void>}
+   */
   public async setCurrentTime(time: number): Promise<void> {
     if (this._isLoaded) {
       RNSound.setCurrentTime(this.key, time);
     }
   }
 
-  // android only
+  /**
+   * Turn speaker phone on (android only)
+   * @returns {Promise<void>}
+   */
   public async setSpeakerphoneOn(): Promise<void> {
     if (this.isAndroid) {
       return RNSound.setSpeakerphoneOn(this.key, true);
     }
   }
 
+  /**
+   * Turn speaker phone off (android only)
+   * @returns {Promise<void>}
+   */
   public async setSpeakerphoneOff(): Promise<void> {
     if (this.isAndroid) {
       RNSound.setSpeakerphoneOn(this.key, false);
@@ -430,6 +513,9 @@ export class Sound {
     });
   }
 
+  /**
+   * Enable playback in silence mode (iOS only)
+   */
   public enableInSilenceMode() {
     return new Promise<void>((resolve, reject) => {
       if (!this.isAndroid && !this.isWindows) {
@@ -449,6 +535,9 @@ export class Sound {
     });
   }
 
+  /**
+   * Disable playback in silence mode (iOS only)
+   */
   public disableInSilenceMode() {
     return new Promise<void>((resolve, reject) => {
       if (!this.isAndroid && !this.isWindows) {
@@ -468,6 +557,13 @@ export class Sound {
     });
   }
 
+  /**
+   * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+   * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+   * to regain access to the audio stack.
+   *
+   * @returns {Promise<void>}
+   */
   public async setActive(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (!this.isAndroid && !this.isWindows) {
@@ -506,6 +602,13 @@ export class Sound {
     });
   }
 
+  /**
+   * Sets AVAudioSession category
+   * @deprecated
+   * @param {AVAudioSessionCategory} - category
+   * @param {boolean} - mixWithOthers
+   * @returns {Promise<void>}
+   */
   public async setCategory(
     category: AVAudioSessionCategory,
     mixWithOthers: boolean = false,
@@ -528,6 +631,13 @@ export class Sound {
     });
   }
 
+  /**
+   * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
+   * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+   *
+   * @param {AVAudioSessionMode} AVAudioSession mode
+   * @returns {Promise<void>}
+   */
   public async setMode(mode: AVAudioSessionMode): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (!this.isAndroid && !this.isWindows) {
@@ -547,6 +657,9 @@ export class Sound {
     });
   }
 
+  /**
+   * @returns {Promise<void>} if the sound has been loaded.
+   */
   public async isLoaded(): Promise<void> {
     return new Promise<void>((resolve) => {
       if (this._isLoaded) {
