@@ -66,29 +66,29 @@ declare class Sound {
    * Plays the loaded file
    * @param onEnd - Optional callback function that gets called when the playback finishes successfully or an audio decoding error interrupts it
    */
-  play(onEnd?: (success: boolean) => void): void
+  play(onEnd?: (success: boolean) => void): this
 
   /**
    * Pause the sound
    * @param cb - Optional callback function that gets called when the sound has been paused.
    */
-  pause(cb?: () => void): void
+  pause(cb?: () => void): this
 
   /**
    * Stop playback and set the seek position to 0.
    * @param cb - Optional callback function that gets called when the sound has been stopped.
    */
-  stop(cb?: () => void): void
+  stop(cb?: () => void): this
 
   /**
    * Reset the audio player to its uninitialized state (android only)
    */
-  reset(): void
+  reset(): this
 
   /**
    * Release the audio player resource associated with the instance.
    */
-  release(): void
+  release(): this
 
   /**
    * Return the number of channels
@@ -111,7 +111,7 @@ declare class Sound {
    * Set the volume
    * @param value - ranging from 0.0 (silence) through 1.0 (full volume)
    */
-  setVolume(value: number): void
+  setVolume(value: number): this
 
   /**
    * Return the stereo pan position of the audio player (not the system-wide pan)
@@ -123,7 +123,7 @@ declare class Sound {
    * Set the pan value
    * @param value - ranging from -1.0 (full left) through 1.0 (full right).
    */
-  setPan(value: number): void
+  setPan(value: number): this
 
   /**
    * Return the loop count of the audio player.
@@ -137,7 +137,7 @@ declare class Sound {
    * Set the loop count
    * @param value - 0 means to play the sound once. A positive number specifies the number of times to return to the start and play again (iOS only). A negative number indicates an indefinite loop (iOS and Android).
    */
-  setNumberOfLoops(value: number): void
+  setNumberOfLoops(value: number): this
 
   /**
    * Callback will receive the current playback position in seconds and whether the sound is being played.
@@ -149,13 +149,13 @@ declare class Sound {
    * Seek to a particular playback point in seconds.
    * @param value
    */
-  setCurrentTime(value: number): void
+  setCurrentTime(value: number): this
 
   /**
    * Speed of the audio playback (iOS Only).
    * @param value
    */
-  setSpeed(value: number): void
+  setSpeed(value: number): this
 
   /**
    * Whether to enable playback in silence mode (iOS only)
