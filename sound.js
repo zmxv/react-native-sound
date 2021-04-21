@@ -28,22 +28,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Sound = void 0;
+exports.setMode = exports.setCategory = exports.setInactive = exports.setActive = exports.disableInSilenceMode = exports.enableInSilenceMode = exports.disable = exports.enable = void 0;
 const React = __importStar(require("react-native"));
 const RNSound = React.NativeModules.RNSound;
 const ee = new React.NativeEventEmitter(RNSound);
+const isAndroid = RNSound.IsAndroid;
+const isWindows = RNSound.IsWindows;
+let rejectOnUnsupportedFeature = false;
 class Sound {
     constructor(filename, basePath, options) {
         this.MAIN_BUNDLE = RNSound.MainBundlePath;
         this.DOCUMENT = RNSound.NSDocumentDirectory;
         this.LIBRARY = RNSound.NSLibraryDirectory;
         this.CACHES = RNSound.NSCachesDirectory;
-        this.isAndroid = RNSound.IsAndroid;
-        this.isWindows = RNSound.IsWindows;
         this.isPlaying = false;
         this._isLoaded = false;
         this.basePath = '';
-        this.rejectOnUnsupportedFeature = false;
         this.key = 0;
         this.volume = 1;
         this.onPlaySubscription = null;
@@ -52,9 +52,6 @@ class Sound {
         this.numberOfChannels = -1;
         this.numberOfLoops = 0;
         this.speed = 1;
-        if (options === null || options === void 0 ? void 0 : options.rejectOnUnsupportedFeature) {
-            this.rejectOnUnsupportedFeature = true;
-        }
         switch (basePath) {
             case 'CACHES':
                 this.basePath = this.CACHES;
@@ -76,7 +73,7 @@ class Sound {
         }
         else {
             this._filename = this.basePath + '/' + filename;
-            if (this.isAndroid && !this.basePath && this.isRelativePath(filename)) {
+            if (isAndroid && !this.basePath && this.isRelativePath(filename)) {
                 this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
             }
         }
@@ -110,7 +107,7 @@ class Sound {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (!this.onPlaySubscription) {
-                    if (!this.isWindows) {
+                    if (!isWindows) {
                         this.onPlaySubscription = ee.addListener('onPlayChange', (param) => {
                             const { isPlaying, playerKey } = param;
                             if (playerKey === this.key) {
@@ -120,7 +117,7 @@ class Sound {
                         resolve();
                     }
                     else {
-                        if (this.rejectOnUnsupportedFeature) {
+                        if (rejectOnUnsupportedFeature) {
                             reject('Cannot get system volume for ' +
                                 this._filename +
                                 ', this is an Android and iOS feature!');
@@ -194,7 +191,7 @@ class Sound {
     reset() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (this.isAndroid) {
+                if (isAndroid) {
                     if (!this._isLoaded) {
                         reject('Cannot reset ' + this._filename + ' which is not yet loaded!');
                     }
@@ -216,7 +213,7 @@ class Sound {
                 if (this._isLoaded) {
                     RNSound.release(this.key);
                     this._isLoaded = false;
-                    if (!this.isWindows) {
+                    if (!isWindows) {
                         if (this.onPlaySubscription != null) {
                             this.onPlaySubscription.remove();
                             this.onPlaySubscription = null;
@@ -263,7 +260,7 @@ class Sound {
                         return;
                     }
                     this.volume = volume;
-                    if (this.isAndroid || this.isWindows) {
+                    if (isAndroid || isWindows) {
                         RNSound.setVolume(this.key, volume, volume);
                         resolve();
                     }
@@ -284,11 +281,11 @@ class Sound {
      */
     getSystemVolume() {
         return new Promise((resolve, reject) => {
-            if (!this.isWindows) {
+            if (!isWindows) {
                 RNSound.getSystemVolume(resolve);
             }
             else {
-                if (this.rejectOnUnsupportedFeature) {
+                if (rejectOnUnsupportedFeature) {
                     reject('Cannot get system volume for ' +
                         this._filename +
                         ', this is an Android and iOS feature!');
@@ -310,12 +307,12 @@ class Sound {
                 reject('System volume must be a value between 0.0 and 1.0!');
                 return;
             }
-            if (this.isAndroid) {
+            if (isAndroid) {
                 RNSound.setSystemVolume(volume);
                 resolve();
             }
             else {
-                if (this.rejectOnUnsupportedFeature) {
+                if (rejectOnUnsupportedFeature) {
                     reject('Cannot set system volume for ' +
                         this._filename +
                         ', this is an Android feature!');
@@ -377,7 +374,7 @@ class Sound {
             return new Promise((resolve, reject) => {
                 this.numberOfLoops = loops;
                 if (this._isLoaded) {
-                    if (this.isAndroid || this.isWindows) {
+                    if (isAndroid || isWindows) {
                         RNSound.setLooping(this.key, !!loops);
                     }
                     else {
@@ -402,13 +399,13 @@ class Sound {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 if (this._isLoaded) {
-                    if (!this.isWindows && !this.isAndroid) {
+                    if (!isWindows && !isAndroid) {
                         this.speed = speed;
                         RNSound.setSpeed(this.key, speed);
                         resolve();
                     }
                     else {
-                        if (this.rejectOnUnsupportedFeature) {
+                        if (rejectOnUnsupportedFeature) {
                             reject('Cannot set speed for ' +
                                 this._filename +
                                 ', this is an iOS feature!');
@@ -424,6 +421,28 @@ class Sound {
                         ', the file is not loaded!');
                 }
             });
+        });
+    }
+    /**
+     * Turn speaker phone on (android only)
+     * @returns {Promise<void>}
+     */
+    setSpeakerphoneOn() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (isAndroid) {
+                return RNSound.setSpeakerphoneOn(this.key, true);
+            }
+        });
+    }
+    /**
+     * Turn speaker phone off (android only)
+     * @returns {Promise<void>}
+     */
+    setSpeakerphoneOff() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (isAndroid) {
+                RNSound.setSpeakerphoneOn(this.key, false);
+            }
         });
     }
     /**
@@ -456,183 +475,6 @@ class Sound {
         });
     }
     /**
-     * Turn speaker phone on (android only)
-     * @returns {Promise<void>}
-     */
-    setSpeakerphoneOn() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.isAndroid) {
-                return RNSound.setSpeakerphoneOn(this.key, true);
-            }
-        });
-    }
-    /**
-     * Turn speaker phone off (android only)
-     * @returns {Promise<void>}
-     */
-    setSpeakerphoneOff() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.isAndroid) {
-                RNSound.setSpeakerphoneOn(this.key, false);
-            }
-        });
-    }
-    enable() {
-        return new Promise((resolve) => {
-            RNSound.enable(true);
-            resolve();
-        });
-    }
-    disable() {
-        return new Promise((resolve) => {
-            RNSound.enable(false);
-            resolve();
-        });
-    }
-    /**
-     * Enable playback in silence mode (iOS only)
-     */
-    enableInSilenceMode() {
-        return new Promise((resolve, reject) => {
-            if (!this.isAndroid && !this.isWindows) {
-                RNSound.enableInSilenceMode(true);
-                resolve();
-            }
-            else {
-                if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot enable in silence mode for ' +
-                        this._filename +
-                        ', this is an iOS feature!');
-                }
-                else {
-                    resolve();
-                }
-            }
-        });
-    }
-    /**
-     * Disable playback in silence mode (iOS only)
-     */
-    disableInSilenceMode() {
-        return new Promise((resolve, reject) => {
-            if (!this.isAndroid && !this.isWindows) {
-                RNSound.enableInSilenceMode(false);
-                resolve();
-            }
-            else {
-                if (this.rejectOnUnsupportedFeature) {
-                    reject('Cannot disable in silence mode for ' +
-                        this._filename +
-                        ', this is an iOS feature!');
-                }
-                else {
-                    resolve();
-                }
-            }
-        });
-    }
-    /**
-     * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
-     * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
-     * to regain access to the audio stack.
-     *
-     * @returns {Promise<void>}
-     */
-    setActive() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                if (!this.isAndroid && !this.isWindows) {
-                    RNSound.setActive(true);
-                    resolve();
-                }
-                else {
-                    if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set active for ' +
-                            this._filename +
-                            ', this is an iOS feature!');
-                    }
-                    else {
-                        resolve();
-                    }
-                }
-            });
-        });
-    }
-    setInactive() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                if (!this.isAndroid && !this.isWindows) {
-                    RNSound.setActive(false);
-                    resolve();
-                }
-                else {
-                    if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set inactive for ' +
-                            this._filename +
-                            ', this is an iOS feature!');
-                    }
-                    else {
-                        resolve();
-                    }
-                }
-            });
-        });
-    }
-    /**
-     * Sets AVAudioSession category
-     * @deprecated
-     * @param {AVAudioSessionCategory} - category
-     * @param {boolean} - mixWithOthers
-     * @returns {Promise<void>}
-     */
-    setCategory(category, mixWithOthers = false) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                if (!this.isWindows) {
-                    RNSound.setCategory(category, mixWithOthers);
-                    resolve();
-                }
-                else {
-                    if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set category for ' +
-                            this._filename +
-                            ', this is a Windows feature!');
-                    }
-                    else {
-                        resolve();
-                    }
-                }
-            });
-        });
-    }
-    /**
-     * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
-     * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
-     *
-     * @param {AVAudioSessionMode} AVAudioSession mode
-     * @returns {Promise<void>}
-     */
-    setMode(mode) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                if (!this.isAndroid && !this.isWindows) {
-                    RNSound.setMode(mode);
-                    resolve();
-                }
-                else {
-                    if (this.rejectOnUnsupportedFeature) {
-                        reject('Cannot set mode for ' +
-                            this._filename +
-                            ', this is an iOS feature!');
-                    }
-                    else {
-                        resolve();
-                    }
-                }
-            });
-        });
-    }
-    /**
      * @returns {Promise<void>} if the sound has been loaded.
      */
     isLoaded() {
@@ -648,4 +490,155 @@ class Sound {
         });
     }
 }
-exports.Sound = Sound;
+exports.default = Sound;
+function enable() {
+    return new Promise((resolve) => {
+        RNSound.enable(true);
+        resolve();
+    });
+}
+exports.enable = enable;
+function disable() {
+    return new Promise((resolve) => {
+        RNSound.enable(false);
+        resolve();
+    });
+}
+exports.disable = disable;
+/**
+ * Enable playback in silence mode (iOS only)
+ */
+function enableInSilenceMode() {
+    return new Promise((resolve, reject) => {
+        if (!isAndroid && !isWindows) {
+            RNSound.enableInSilenceMode(true);
+            resolve();
+        }
+        else {
+            if (rejectOnUnsupportedFeature) {
+                reject('Cannot enable in silence mode this is an iOS feature!');
+            }
+            else {
+                resolve();
+            }
+        }
+    });
+}
+exports.enableInSilenceMode = enableInSilenceMode;
+/**
+ * Disable playback in silence mode (iOS only)
+ */
+function disableInSilenceMode() {
+    return new Promise((resolve, reject) => {
+        if (!isAndroid && !isWindows) {
+            RNSound.enableInSilenceMode(false);
+            resolve();
+        }
+        else {
+            if (rejectOnUnsupportedFeature) {
+                reject('Cannot disable in silence mode this is an iOS feature!');
+            }
+            else {
+                resolve();
+            }
+        }
+    });
+}
+exports.disableInSilenceMode = disableInSilenceMode;
+/**
+ * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+ * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+ * to regain access to the audio stack.
+ *
+ * @returns {Promise<void>}
+ */
+function setActive() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            if (!isAndroid && !isWindows) {
+                RNSound.setActive(true);
+                resolve();
+            }
+            else {
+                if (rejectOnUnsupportedFeature) {
+                    reject('Cannot set active this is an iOS feature!');
+                }
+                else {
+                    resolve();
+                }
+            }
+        });
+    });
+}
+exports.setActive = setActive;
+function setInactive() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            if (!isAndroid && !isWindows) {
+                RNSound.setActive(false);
+                resolve();
+            }
+            else {
+                if (rejectOnUnsupportedFeature) {
+                    reject('Cannot set inactive this is an iOS feature!');
+                }
+                else {
+                    resolve();
+                }
+            }
+        });
+    });
+}
+exports.setInactive = setInactive;
+/**
+ * Sets AVAudioSession category
+ * @deprecated
+ * @param {AVAudioSessionCategory} - category
+ * @param {boolean} - mixWithOthers
+ * @returns {Promise<void>}
+ */
+function setCategory(category, mixWithOthers = false) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            if (!isWindows) {
+                RNSound.setCategory(category, mixWithOthers);
+                resolve();
+            }
+            else {
+                if (rejectOnUnsupportedFeature) {
+                    reject('Cannot set category this is a Windows feature!');
+                }
+                else {
+                    resolve();
+                }
+            }
+        });
+    });
+}
+exports.setCategory = setCategory;
+/**
+ * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
+ * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+ *
+ * @param {AVAudioSessionMode} AVAudioSession mode
+ * @returns {Promise<void>}
+ */
+function setMode(mode) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            if (!isAndroid && !isWindows) {
+                RNSound.setMode(mode);
+                resolve();
+            }
+            else {
+                if (rejectOnUnsupportedFeature) {
+                    reject('Cannot set mode this is an iOS feature!');
+                }
+                else {
+                    resolve();
+                }
+            }
+        });
+    });
+}
+exports.setMode = setMode;

@@ -2,21 +2,17 @@ declare type AVAudioSessionCategory = 'Ambient' | 'SoloAmbient' | 'Playback' | '
 declare type AVAudioSessionMode = 'Default' | 'VoiceChat' | 'VideoChat' | 'GameChat' | 'VideoRecording' | 'Measurement' | 'MoviePlayback' | 'SpokenAudio';
 declare type SoundBasePath = 'MAIN_BUNDLE' | 'DOCUMENT' | 'LIBRARY' | 'CACHES' | string;
 export interface SoundOptions {
-    readonly rejectOnUnsupportedFeature?: boolean;
     readonly enableSMTCIntegration?: boolean;
 }
-export declare class Sound {
+export default class Sound {
     private readonly MAIN_BUNDLE;
     private readonly DOCUMENT;
     private readonly LIBRARY;
     private readonly CACHES;
-    protected readonly isAndroid: boolean;
-    protected readonly isWindows: boolean;
     protected isPlaying: boolean;
     protected _isLoaded: boolean;
     private readonly basePath;
     private readonly _filename;
-    private readonly rejectOnUnsupportedFeature;
     private key;
     private volume;
     private onPlaySubscription;
@@ -112,6 +108,16 @@ export declare class Sound {
      */
     setSpeed(speed: number): Promise<void>;
     /**
+     * Turn speaker phone on (android only)
+     * @returns {Promise<void>}
+     */
+    setSpeakerphoneOn(): Promise<void>;
+    /**
+     * Turn speaker phone off (android only)
+     * @returns {Promise<void>}
+     */
+    setSpeakerphoneOff(): Promise<void>;
+    /**
      * @returns {number} current speed
      */
     getCurrentSpeed(): number;
@@ -125,53 +131,43 @@ export declare class Sound {
      */
     setCurrentTime(time: number): Promise<void>;
     /**
-     * Turn speaker phone on (android only)
-     * @returns {Promise<void>}
-     */
-    setSpeakerphoneOn(): Promise<void>;
-    /**
-     * Turn speaker phone off (android only)
-     * @returns {Promise<void>}
-     */
-    setSpeakerphoneOff(): Promise<void>;
-    enable(): Promise<void>;
-    disable(): Promise<void>;
-    /**
-     * Enable playback in silence mode (iOS only)
-     */
-    enableInSilenceMode(): Promise<void>;
-    /**
-     * Disable playback in silence mode (iOS only)
-     */
-    disableInSilenceMode(): Promise<void>;
-    /**
-     * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
-     * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
-     * to regain access to the audio stack.
-     *
-     * @returns {Promise<void>}
-     */
-    setActive(): Promise<void>;
-    setInactive(): Promise<void>;
-    /**
-     * Sets AVAudioSession category
-     * @deprecated
-     * @param {AVAudioSessionCategory} - category
-     * @param {boolean} - mixWithOthers
-     * @returns {Promise<void>}
-     */
-    setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): Promise<void>;
-    /**
-     * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
-     * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
-     *
-     * @param {AVAudioSessionMode} AVAudioSession mode
-     * @returns {Promise<void>}
-     */
-    setMode(mode: AVAudioSessionMode): Promise<void>;
-    /**
      * @returns {Promise<void>} if the sound has been loaded.
      */
     isLoaded(): Promise<void>;
 }
+export declare function enable(): Promise<void>;
+export declare function disable(): Promise<void>;
+/**
+ * Enable playback in silence mode (iOS only)
+ */
+export declare function enableInSilenceMode(): Promise<void>;
+/**
+ * Disable playback in silence mode (iOS only)
+ */
+export declare function disableInSilenceMode(): Promise<void>;
+/**
+ * Sets AVAudioSession as active, which is recommended on iOS to achieve seamless background playback.
+ * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
+ * to regain access to the audio stack.
+ *
+ * @returns {Promise<void>}
+ */
+export declare function setActive(): Promise<void>;
+export declare function setInactive(): Promise<void>;
+/**
+ * Sets AVAudioSession category
+ * @deprecated
+ * @param {AVAudioSessionCategory} - category
+ * @param {boolean} - mixWithOthers
+ * @returns {Promise<void>}
+ */
+export declare function setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): Promise<void>;
+/**
+ * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
+ * Parameter options: "Default", "VoiceChat", "VideoChat", "GameChat", "VideoRecording", "Measurement", "MoviePlayback", "SpokenAudio".
+ *
+ * @param {AVAudioSessionMode} AVAudioSession mode
+ * @returns {Promise<void>}
+ */
+export declare function setMode(mode: AVAudioSessionMode): Promise<void>;
 export {};
