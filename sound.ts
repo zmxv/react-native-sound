@@ -36,7 +36,7 @@ const isAndroid = RNSound.IsAndroid;
 const isWindows = RNSound.IsWindows;
 let rejectOnUnsupportedFeature: boolean = false;
 
-export class Sound {
+export default class Sound {
   private readonly MAIN_BUNDLE: string = RNSound.MainBundlePath;
   private readonly DOCUMENT: string = RNSound.NSDocumentDirectory;
   private readonly LIBRARY: string = RNSound.NSLibraryDirectory;
