@@ -131,6 +131,10 @@ Sound.prototype.release = function() {
   return this;
 };
 
+Sound.prototype.getFilename = function() {
+  return this._filename;
+};
+
 Sound.prototype.getDuration = function() {
   return this._duration;
 };
