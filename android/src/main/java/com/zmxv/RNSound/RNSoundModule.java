@@ -59,6 +59,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   @ReactMethod
   public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
     MediaPlayer player = createMediaPlayer(fileName);
+    if (options.hasKey("speed") && android.os.Build.VERSION.SDK_INT >= 23) {
+      player.setPlaybackParams(player.getPlaybackParams().setSpeed((float)options.getDouble("speed")));
+    }
     if (player == null) {
       WritableMap e = Arguments.createMap();
       e.putInt("code", -1);
