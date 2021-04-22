@@ -23,17 +23,20 @@
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded) {
         if (player && player.isPlaying) {
             [player play];
+            [self setOnPlay:YES forPlayerKey:self._key];
         }
     }
     if (audioSessionRouteChangeReason ==
         AVAudioSessionRouteChangeReasonOldDeviceUnavailable) {
         if (player) {
             [player pause];
+            [self setOnPlay:NO forPlayerKey:self._key];
         }
     }
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeBegan) {
         if (player) {
             [player pause];
+            [self setOnPlay:NO forPlayerKey:self._key];
         }
     }
 }
