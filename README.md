@@ -64,7 +64,17 @@ react-native link react-native-sound
 undefined is not an object (evaluating 'RNSound.IsAndroid')
 ```
 
-**know that this is the most common build issue.** See [#592][] and the several
+you may additionally need to fully clear your build caches for Android. You
+can do this using
+
+```bash
+cd android
+./gradlew cleanBuildCache
+```
+
+After clearing your build cache, you should execute a new `react-native` build.
+
+If you still experience issues, **know that this is the most common build issue.** See [#592][] and the several
 issues linked from it for possible resolution. A pull request with improved
 documentation on this would be welcome!
 
