@@ -16,7 +16,9 @@
   "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
   "license": "MIT",
   "peerDependencies": {
-    "react-native": ">=0.8.0"
+    "react": ">=16.8.6",
+    "react-native": ">=0.60.0-rc.2",
+    "react-native-windows": "^0.64.8"
   },
   "scripts": {
     "clang-format": "node scripts/clang-format.js",
