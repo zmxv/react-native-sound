@@ -44,43 +44,56 @@ winrt::Windows::Foundation::IAsyncAction RNSound::loadFile(MediaPlayer player,
     const std::string &fileName) {
     StorageFile file{nullptr};
 
-    StorageFolder LocalFolder = ApplicationData::Current().LocalFolder();
-    StorageFolder InstallationFolder =
-        winrt::Windows::ApplicationModel::Package::Current()
+    if (fileName.rfind("http", 0) == 0)
+    {
+        winrt::Windows::Foundation::Uri uri{ winrt::to_hstring(fileName) };
+        auto mediaSource = MediaSource::CreateFromUri(uri);
+        player.Source(mediaSource);
+    }
+    else
+    {
+
+        StorageFolder LocalFolder = ApplicationData::Current().LocalFolder();
+        StorageFolder InstallationFolder =
+            winrt::Windows::ApplicationModel::Package::Current()
             .InstalledLocation();
 
-    try {
-        file = co_await winrt::Windows::ApplicationModel::Package::Current()
-            .InstalledLocation().GetFileAsync(winrt::to_hstring(fileName));
-    } catch (winrt::hresult_error const &ex) {
-        (void)ex;
-    }
-
-    if (file == nullptr) {
         try {
-            auto filePath = std::string("Assets\\") + fileName;
             file = co_await winrt::Windows::ApplicationModel::Package::Current()
-                   .InstalledLocation()
-                   .GetFileAsync(winrt::to_hstring(filePath));
-        } catch (winrt::hresult_error const &ex) {
+                .InstalledLocation().GetFileAsync(winrt::to_hstring(fileName));
+        }
+        catch (winrt::hresult_error const& ex) {
             (void)ex;
         }
-    }
 
-    if (file == nullptr) {
-        try {
-            file =
-                co_await LocalFolder.GetFileAsync(winrt::to_hstring(fileName));
-        } catch (winrt::hresult_error const &ex) {
-            (void)ex;
+        if (file == nullptr) {
+            try {
+                auto filePath = std::string("Assets\\") + fileName;
+                file = co_await winrt::Windows::ApplicationModel::Package::Current()
+                    .InstalledLocation()
+                    .GetFileAsync(winrt::to_hstring(filePath));
+            }
+            catch (winrt::hresult_error const& ex) {
+                (void)ex;
+            }
         }
-    }
-    
-    if (file != nullptr) {
-        auto stream = co_await file.OpenAsync(FileAccessMode::Read);
 
-        auto mediaSource = MediaSource::CreateFromStorageFile(file);
-        player.Source(mediaSource);
+        if (file == nullptr) {
+            try {
+                file =
+                    co_await LocalFolder.GetFileAsync(winrt::to_hstring(fileName));
+            }
+            catch (winrt::hresult_error const& ex) {
+                (void)ex;
+            }
+        }
+
+        if (file != nullptr) {
+            auto stream = co_await file.OpenAsync(FileAccessMode::Read);
+
+            auto mediaSource = MediaSource::CreateFromStorageFile(file);
+            player.Source(mediaSource);
+        }
     }
 }
 
