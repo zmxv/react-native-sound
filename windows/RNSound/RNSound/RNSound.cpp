@@ -42,8 +42,6 @@ void RNSound::Prepare(const std::string& fileName, int key, JSValueObject option
 
 winrt::Windows::Foundation::IAsyncAction RNSound::loadFile(MediaPlayer player,
     const std::string &fileName) {
-    StorageFile file{nullptr};
-
     if (fileName.rfind("http", 0) == 0)
     {
         winrt::Windows::Foundation::Uri uri{ winrt::to_hstring(fileName) };
@@ -52,7 +50,7 @@ winrt::Windows::Foundation::IAsyncAction RNSound::loadFile(MediaPlayer player,
     }
     else
     {
-
+        StorageFile file{nullptr};
         StorageFolder LocalFolder = ApplicationData::Current().LocalFolder();
         StorageFolder InstallationFolder =
             winrt::Windows::ApplicationModel::Package::Current()
