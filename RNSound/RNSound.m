@@ -21,7 +21,7 @@
         [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
     AVAudioPlayer *player = [self playerForKey:self._key];
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded) {
-        if (player && player.isPlaying) {
+        if (player) {
             [player play];
         }
     }
