@@ -204,7 +204,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       return mediaPlayer;
     }
-    
+
     return null;
   }
 
@@ -320,7 +320,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
     }
   }
-	
+
   @Override
   public void onCatalystInstanceDestroy() {
     java.util.Iterator it = this.playerPool.entrySet().iterator();
@@ -458,5 +458,15 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     final Map<String, Object> constants = new HashMap<>();
     constants.put("IsAndroid", true);
     return constants;
+  }
+
+  @ReactMethod
+  public void addListener(String eventName) {
+    // Keep: Required for RN built in Event Emitter Calls.
+  }
+
+  @ReactMethod
+  public void removeListeners(Integer count) {
+    // Keep: Required for RN built in Event Emitter Calls.
   }
 }
