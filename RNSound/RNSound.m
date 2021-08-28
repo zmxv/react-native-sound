@@ -175,7 +175,8 @@ RCT_EXPORT_METHOD(setCategory
     if (category) {
         if (mixWithOthers) {
             [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers
+                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
+                                 AVAudioSessionCategoryOptionAllowBluetooth
                            error:nil];
         } else {
             [session setCategory:category error:nil];
