@@ -59,6 +59,7 @@ function Sound(filename, basePath, onError, options) {
   this._pan = 0;
   this._numberOfLoops = 0;
   this._speed = 1;
+  this._pitch = 1;
   RNSound.prepare(this._filename, this._key, options || {}, (error, props) => {
     if (props) {
       if (typeof props.duration === 'number') {
@@ -143,6 +144,14 @@ Sound.prototype.getVolume = function() {
   return this._volume;
 };
 
+Sound.prototype.getSpeed = function() {
+  return this._speed;
+};
+
+Sound.prototype.getPitch = function() {
+  return this._pitch;
+};
+
 Sound.prototype.setVolume = function(value) {
   this._volume = value;
   if (this._loaded) {
@@ -201,6 +210,16 @@ Sound.prototype.setSpeed = function(value) {
   if (this._loaded) {
     if (!IsWindows) {
       RNSound.setSpeed(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setPitch = function(value) {
+  this._pitch = value;
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setPitch(this._key, value);
     }
   }
   return this;

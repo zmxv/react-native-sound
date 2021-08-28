@@ -152,10 +152,26 @@ declare class Sound {
   setCurrentTime(value: number): void
 
   /**
+   * Return the speed of the audio player
+   */
+  getSpeed(): number
+
+  /**
    * Speed of the audio playback (iOS Only).
    * @param value
    */
   setSpeed(value: number): void
+
+  /**
+   * Return the pitch of the audio player
+   */
+  getPitch(): number
+
+  /**
+   * Pitch of the audio playback (Android Only).
+   * @param value
+   */
+  setPitch(value: number): void
 
   /**
    * Whether to enable playback in silence mode (iOS only)
