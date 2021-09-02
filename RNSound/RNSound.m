@@ -148,7 +148,8 @@ RCT_EXPORT_METHOD(setMode : (NSString *)modeName) {
 
 RCT_EXPORT_METHOD(setCategory
                   : (NSString *)categoryName mixWithOthers
-                  : (BOOL)mixWithOthers) {
+                  : (BOOL)mixWithOthers
+                  : (BOOL)duckOthers) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
     NSString *category = nil;
 
@@ -176,13 +177,21 @@ RCT_EXPORT_METHOD(setCategory
         if (mixWithOthers) {
             [session setCategory:category
                      withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-                                 AVAudioSessionCategoryOptionAllowBluetooth
+             AVAudioSessionCategoryOptionAllowBluetooth
                            error:nil];
-        } else {
+            
+        } else if (duckOthers){
+            [session setCategory:category
+                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
+                                 AVAudioSessionCategoryOptionAllowBluetooth
+             |AVAudioSessionCategoryOptionDuckOthers
+                                error:nil];
+        }else {
             [session setCategory:category error:nil];
         }
     }
 }
+
 
 RCT_EXPORT_METHOD(enableInSilenceMode : (BOOL)enabled) {
     AVAudioSession *session = [AVAudioSession sharedInstance];

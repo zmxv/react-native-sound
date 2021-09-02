@@ -26,8 +26,7 @@ declare class Sound {
    * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
    * to regain access to the audio stack.
    *
-   * @param category AVAudioSession category
-   * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param active AVAudioSession setActive
    */
   static setActive(active: boolean): void
 
@@ -38,8 +37,9 @@ declare class Sound {
    *
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param duckOthers Can be set to true to duck other sounds (iOS).
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean, duckOthers?: boolean): void
 
   /**
    * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
