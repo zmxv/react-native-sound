@@ -174,17 +174,14 @@ RCT_EXPORT_METHOD(setCategory
     }
 
     if (category) {
-        if (mixWithOthers) {
+        if (mixWithOthers && duckOthers == false) {
             [session setCategory:category
                      withOptions:AVAudioSessionCategoryOptionMixWithOthers |
              AVAudioSessionCategoryOptionAllowBluetooth
                            error:nil];
-            
-        } else if (duckOthers){
+        } else if (mixWithOthers && duckOthers == true){
             [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-                                 AVAudioSessionCategoryOptionAllowBluetooth
-             |AVAudioSessionCategoryOptionDuckOthers
+                     withOptions:AVAudioSessionCategoryOptionDuckOthers
                                 error:nil];
         }else {
             [session setCategory:category error:nil];
@@ -267,6 +264,7 @@ RCT_EXPORT_METHOD(play
 RCT_EXPORT_METHOD(pause
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         [player pause];
@@ -277,6 +275,7 @@ RCT_EXPORT_METHOD(pause
 RCT_EXPORT_METHOD(stop
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         [player stop];
@@ -287,6 +286,7 @@ RCT_EXPORT_METHOD(stop
 
 RCT_EXPORT_METHOD(release : (nonnull NSNumber *)key) {
     @synchronized(self) {
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
         AVAudioPlayer *player = [self playerForKey:key];
         if (player) {
             [player stop];
