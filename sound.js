@@ -307,9 +307,9 @@ Sound.setActive = function(value) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
+Sound.setCategory = function(value, mixWithOthers = false, duckOthers = false) {
   if (!IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+    RNSound.setCategory(value, mixWithOthers, duckOthers);
   }
 };
 
