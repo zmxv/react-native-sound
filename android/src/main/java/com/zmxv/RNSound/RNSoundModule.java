@@ -2,11 +2,14 @@ package com.zmxv.RNSound;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
-import android.media.AudioManager;
+import android.os.Build;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -32,8 +35,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   final static Object NULL = null;
   String category;
   Boolean mixWithOthers = true;
+  Boolean carAudioSystem = false;
   Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange = false;
+  private AudioFocusRequest audioFocusRequest;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
@@ -59,6 +64,8 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   @ReactMethod
   public void prepare(final String fileName, final Double key, final ReadableMap options, final Callback callback) {
     MediaPlayer player = createMediaPlayer(fileName);
+    Activity mCurrentActivity = getCurrentActivity();
+
     if (options.hasKey("speed") && android.os.Build.VERSION.SDK_INT >= 23) {
       player.setPlaybackParams(player.getPlaybackParams().setSpeed((float)options.getDouble("speed")));
     }
@@ -100,6 +107,9 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       if (category != null) {
         player.setAudioStreamType(category);
+        if (mCurrentActivity != null) {
+          mCurrentActivity.setVolumeControlStream(category);
+        }
       }
     }
 
@@ -221,6 +231,18 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     return null;
   }
 
+  private void abandonFocus() {
+    final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      if (audioFocusRequest != null) {
+        audioManager.abandonAudioFocusRequest(audioFocusRequest);
+        audioFocusRequest = null;
+      }
+    } else {
+      audioManager.abandonAudioFocus(RNSoundModule.this);
+    }
+  }
+
   @ReactMethod
   public void play(final Double key, final Callback callback) {
     MediaPlayer player = this.playerPool.get(key);
@@ -235,11 +257,59 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       return;
     }
 
+    final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
     // Request audio focus in Android system
     if (!this.mixWithOthers) {
-      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      int audioFocusResult;
+      // Set MediaPlayer audio attribute usage to AudioAttributes.USAGE_MEDIA for playback on Android Auto music volume level,
+      // set to AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE for playback on Android Auto music navigation guidance volume level.
+      // Note 1: navigation guidance volume level only has effect on Android Auto so far and can only be changed when audio is playing on it.
+      // Note 2: audio focus request audio attributes usage will be AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE to get
+      // proper audio focus change for Android Auto.
+      int mediaPlayerUsage = AudioAttributes.USAGE_MEDIA;
+      if (this.category.equals("Ring")) {
+          // force output to play over the phone speaker as per user setting
+          mediaPlayerUsage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+      } else if (this.carAudioSystem) {
+          mediaPlayerUsage = AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+      }
+      AudioAttributes mediaPlayerAudioAttributes = new AudioAttributes.Builder()
+              .setUsage(mediaPlayerUsage)
+              .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+              .build();
+      player.setAudioAttributes(mediaPlayerAudioAttributes);
 
-      audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          AudioAttributes audioFocusRequestAudioAttributes = new AudioAttributes.Builder()
+                  .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                  .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                  .build();
+          audioFocusRequest = new AudioFocusRequest
+                  .Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                  .setAudioAttributes(audioFocusRequestAudioAttributes)
+                  .setAcceptsDelayedFocusGain(false)
+                  .setOnAudioFocusChangeListener(RNSoundModule.this)
+                  .build();
+
+          audioFocusResult = audioManager.requestAudioFocus(audioFocusRequest);
+      } else {
+          audioFocusResult = audioManager.requestAudioFocus(RNSoundModule.this,
+                  AudioManager.STREAM_MUSIC,
+                  AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+          );
+      }
+
+      if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+          if (callback != null) {
+              try {
+                  callback.invoke(true);
+              } catch (Exception e) {
+                  //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+              }
+          }
+          return;
+      }
 
       this.focusedPlayerKey = key;
     }
@@ -258,6 +328,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
           } catch (Exception e) {
               //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
           }
+
+          if (!mixWithOthers) {
+            abandonFocus();
+          }
         }
       }
     });
@@ -273,6 +347,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
           callback.invoke(true);
         } catch (Exception e) {
           //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+        }
+
+        if (!mixWithOthers) {
+          abandonFocus();
         }
         return true;
       }
@@ -303,8 +381,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
     // Release audio focus in Android system
     if (!this.mixWithOthers && key == this.focusedPlayerKey) {
-      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-      audioManager.abandonAudioFocus(this);
+        abandonFocus();
     }
 
     callback.invoke();
@@ -446,9 +523,10 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void setCategory(final String category, final Boolean mixWithOthers) {
+  public void setCategory(final String category, final Boolean mixWithOthers, final Boolean carAudioSystem) {
     this.category = category;
     this.mixWithOthers = mixWithOthers;
+    this.carAudioSystem = carAudioSystem;
   }
 
   @Override
