@@ -14,10 +14,10 @@
 @synthesize _key = _key;
 
 - (void)audioSessionChangeObserver:(NSNotification *)notification {
-+    // For the AmiGO use cases it makes more sense to only stop playing a sound
-+    // when there is an audio session change and not pause / play a sound as the
-+    // sounds are short beep like sounds.
-+    // The play action is removed and the pause action is changed to a stop action
+    // For the AmiGO use cases it makes more sense to only stop playing a sound
+    // when there is an audio session change and not pause / play a sound as the
+    // sounds are short beep like sounds.
+    // The play action is removed and the pause action is changed to a stop action
     NSDictionary *userInfo = notification.userInfo;
     AVAudioSessionRouteChangeReason audioSessionRouteChangeReason =
         [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
