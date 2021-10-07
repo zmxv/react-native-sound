@@ -14,28 +14,27 @@
 @synthesize _key = _key;
 
 - (void)audioSessionChangeObserver:(NSNotification *)notification {
+    // For the AmiGO use cases it makes more sense to only stop playing a sound
+    // when there is an audio session change and not pause / play a sound as the
+    // sounds are short beep like sounds.
+    // The play action is removed and the pause action is changed to a stop action
     NSDictionary *userInfo = notification.userInfo;
     AVAudioSessionRouteChangeReason audioSessionRouteChangeReason =
         [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
     AVAudioSessionInterruptionType audioSessionInterruptionType =
         [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
     AVAudioPlayer *player = [self playerForKey:self._key];
-    if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded) {
-        if (player && player.isPlaying) {
-            [player play];
-            [self setOnPlay:YES forPlayerKey:self._key];
-        }
-    }
     if (audioSessionRouteChangeReason ==
         AVAudioSessionRouteChangeReasonOldDeviceUnavailable) {
         if (player) {
-            [player pause];
-            [self setOnPlay:NO forPlayerKey:self._key];
+            [player stop];
+            [self setOnPlay:NO forPlayerKey:self._key]; // Is it correct to leave the call to setOnPlay: NO here?
+                                                // there are existing calls to player stop that are not followed by it
         }
     }
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeBegan) {
         if (player) {
-            [player pause];
+            [player stop];
             [self setOnPlay:NO forPlayerKey:self._key];
         }
     }
@@ -109,85 +108,32 @@ RCT_EXPORT_MODULE();
 }
 
 RCT_EXPORT_METHOD(enable : (BOOL)enabled) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setCategory:AVAudioSessionCategoryAmbient error:nil];
-    [session setActive:enabled error:nil];
+    // setting of AVAudioSession setCategory and setActive removed as this is done just before playback
 }
 
 RCT_EXPORT_METHOD(setActive : (BOOL)active) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setActive:active error:nil];
+    if (active) {
+        [session setActive:YES error:nil];
+    } else {
+        // set option NotifyOthersOnDeactivation to ensure all audio that can be restarted will restart
+        [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+    }
 }
 
 RCT_EXPORT_METHOD(setMode : (NSString *)modeName) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    NSString *mode = nil;
-
-    if ([modeName isEqual:@"Default"]) {
-        mode = AVAudioSessionModeDefault;
-    } else if ([modeName isEqual:@"VoiceChat"]) {
-        mode = AVAudioSessionModeVoiceChat;
-    } else if ([modeName isEqual:@"VideoChat"]) {
-        mode = AVAudioSessionModeVideoChat;
-    } else if ([modeName isEqual:@"GameChat"]) {
-        mode = AVAudioSessionModeGameChat;
-    } else if ([modeName isEqual:@"VideoRecording"]) {
-        mode = AVAudioSessionModeVideoRecording;
-    } else if ([modeName isEqual:@"Measurement"]) {
-        mode = AVAudioSessionModeMeasurement;
-    } else if ([modeName isEqual:@"MoviePlayback"]) {
-        mode = AVAudioSessionModeMoviePlayback;
-    } else if ([modeName isEqual:@"SpokenAudio"]) {
-        mode = AVAudioSessionModeSpokenAudio;
-    }
-
-    if (mode) {
-        [session setMode:mode error:nil];
-    }
+   // setting of AVAudioSession mode removed as this is done just before playback
 }
 
 RCT_EXPORT_METHOD(setCategory
                   : (NSString *)categoryName mixWithOthers
-                  : (BOOL)mixWithOthers) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    NSString *category = nil;
-
-    if ([categoryName isEqual:@"Ambient"]) {
-        category = AVAudioSessionCategoryAmbient;
-    } else if ([categoryName isEqual:@"SoloAmbient"]) {
-        category = AVAudioSessionCategorySoloAmbient;
-    } else if ([categoryName isEqual:@"Playback"]) {
-        category = AVAudioSessionCategoryPlayback;
-    } else if ([categoryName isEqual:@"Record"]) {
-        category = AVAudioSessionCategoryRecord;
-    } else if ([categoryName isEqual:@"PlayAndRecord"]) {
-        category = AVAudioSessionCategoryPlayAndRecord;
-    }
-#if TARGET_OS_IOS
-    else if ([categoryName isEqual:@"AudioProcessing"]) {
-        category = AVAudioSessionCategoryAudioProcessing;
-    }
-#endif
-    else if ([categoryName isEqual:@"MultiRoute"]) {
-        category = AVAudioSessionCategoryMultiRoute;
-    }
-
-    if (category) {
-        if (mixWithOthers) {
-            [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-                                 AVAudioSessionCategoryOptionAllowBluetooth
-                           error:nil];
-        } else {
-            [session setCategory:category error:nil];
-        }
-    }
+                  : (BOOL)mixWithOthers
+                  : (BOOL)carAudioSystem) {
+    // setting of AVAudioSession setCategory removed as this is done just before playback
 }
 
 RCT_EXPORT_METHOD(enableInSilenceMode : (BOOL)enabled) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setCategory:AVAudioSessionCategoryPlayback error:nil];
-    [session setActive:enabled error:nil];
+    // setting of AVAudioSession setCategory and setActive removed as this is done just before playback and silence mode is not used
 }
 
 RCT_EXPORT_METHOD(prepare
@@ -218,7 +164,10 @@ RCT_EXPORT_METHOD(prepare
         @synchronized(self) {
             player.delegate = self;
             player.enableRate = YES;
-            [player prepareToPlay];
+            // call to prepareToPlay is removed as this will activate the AudioSession which has
+            // unwanted behaviour for current active audio if audio session is not setup correctly
+            // yet. The prepareToPlay is also only preparing the audio for the first playback, for
+            // next playback of the sound the prepare will happen again when play is called
             [[self playerPool] setObject:player forKey:key];
             callback([NSArray
                 arrayWithObjects:[NSNull null],
@@ -240,7 +189,6 @@ RCT_EXPORT_METHOD(prepare
 RCT_EXPORT_METHOD(play
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
-    [[AVAudioSession sharedInstance] setActive:YES error:nil];
     [[NSNotificationCenter defaultCenter]
         addObserver:self
            selector:@selector(audioSessionChangeObserver:)
@@ -249,6 +197,19 @@ RCT_EXPORT_METHOD(play
     self._key = key;
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
+        if ([player.url.absoluteString containsString:@"mic_"]) {
+            // set up audio session for a quick stop of other audio for ASR sounds so that
+            // the audio session sequence for ASR can be done ASAP after playback is done
+            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                             withOptions:AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                                   error:nil];
+        } else {
+          [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                           withOptions:AVAudioSessionCategoryOptionDuckOthers | AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                                 error:nil];
+        }
+        [[AVAudioSession sharedInstance] setActive:YES error:nil];
+
         [[self callbackPool] setObject:[callback copy] forKey:key];
         [player play];
         [self setOnPlay:YES forPlayerKey:key];
@@ -363,7 +324,6 @@ RCT_EXPORT_METHOD(setSpeakerPhone : (BOOL)on) {
         [session overrideOutputAudioPort:AVAudioSessionPortOverrideNone
                                    error:nil];
     }
-    [session setActive:true error:nil];
 }
 
 + (BOOL)requiresMainQueueSetup {

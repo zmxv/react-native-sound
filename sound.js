@@ -284,7 +284,7 @@ Sound.prototype.setSpeakerphoneOn = function(value) {
 // This is deprecated.  Call the static one instead.
 
 Sound.prototype.setCategory = function(value) {
-  Sound.setCategory(value, false);
+  Sound.setCategory(value, false, false);
 }
 
 Sound.prototype.isPlaying = function() {
@@ -307,9 +307,9 @@ Sound.setActive = function(value) {
   }
 };
 
-Sound.setCategory = function(value, mixWithOthers = false) {
+Sound.setCategory = function(value, mixWithOthers, carAudioSystem) {
   if (!IsWindows) {
-    RNSound.setCategory(value, mixWithOthers);
+    RNSound.setCategory(value, mixWithOthers, carAudioSystem);
   }
 };
 

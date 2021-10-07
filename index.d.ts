@@ -38,8 +38,9 @@ declare class Sound {
    *
    * @param category AVAudioSession category
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param carAudioSystem Should be true when a car audio system is currently in use, false otherwise
    */
-  static setCategory(category: AVAudioSessionCategory, mixWithOthers?: boolean): void
+  static setCategory(category: AVAudioSessionCategory, mixWithOthers: boolean, carAudioSystem: boolean): void
 
   /**
    * Sets AVAudioSession mode, which works in conjunction with the category to determine audio mixing behavior.
