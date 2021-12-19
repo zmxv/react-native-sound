@@ -10,7 +10,30 @@ var eventEmitter = new ReactNative.NativeEventEmitter(RNSound);
 var nextKey = 0;
 
 function isRelativePath(path) {
-  return !/^(\/|http(s?)|asset)/.test(path);
+  return !/^(\/|http(s?)|asset|file)/.test(path);
+}
+
+function calculateRelativeVolume(volume, pan) {
+  // calculates a lower volume relative to the pan value
+  const relativeVolume = (volume * (1 - Math.abs(pan)));
+  return Number(relativeVolume.toFixed(1));
+}
+
+function setAndroidVolumes(sound) {
+  // calculates the volumes for left and right channels
+  if (sound._pan) {
+    const relativeVolume = calculateRelativeVolume(sound._volume, sound._pan);
+    if (sound._pan < 0) {
+      // left is louder
+      RNSound.setVolume(sound._key, sound._volume, relativeVolume);
+    } else {
+      // right is louder
+      RNSound.setVolume(sound._key, relativeVolume, sound._volume);
+    }
+  } else {
+    // no panning, same volume on both channels
+    RNSound.setVolume(sound._key, sound._volume, sound._volume);
+  }
 }
 
 function Sound(filename, basePath, onError, options) {
@@ -59,6 +82,7 @@ function Sound(filename, basePath, onError, options) {
   this._pan = 0;
   this._numberOfLoops = 0;
   this._speed = 1;
+  this._pitch = 1;
   RNSound.prepare(this._filename, this._key, options || {}, (error, props) => {
     if (props) {
       if (typeof props.duration === 'number') {
@@ -82,7 +106,7 @@ Sound.prototype.isLoaded = function() {
 
 Sound.prototype.play = function(onEnd) {
   if (this._loaded) {
-    RNSound.play(this._key, (successfully) => onEnd && onEnd(successfully));
+    RNSound.play(this._key, onEnd ? (successfully) => onEnd(successfully) : null);
   } else {
     onEnd && onEnd(false);
   }
@@ -131,6 +155,10 @@ Sound.prototype.release = function() {
   return this;
 };
 
+Sound.prototype.getFilename = function() {
+  return this._filename;
+};
+
 Sound.prototype.getDuration = function() {
   return this._duration;
 };
@@ -143,13 +171,35 @@ Sound.prototype.getVolume = function() {
   return this._volume;
 };
 
+Sound.prototype.getSpeed = function() {
+  return this._speed;
+};
+
+Sound.prototype.getPitch = function() {
+  return this._pitch;
+};
+
 Sound.prototype.setVolume = function(value) {
   this._volume = value;
   if (this._loaded) {
-    if (IsAndroid || IsWindows) {
-      RNSound.setVolume(this._key, value, value);
+    if (IsAndroid) {
+      setAndroidVolumes(this)
     } else {
       RNSound.setVolume(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setPan = function(value) {
+  this._pan = value;
+  if (this._loaded) {
+    if (IsWindows) {
+      throw new Error('#setPan not supported on windows');
+    } else if (IsAndroid) {
+      setAndroidVolumes(this)
+    } else {
+      RNSound.setPan(this._key, value);
     }
   }
   return this;
@@ -173,13 +223,6 @@ Sound.prototype.getPan = function() {
   return this._pan;
 };
 
-Sound.prototype.setPan = function(value) {
-  if (this._loaded) {
-    RNSound.setPan(this._key, this._pan = value);
-  }
-  return this;
-};
-
 Sound.prototype.getNumberOfLoops = function() {
   return this._numberOfLoops;
 };
@@ -201,6 +244,16 @@ Sound.prototype.setSpeed = function(value) {
   if (this._loaded) {
     if (!IsWindows) {
       RNSound.setSpeed(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setPitch = function(value) {
+  this._pitch = value;
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setPitch(this._key, value);
     }
   }
   return this;

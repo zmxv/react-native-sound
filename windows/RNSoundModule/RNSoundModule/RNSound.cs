@@ -114,7 +114,7 @@ namespace RNSoundModule
                     {
                         file = await InstallationFolder.GetFileAsync(@"Assets\" + fileName);
                     }
-                    catch (Exception e) { }
+                    catch (Exception) { }
 
                     if (file == null)
                     {
@@ -122,7 +122,7 @@ namespace RNSoundModule
                         {
                             file = await LocalFolder.GetFileAsync(fileName);
                         }
-                        catch (Exception e) { }
+                        catch (Exception) { }
 
                     }
 
