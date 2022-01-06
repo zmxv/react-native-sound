@@ -128,14 +128,14 @@ declare class Sound {
   /**
    * Return the loop count of the audio player.
    * The default is 0 which means to play the sound once.
-   * A positive number specifies the number of times to return to the start and play again.
-   * A negative number indicates an indefinite loop.
+   * On iOS a positive number specifies the number of times to return to the start and play again, a negative number indicates an indefinite loop.
+   * On Android any non-zero value indicates an indefinite loop.
    */
   getNumberOfLoops(): number
 
   /**
    * Set the loop count
-   * @param value - 0 means to play the sound once. A positive number specifies the number of times to return to the start and play again (iOS only). A negative number indicates an indefinite loop (iOS and Android).
+   * @param value - iOS: 0 means to play the sound once, a positive number specifies the number of times to return to the start and play again, a negative number indicates an indefinite loop. Android: 0 means to play the sound once, other numbers indicate an indefinite loop.
    */
   setNumberOfLoops(value: number): this
 
