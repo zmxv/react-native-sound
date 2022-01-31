@@ -163,7 +163,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
     MediaPlayer mediaPlayer = new MediaPlayer();
 	  
     if ( setWakeMode.length > 0 ){
-	    mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+	    mediaPlayer.setWakeMode(this.context, PowerManager.PARTIAL_WAKE_LOCK);
     }
 	  
     if (res != 0) {
