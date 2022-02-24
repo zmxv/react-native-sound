@@ -111,13 +111,19 @@ RCT_EXPORT_METHOD(enable : (BOOL)enabled) {
     // setting of AVAudioSession setCategory and setActive removed as this is done just before playback
 }
 
+RCT_EXPORT_METHOD(setAudioManagement : (BOOL)useAudioSession) {
+    self.useAudioSession = useAudioSession;
+}
+
 RCT_EXPORT_METHOD(setActive : (BOOL)active) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    if (active) {
-        [session setActive:YES error:nil];
-    } else {
-        // set option NotifyOthersOnDeactivation to ensure all audio that can be restarted will restart
-        [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+    if (self.useAudioSession) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        if (active) {
+            [session setActive:YES error:nil];
+        } else {
+            // set option NotifyOthersOnDeactivation to ensure all audio that can be restarted will restart
+            [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+        }
     }
 }
 
@@ -189,26 +195,30 @@ RCT_EXPORT_METHOD(prepare
 RCT_EXPORT_METHOD(play
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
-    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-           selector:@selector(audioSessionChangeObserver:)
-               name:AVAudioSessionRouteChangeNotification
-             object:nil];
+    if (self.useAudioSession) {
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(audioSessionChangeObserver:)
+                   name:AVAudioSessionRouteChangeNotification
+                 object:nil];
+    }
     self._key = key;
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
-        if ([player.url.absoluteString containsString:@"mic_"]) {
-            // set up audio session for a quick stop of other audio for ASR sounds so that
-            // the audio session sequence for ASR can be done ASAP after playback is done
-            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
-                                             withOptions:AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
-                                                   error:nil];
-        } else {
-          [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
-                                           withOptions:AVAudioSessionCategoryOptionDuckOthers | AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
-                                                 error:nil];
+        if (self.useAudioSession) {
+            if ([player.url.absoluteString containsString:@"mic_"]) {
+                // set up audio session for a quick stop of other audio for ASR sounds so that
+                // the audio session sequence for ASR can be done ASAP after playback is done
+                [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                                withOptions:AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                                      error:nil];
+            } else {
+              [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                              withOptions:AVAudioSessionCategoryOptionDuckOthers | AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                                    error:nil];
+            }
+            [[AVAudioSession sharedInstance] setActive:YES error:nil];
         }
-        [[AVAudioSession sharedInstance] setActive:YES error:nil];
 
         [[self callbackPool] setObject:[callback copy] forKey:key];
         [player play];
@@ -226,15 +236,15 @@ RCT_EXPORT_METHOD(pause
     }
 }
 
-RCT_EXPORT_METHOD(stop
-                  : (nonnull NSNumber *)key withCallback
-                  : (RCTResponseSenderBlock)callback) {
+RCT_EXPORT_METHOD(stop: (nonnull NSNumber *)key
+               resolve: (RCTPromiseResolveBlock)resolve
+                reject: (RCTPromiseRejectBlock)reject) {
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         [player stop];
         player.currentTime = 0;
-        callback([NSArray array]);
     }
+    resolve(@YES);
 }
 
 RCT_EXPORT_METHOD(release : (nonnull NSNumber *)key) {

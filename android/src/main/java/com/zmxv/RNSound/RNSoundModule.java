@@ -15,6 +15,7 @@ import android.os.Build;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -41,6 +42,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   Double focusedPlayerKey;
   Boolean wasPlayingBeforeFocusChange = false;
   private AudioFocusRequest audioFocusRequest;
+  private boolean useAudioFocus = true;
 
   public RNSoundModule(ReactApplicationContext context) {
     super(context);
@@ -216,7 +218,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       return mediaPlayer;
     }
-    
+
     File file = new File(fileName);
     if (file.exists()) {
       mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -234,14 +236,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   private void abandonFocus() {
-    final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      if (audioFocusRequest != null) {
-        audioManager.abandonAudioFocusRequest(audioFocusRequest);
-        audioFocusRequest = null;
+    if (useAudioFocus) {
+      final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (audioFocusRequest != null) {
+          audioManager.abandonAudioFocusRequest(audioFocusRequest);
+          audioFocusRequest = null;
+        }
+      } else {
+        audioManager.abandonAudioFocus(RNSoundModule.this);
       }
-    } else {
-      audioManager.abandonAudioFocus(RNSoundModule.this);
     }
   }
 
@@ -263,7 +267,6 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
     // Request audio focus in Android system
     if (!this.mixWithOthers) {
-      int audioFocusResult;
       // Set MediaPlayer audio attribute usage to AudioAttributes.USAGE_MEDIA for playback on Android Auto music volume level,
       // set to AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE for playback on Android Auto music navigation guidance volume level.
       // Note 1: navigation guidance volume level only has effect on Android Auto so far and can only be changed when audio is playing on it.
@@ -282,35 +285,38 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
               .build();
       player.setAudioAttributes(mediaPlayerAudioAttributes);
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          AudioAttributes audioFocusRequestAudioAttributes = new AudioAttributes.Builder()
-                  .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                  .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                  .build();
-          audioFocusRequest = new AudioFocusRequest
-                  .Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                  .setAudioAttributes(audioFocusRequestAudioAttributes)
-                  .setAcceptsDelayedFocusGain(false)
-                  .setOnAudioFocusChangeListener(RNSoundModule.this)
-                  .build();
+      if (useAudioFocus) {
+          int audioFocusResult;
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              AudioAttributes audioFocusRequestAudioAttributes = new AudioAttributes.Builder()
+                      .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                      .build();
+              audioFocusRequest = new AudioFocusRequest
+                      .Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                      .setAudioAttributes(audioFocusRequestAudioAttributes)
+                      .setAcceptsDelayedFocusGain(false)
+                      .setOnAudioFocusChangeListener(RNSoundModule.this)
+                      .build();
 
-          audioFocusResult = audioManager.requestAudioFocus(audioFocusRequest);
-      } else {
-          audioFocusResult = audioManager.requestAudioFocus(RNSoundModule.this,
-                  AudioManager.STREAM_MUSIC,
-                  AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
-          );
-      }
-
-      if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-          if (callback != null) {
-              try {
-                  callback.invoke(true);
-              } catch (Exception e) {
-                  //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
-              }
+              audioFocusResult = audioManager.requestAudioFocus(audioFocusRequest);
+          } else {
+              audioFocusResult = audioManager.requestAudioFocus(RNSoundModule.this,
+                      AudioManager.STREAM_MUSIC,
+                      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+              );
           }
-          return;
+
+          if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+              if (callback != null) {
+                  try {
+                      callback.invoke(true);
+                  } catch (Exception e) {
+                      //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
+                  }
+              }
+              return;
+          }
       }
 
       this.focusedPlayerKey = key;
@@ -374,7 +380,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   }
 
   @ReactMethod
-  public void stop(final Double key, final Callback callback) {
+  public void stop(final Double key, Promise promise) {
     MediaPlayer player = this.playerPool.get(key);
     if (player != null && player.isPlaying()) {
       player.pause();
@@ -386,7 +392,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
         abandonFocus();
     }
 
-    callback.invoke();
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -407,8 +413,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
       // Release audio focus in Android system
       if (!this.mixWithOthers && key == this.focusedPlayerKey) {
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.abandonAudioFocus(this);
+        abandonFocus();
       }
     }
   }
@@ -533,7 +538,7 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
 
   @Override
   public void onAudioFocusChange(int focusChange) {
-    if (!this.mixWithOthers) {
+    if (useAudioFocus && !this.mixWithOthers) {
       MediaPlayer player = this.playerPool.get(this.focusedPlayerKey);
 
       if (player != null) {
@@ -556,6 +561,11 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   @ReactMethod
   public void enable(final Boolean enabled) {
     // no op
+  }
+
+  @ReactMethod
+  public void setAudioManagement(boolean useAudioFocus) {
+    this.useAudioFocus = useAudioFocus;
   }
 
   @Override

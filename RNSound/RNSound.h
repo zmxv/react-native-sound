@@ -14,4 +14,5 @@
 
 @interface RNSound : RCTEventEmitter <RCTBridgeModule, AVAudioPlayerDelegate>
 @property (nonatomic, weak) NSNumber *_key;
+@property (nonatomic) BOOL useAudioSession;
 @end

@@ -123,12 +123,10 @@ Sound.prototype.pause = function(callback) {
   return this;
 };
 
-Sound.prototype.stop = function(callback) {
+Sound.prototype.stop = async function(): Promise<boolean> {
   if (this._loaded) {
-    RNSound.stop(this._key, () => {
-      this._playing = false;
-      callback && callback();
-    });
+    await RNSound.stop(this._key);
+    this._playing = false;
   }
   return this;
 };
@@ -322,6 +320,12 @@ Sound.setMode = function(value) {
 Sound.setSpeakerPhone = function(value) {
   if (!IsAndroid && !IsWindows) {
     RNSound.setSpeakerPhone(value)
+  }
+}
+
+Sound.setAudioManagement = function(value) {
+  if (!IsWindows) {
+    RNSound.setAudioManagement(value);
   }
 }
 
