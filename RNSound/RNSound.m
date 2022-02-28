@@ -136,6 +136,7 @@ RCT_EXPORT_METHOD(setCategory
                   : (BOOL)mixWithOthers
                   : (BOOL)carAudioSystem) {
     // setting of AVAudioSession setCategory removed as this is done just before playback
+    _carPlay = carAudioSystem;
 }
 
 RCT_EXPORT_METHOD(enableInSilenceMode : (BOOL)enabled) {
@@ -206,16 +207,26 @@ RCT_EXPORT_METHOD(play
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         if (self.useAudioSession) {
+            AVAudioSession * audioSession = [AVAudioSession sharedInstance];
             if ([player.url.absoluteString containsString:@"mic_"]) {
                 // set up audio session for a quick stop of other audio for ASR sounds so that
                 // the audio session sequence for ASR can be done ASAP after playback is done
-                [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
-                                                withOptions:AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
-                                                      error:nil];
+                [audioSession setCategory:AVAudioSessionCategoryPlayback
+                              withOptions:AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                    error:nil];
             } else {
-              [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
-                                              withOptions:AVAudioSessionCategoryOptionDuckOthers | AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
-                                                    error:nil];
+              [audioSession setCategory:AVAudioSessionCategoryPlayback
+                            withOptions:AVAudioSessionCategoryOptionDuckOthers | AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers
+                                  error:nil];
+            }
+            if (@available(iOS 12.0, *)) {
+                if (_carPlay) {
+                    [audioSession setMode:AVAudioSessionModeVoicePrompt error:nil];
+                } else {
+                    if (audioSession.mode == AVAudioSessionModeVoicePrompt) {
+                        [audioSession setMode:AVAudioSessionModeDefault error:nil];
+                    }
+                }
             }
             [[AVAudioSession sharedInstance] setActive:YES error:nil];
         }
