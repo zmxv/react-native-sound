@@ -197,44 +197,59 @@ RCT_EXPORT_METHOD(prepare
                   : (RCTResponseSenderBlock)callback) {
     NSError *error;
     NSURL *fileNameUrl;
+    NSURL *durationUrl;
     AVAudioPlayer *player;
     NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
     if ([fileNameEscaped hasPrefix:@"http"]) {
         fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+        durationUrl = [NSURL URLWithString:fileNameEscaped];
         NSData *data = [NSData dataWithContentsOfURL:fileNameUrl];
         player = [[AVAudioPlayer alloc] initWithData:data error:&error];
     } else if ([fileNameEscaped hasPrefix:@"ipod-library://"]) {
         fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+        durationUrl = [NSURL URLWithString:fileNameEscaped];
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl
                                                         error:&error];
     } else {
         fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+        durationUrl = [NSURL fileURLWithPath:fileNameEscaped];
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl
                                                         error:&error];
     }
 
-    if (player) {
-        @synchronized(self) {
-            player.delegate = self;
-            player.enableRate = YES;
-            [player prepareToPlay];
-            [[self playerPool] setObject:player forKey:key];
-            callback([NSArray
-                arrayWithObjects:[NSNull null],
-                                 [NSDictionary
-                                     dictionaryWithObjectsAndKeys:
-                                         [NSNumber
-                                             numberWithDouble:player.duration],
-                                         @"duration",
-                                         [NSNumber numberWithUnsignedInteger:
-                                                       player.numberOfChannels],
-                                         @"numberOfChannels", nil],
-                                 nil]);
+    // The AVAudioPlayer does not use accurate duration for some file types, like aac.
+    // https://github.com/zmxv/react-native-sound/issues/228
+    NSDictionary *avOptions = @{AVURLAssetPreferPreciseDurationAndTimingKey: @YES};
+    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:durationUrl options: avOptions];
+  
+    // unless we preload, the asset will not necessarily load the duration by the time we try to play it.
+    // http://stackoverflow.com/questions/20581567/avplayer-and-avfoundationerrordomain-code-11819
+    [avAsset loadValuesAsynchronouslyForKeys:@[ @"duration" ] completionHandler:^{
+        if (player) {
+            @synchronized(self) {
+                player.delegate = self;
+                player.enableRate = YES;
+                [player prepareToPlay];
+                [[self playerPool] setObject:player forKey:key];
+                float duration = CMTimeGetSeconds(avAsset.duration);
+
+                callback([NSArray
+                    arrayWithObjects:[NSNull null],
+                                    [NSDictionary
+                                        dictionaryWithObjectsAndKeys:
+                                            [NSNumber
+                                                numberWithDouble:duration],
+                                            @"duration",
+                                            [NSNumber numberWithUnsignedInteger:
+                                                        player.numberOfChannels],
+                                            @"numberOfChannels", nil],
+                                    nil]);
+            }
+        } else {
+            callback([NSArray arrayWithObjects:RCTJSErrorFromNSError(error), nil]);
         }
-    } else {
-        callback([NSArray arrayWithObjects:RCTJSErrorFromNSError(error), nil]);
-    }
+    }];
 }
 
 RCT_EXPORT_METHOD(play
