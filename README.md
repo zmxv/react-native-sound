@@ -52,8 +52,9 @@ First install the npm package from your app directory:
 ```javascript
 npm install react-native-sound --save
 ```
+Note: If your react-native version is >= 0.60 then linking is done automatically.
 
-Then link it automatically using:
+If your react-native version is < 0.60 then link it using:
 
 ```javascript
 react-native link react-native-sound
