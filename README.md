@@ -39,7 +39,7 @@ Get number of channels | ✓ |   |
 Get/set volume | ✓ | ✓ | ✓
 Get system volume | ✓ | ✓ |
 Set system volume |   | ✓ |
-Get/set pan | ✓ |   |
+Get/set pan | ✓ | ✓ |
 Get/set loops | ✓ | ✓ | ✓
 Get/set exact loop count | ✓ |   |
 Get/set current time | ✓ | ✓ | ✓
