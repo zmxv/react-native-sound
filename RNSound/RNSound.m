@@ -198,7 +198,8 @@ RCT_EXPORT_METHOD(prepare
     NSError *error;
     NSURL *fileNameUrl;
     AVAudioPlayer *player;
-    NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    //NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString* fileNameEscaped = fileName;
 
     if ([fileNameEscaped hasPrefix:@"http"]) {
         fileNameUrl = [NSURL URLWithString:fileNameEscaped];
