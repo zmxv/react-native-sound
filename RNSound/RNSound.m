@@ -174,16 +174,18 @@ RCT_EXPORT_METHOD(setCategory
     }
 
     if (category) {
-        if (mixWithOthers && duckOthers == false) {
-            [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-             AVAudioSessionCategoryOptionAllowBluetooth
-                           error:nil];
-        } else if (mixWithOthers && duckOthers == true){
-            [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionDuckOthers
-                                error:nil];
-        }else {
+        if (mixWithOthers) {
+            if (duckOthers) {
+                [session setCategory:category
+                        withOptions:AVAudioSessionCategoryOptionDuckOthers
+                                    error:nil];
+            } else {
+                [session setCategory:category
+                        withOptions:AVAudioSessionCategoryOptionMixWithOthers |
+                AVAudioSessionCategoryOptionAllowBluetooth
+                            error:nil];
+            }
+        } else {
             [session setCategory:category error:nil];
         }
     }
