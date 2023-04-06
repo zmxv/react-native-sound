@@ -26,10 +26,10 @@ declare class Sound {
    * Use this method to deactivate the AVAudioSession when playback is finished in order for other apps
    * to regain access to the audio stack.
    *
-   * @param category AVAudioSession category
-   * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
+   * @param active Boolean
+   * @param notifyOthersOnDeactivation Can be set to true to notify others app that were playing before being interrupted (ex. music streaming app)
    */
-  static setActive(active: boolean): void
+  static setActive(active: boolean, notifyOthersOnDeactivation: boolean): void
 
   /**
    * Sets AVAudioSession category, which allows playing sound in background,
