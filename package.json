@@ -20,7 +20,8 @@
   },
   "scripts": {
     "clang-format": "node scripts/clang-format.js",
-    "clang-format:check": "node scripts/clang-format.js --check"
+    "clang-format:check": "node scripts/clang-format.js --check",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "glob": "^7.1.4",
