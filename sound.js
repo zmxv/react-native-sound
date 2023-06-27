@@ -325,6 +325,12 @@ Sound.setSpeakerPhone = function(value) {
   }
 }
 
+Sound.getOutputLatency = function(callback) {
+  if (!IsAndroid && !IsWindows) {
+    RNSound.getOutputLatency(callback)
+  }
+}
+
 Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
 Sound.DOCUMENT = RNSound.NSDocumentDirectory;
 Sound.LIBRARY = RNSound.NSLibraryDirectory;
