@@ -92,7 +92,17 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
           category = AudioManager.STREAM_RING;
           break;
         case "Alarm":
-          category = AudioManager.STREAM_ALARM;
+		  {
+			if (Build.VERSION.SDK_INT >= 21) {
+				player.setAudioAttributes(new AudioAttributes.Builder()
+						.setUsage(AudioAttributes.USAGE_ALARM)
+						.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+						.build());
+			} else {
+				player.setAudioStreamType(AudioManager.STREAM_ALARM);
+			}			  
+            player.setVolume(1.0f, 1.0f);
+		  }
           break;
         default:
           Log.e("RNSoundModule", String.format("Unrecognised category %s", module.category));
