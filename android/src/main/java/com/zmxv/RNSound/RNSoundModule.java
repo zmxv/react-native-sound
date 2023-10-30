@@ -7,6 +7,8 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.media.AudioManager;
+import android.os.Build;
+import android.media.AudioAttributes;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
