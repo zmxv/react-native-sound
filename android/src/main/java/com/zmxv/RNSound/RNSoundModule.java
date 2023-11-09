@@ -242,6 +242,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
       this.focusedPlayerKey = key;
+    }else {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+      audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+
+      this.focusedPlayerKey = key;
     }
 
     player.setOnCompletionListener(new OnCompletionListener() {
@@ -449,6 +455,12 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
   public void setCategory(final String category, final Boolean mixWithOthers) {
     this.category = category;
     this.mixWithOthers = mixWithOthers;
+	  
+    if(!this.mixWithOthers){
+    	AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      audioManager.abandonAudioFocus(this);
+    }
+	  
   }
 
   @Override

@@ -175,8 +175,8 @@ RCT_EXPORT_METHOD(setCategory
     if (category) {
         if (mixWithOthers) {
             [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-                                 AVAudioSessionCategoryOptionAllowBluetooth
+                     withOptions:AVAudioSessionCategoryOptionDuckOthers 
+                     //| AVAudioSessionCategoryOptionAllowBluetooth
                            error:nil];
         } else {
             [session setCategory:category error:nil];
@@ -198,7 +198,8 @@ RCT_EXPORT_METHOD(prepare
     NSError *error;
     NSURL *fileNameUrl;
     AVAudioPlayer *player;
-    NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    //NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString* fileNameEscaped = fileName;
 
     if ([fileNameEscaped hasPrefix:@"http"]) {
         fileNameUrl = [NSURL URLWithString:fileNameEscaped];
