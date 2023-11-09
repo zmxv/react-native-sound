@@ -172,6 +172,21 @@ whoosh.stop(() => {
 whoosh.release();
 ```
 
+## To Load Files from Network
+
+Second parameter will be ```null``` 
+
+```
+var file_name = new Sound(LINK_TO_THE_FILE, null , (error) => {
+  if (error) {
+    console.log('failed to load the sound', error);
+    return;
+  }
+  .......
+  .......
+  .......
+```
+
 ## Notes
 
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
