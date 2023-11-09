@@ -157,7 +157,7 @@ declare class Sound {
   getSpeed(): number
 
   /**
-   * Speed of the audio playback (iOS Only).
+   * Speed of the audio playback.
    * @param value
    */
   setSpeed(value: number): this
