@@ -301,9 +301,9 @@ Sound.enableInSilenceMode = function(enabled) {
   }
 };
 
-Sound.setActive = function(value) {
+Sound.setActive = function(value, notifyOthersOnDeactivation = false) {
   if (!IsAndroid && !IsWindows) {
-    RNSound.setActive(value);
+    RNSound.setActive(value, notifyOthersOnDeactivation);
   }
 };
 
