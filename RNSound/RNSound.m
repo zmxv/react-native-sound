@@ -371,6 +371,12 @@ RCT_EXPORT_METHOD(setSpeakerPhone : (BOOL)on) {
     [session setActive:true error:nil];
 }
 
+RCT_EXPORT_METHOD(getOutputLatency:(RCTResponseSenderBlock)callback) {
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    double latency = session.outputLatency;
+    callback(@[@(latency)]);
+}
+
 + (BOOL)requiresMainQueueSetup {
     return YES;
 }
