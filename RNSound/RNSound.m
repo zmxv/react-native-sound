@@ -148,7 +148,8 @@ RCT_EXPORT_METHOD(setMode : (NSString *)modeName) {
 
 RCT_EXPORT_METHOD(setCategory
                   : (NSString *)categoryName mixWithOthers
-                  : (BOOL)mixWithOthers) {
+                  : (BOOL)mixWithOthers
+                  : (BOOL)duckOthers) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
     NSString *category = nil;
 
@@ -174,15 +175,22 @@ RCT_EXPORT_METHOD(setCategory
 
     if (category) {
         if (mixWithOthers) {
-            [session setCategory:category
-                     withOptions:AVAudioSessionCategoryOptionMixWithOthers |
-                                 AVAudioSessionCategoryOptionAllowBluetooth
-                           error:nil];
+            if (duckOthers) {
+                [session setCategory:category
+                        withOptions:AVAudioSessionCategoryOptionDuckOthers
+                                    error:nil];
+            } else {
+                [session setCategory:category
+                        withOptions:AVAudioSessionCategoryOptionMixWithOthers |
+                AVAudioSessionCategoryOptionAllowBluetooth
+                            error:nil];
+            }
         } else {
             [session setCategory:category error:nil];
         }
     }
 }
+
 
 RCT_EXPORT_METHOD(enableInSilenceMode : (BOOL)enabled) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -263,6 +271,7 @@ RCT_EXPORT_METHOD(play
 RCT_EXPORT_METHOD(pause
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         [player pause];
@@ -273,6 +282,7 @@ RCT_EXPORT_METHOD(pause
 RCT_EXPORT_METHOD(stop
                   : (nonnull NSNumber *)key withCallback
                   : (RCTResponseSenderBlock)callback) {
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     AVAudioPlayer *player = [self playerForKey:key];
     if (player) {
         [player stop];
@@ -283,6 +293,7 @@ RCT_EXPORT_METHOD(stop
 
 RCT_EXPORT_METHOD(release : (nonnull NSNumber *)key) {
     @synchronized(self) {
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
         AVAudioPlayer *player = [self playerForKey:key];
         if (player) {
             [player stop];
