@@ -1,5 +1,4 @@
 #import "RNSound.h"
-
 #if __has_include("RCTUtils.h")
 #import "RCTUtils.h"
 #else
@@ -10,15 +9,15 @@
     NSMutableDictionary *_playerPool;
     NSMutableDictionary *_callbackPool;
 }
-
+RCT_EXPORT_MODULE()
 @synthesize _key = _key;
 
 - (void)audioSessionChangeObserver:(NSNotification *)notification {
     NSDictionary *userInfo = notification.userInfo;
     AVAudioSessionRouteChangeReason audioSessionRouteChangeReason =
-        [userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
+        (AVAudioSessionRouteChangeReason)[userInfo[@"AVAudioSessionRouteChangeReasonKey"] longValue];
     AVAudioSessionInterruptionType audioSessionInterruptionType =
-        [userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
+        (AVAudioSessionInterruptionType)[userInfo[@"AVAudioSessionInterruptionTypeKey"] longValue];
     AVAudioPlayer *player = [self playerForKey:self._key];
     if (audioSessionInterruptionType == AVAudioSessionInterruptionTypeEnded) {
         if (player) {
@@ -67,9 +66,8 @@
     return [[self callbackPool] objectForKey:key];
 }
 
-- (NSString *)getDirectory:(int)directory {
-    return [NSSearchPathForDirectoriesInDomains(directory, NSUserDomainMask,
-                                                YES) firstObject];
+- (NSString *)getDirectory:(NSSearchPathDirectory)directory {
+    return [NSSearchPathForDirectoriesInDomains(directory, NSUserDomainMask, YES) firstObject];
 }
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player
@@ -89,8 +87,6 @@
     }
 }
 
-RCT_EXPORT_MODULE();
-
 - (NSArray<NSString *> *)supportedEvents {
     return [NSArray arrayWithObjects:@"onPlayChange", nil];
 }
@@ -108,11 +104,6 @@ RCT_EXPORT_MODULE();
                                      @"NSCachesDirectory", nil];
 }
 
-RCT_EXPORT_METHOD(enable : (BOOL)enabled) {
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setCategory:AVAudioSessionCategoryAmbient error:nil];
-    [session setActive:enabled error:nil];
-}
 
 RCT_EXPORT_METHOD(setActive : (BOOL)active) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -383,4 +374,14 @@ RCT_EXPORT_METHOD(setSpeakerPhone : (BOOL)on) {
                                       numberWithBool:isPlaying ? YES : NO],
                                   @"isPlaying", playerKey, @"playerKey", nil]];
 }
+
+// Don't compile this code when we build for the old architecture.
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSoundIOSSpecJSI>(params);
+}
+#endif
+
 @end

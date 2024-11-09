@@ -1,17 +1,15 @@
-#if __has_include(<React/RCTBridgeModule.h>)
-#import <React/RCTBridgeModule.h>
-#else
-#import "RCTBridgeModule.h"
-#endif
-
 #import <AVFoundation/AVFoundation.h>
-
-#if __has_include(<React/RCTEventEmitter.h>)
 #import <React/RCTEventEmitter.h>
+
+#ifdef RCT_NEW_ARCH_ENABLED
+  #import <RNSoundSpec/RNSoundSpec.h>
+
+@interface RNSound : RCTEventEmitter  <NativeSoundIOSSpec,AVAudioPlayerDelegate>
 #else
-#import "RCTEventEmitter.h"
+#import <React/RCTBridgeModule.h>
+@interface RNSound : RCTEventEmitter <RCTBridgeModule, AVAudioPlayerDelegate>
 #endif
 
-@interface RNSound : RCTEventEmitter <RCTBridgeModule, AVAudioPlayerDelegate>
 @property (nonatomic, weak) NSNumber *_key;
+
 @end
