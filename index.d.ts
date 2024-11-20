@@ -13,7 +13,10 @@ type FileType = any
 
 type BasePathType = string
 
-type CallbackType = (error: any) => void
+type CallbackType = (error: any,props:{
+  duration?: number;
+  numberOfChannels?: number;
+}) => void
 
 declare class Sound {
   static MAIN_BUNDLE: string

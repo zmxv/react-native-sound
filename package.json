@@ -4,7 +4,11 @@
   "description": "React Native module for playing sound clips on iOS, Android, and Windows",
   "main": "src/index.ts",
   "typings": "index.d.ts",
-  "repository": "zmxv/react-native-sound",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zmxv/react-native-sound.git"
+  },
+   "homepage": "https://github.com/zmxv/react-native-sound",
   "keywords": [
     "react-native",
     "sound",
