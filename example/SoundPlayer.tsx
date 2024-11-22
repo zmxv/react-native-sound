@@ -23,7 +23,7 @@ const getImageStyle = (size: number, tinColor: string = '#000') => {
     tinColor,
   } as ImageStyle;
 };
-
+Sound.setCategory('Playback');
 const secondsToMMSS = (seconds: number) =>
   new Date(seconds * 1000).toISOString().substring(14, 19);
 
@@ -36,7 +36,6 @@ export default () => {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    Sound.setCategory('Playback');
     sound.current = new Sound(
       'https://cdn.pixabay.com/download/audio/2024/10/27/audio_694158870e.mp3?filename=abnormal-for-you-255737.mp3',
       Sound.MAIN_BUNDLE,

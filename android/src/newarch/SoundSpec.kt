@@ -76,6 +76,14 @@ open class SoundSpec internal constructor(context: ReactApplicationContext) :
     module.setSystemVolume(value.toFloat())
   }
 
+  override fun addListener(eventName: String){
+    // Keep: Needed for RN built in Event Emitter Calls
+  }
+
+  override fun removeListeners(count: Double){
+    // Keep: Needed for RN built in Event Emitter Calls
+  }
+
 
   override fun getName(): String {
     return NAME

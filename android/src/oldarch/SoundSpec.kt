@@ -24,4 +24,7 @@ abstract class SoundSpec internal constructor(context: ReactApplicationContext) 
   abstract fun getCurrentTime(key: Double, callback: Callback)
   abstract fun setSpeakerphoneOn(key: Double, speaker: Boolean)
   abstract fun setCategory(value: String, mixWithOthers: Boolean)
+  abstract fun addListener(eventName: String)
+  abstract fun removeListeners(count: Double)
+
 }

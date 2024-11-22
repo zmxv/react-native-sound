@@ -26,8 +26,11 @@ export interface Spec extends TurboModule {
     callback: () => void
   ) => void;
   setCategory: (value: string, mixWithOthers: boolean) => void;
-  setNumberOfLoops: (key: number, loops: number) => void;
+  setLooping: (key: number, isLooping: boolean) => void;
   setSpeakerphoneOn: (key: number, value: boolean) => void;
+  setPitch: (key: number, pitch: number) => void;
+  addListener: (eventName: string) => void;
+  removeListeners: (count: number) => void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>("RNSound");

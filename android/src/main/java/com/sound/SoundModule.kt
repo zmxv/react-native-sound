@@ -78,6 +78,15 @@ class SoundModule internal constructor(context: ReactApplicationContext) :
     module.setSystemVolume(value.toFloat())
   }
 
+  @ReactMethod
+  override fun addListener(eventName: String){
+    // Keep: Needed for RN built in Event Emitter Calls
+  }
+
+ @ReactMethod
+  override fun removeListeners(count: Double){
+    // Keep: Needed for RN built in Event Emitter Calls
+  }
 
   override fun getName(): String {
     return NAME
