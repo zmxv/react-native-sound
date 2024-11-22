@@ -120,7 +120,7 @@ dependencies {
 if (isNewArchitectureEnabled()) {
   react {
     jsRootDir = file("../src/")
-    libraryName = "Sound"
+    libraryName = "RNSound"
     codegenJavaPackageName = "com.zmxv.RNSound"
   }
 }

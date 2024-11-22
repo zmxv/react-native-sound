@@ -1,26 +1,27 @@
 import {
+  EmitterSubscription,
   Image,
   NativeEventEmitter,
   NativeModules,
   Platform,
-} from 'react-native';
+} from "react-native";
 
-const IsAndroid = Platform.OS === 'android';
+const IsAndroid = Platform.OS === "android";
 
-const IsWindows = Platform.OS === 'windows';
+const IsWindows = Platform.OS === "windows";
 
 const LINKING_ERROR =
   `The package 'react-native-sound' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+  Platform.select({ ios: "- You have run 'pod install'\n", default: "" }) +
+  "- You rebuilt the app after installing the package\n" +
+  "- You are not using Expo Go\n";
 
 // @ts-expect-error
 const SoundModule = global.__turboModuleProxy
   ? IsAndroid
-    ? require('./NativeSoundAndroid').default
-    : require('./NativeSoundIOS').default
-  : NativeModules.Sound;
+    ? require("./NativeSoundAndroid").default
+    : require("./NativeSoundIOS").default
+  : NativeModules.RNSound;
 
 const RNSound =
   SoundModule ||
@@ -63,12 +64,12 @@ class Sound {
   private _numberOfLoops: number;
   private _speed: number;
   private _pitch: number;
-  private onPlaySubscription: any;
+  private onPlaySubscription: EmitterSubscription;
 
   constructor(
     filename: string,
-    basePath: string | undefined,
-    onError?: (error: any, props: SoundProps) => void,
+    basePath?: string | ((error: string, props: SoundProps) => void),
+    onError?: (error: string, props: SoundProps) => void,
     options?: SoundOptionTypes
   ) {
     const asset = Image.resolveAssetSource({
@@ -80,8 +81,12 @@ class Sound {
       this._filename = basePath ? `${basePath}/${filename}` : filename;
 
       if (IsAndroid && !basePath && isRelativePath(filename)) {
-        this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+        this._filename = filename.toLowerCase().replace(/\.[^.]+$/, "");
       }
+    }
+
+    if (typeof basePath === "function") {
+      onError = basePath;
     }
 
     this._key = nextKey++;
@@ -99,12 +104,12 @@ class Sound {
       this._filename,
       this._key,
       options ?? {},
-      (error: any, props: SoundProps) => {
+      (error: string, props: SoundProps) => {
         if (props) {
-          if (typeof props.duration === 'number') {
+          if (typeof props.duration === "number") {
             this._duration = props.duration;
           }
-          if (typeof props.numberOfChannels === 'number') {
+          if (typeof props.numberOfChannels === "number") {
             this._numberOfChannels = props.numberOfChannels;
           }
         }
@@ -118,14 +123,13 @@ class Sound {
   }
 
   private registerOnPlay() {
-    if (this.onPlaySubscription != null) {
-      console.warn('On Play change event listener is already registered');
+    if (this.onPlaySubscription) {
       return;
     }
 
     if (!IsWindows) {
       this.onPlaySubscription = eventEmitter.addListener(
-        'onPlayChange',
+        "onPlayChange",
         (param: { isPlaying: boolean; playerKey: number }) => {
           const { isPlaying, playerKey } = param;
           if (playerKey === this._key) {
@@ -205,9 +209,8 @@ class Sound {
     if (this._loaded) {
       RNSound.release(this._key);
       this._loaded = false;
-      if (!IsWindows && this.onPlaySubscription != null) {
+      if (!IsWindows && this.onPlaySubscription) {
         this.onPlaySubscription.remove();
-        this.onPlaySubscription = null;
       }
     }
     return this;
@@ -253,7 +256,7 @@ class Sound {
     this._pan = value;
     if (this._loaded) {
       if (IsWindows) {
-        throw new Error('#setPan not supported on windows');
+        throw new Error("#setPan not supported on windows");
       } else if (IsAndroid) {
         this.setAndroidVolumes();
       } else {
@@ -372,10 +375,16 @@ class Sound {
   }
 
   public static MAIN_BUNDLE = IsAndroid
-    ? ''
-    : RNSound.getConstants().MAIN_BUNDLE;
-  public static DOCUMENT = IsAndroid ? '' : RNSound.getConstants().DOCUMENT;
-  public static LIBRARY = IsAndroid ? '' : RNSound.getConstants().LIBRARY;
-  public static CACHES = IsAndroid ? '' : RNSound.getConstants().CACHES;
+    ? ""
+    : RNSound.getDirectories().MainBundlePath;
+  public static DOCUMENT = IsAndroid
+    ? ""
+    : RNSound.getDirectories().NSDocumentDirectory;
+  public static LIBRARY = IsAndroid
+    ? ""
+    : RNSound.getDirectories().NSLibraryDirectory;
+  public static CACHES = IsAndroid
+    ? ""
+    : RNSound.getDirectories().NSCachesDirectory;
 }
 export default Sound;

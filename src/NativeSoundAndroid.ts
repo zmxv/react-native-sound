@@ -1,5 +1,5 @@
-import type { TurboModule } from 'react-native';
-import { TurboModuleRegistry } from 'react-native';
+import type { TurboModule } from "react-native";
+import { TurboModuleRegistry } from "react-native";
 interface SoundOptionTypes {
   speed: number;
   loadSync: boolean;
@@ -7,7 +7,6 @@ interface SoundOptionTypes {
 export interface Spec extends TurboModule {
   setVolume: (key: number, left: number, right: number) => void;
   setSpeed: (key: number, speed: number) => void;
-  setPitch: (key: number, pitch: number) => void;
   setSystemVolume: (value: number) => void;
   getSystemVolume: (callback: (volume: number) => void) => void;
   getCurrentTime: (
@@ -27,8 +26,8 @@ export interface Spec extends TurboModule {
     callback: () => void
   ) => void;
   setCategory: (value: string, mixWithOthers: boolean) => void;
-  setLooping: (key: number, looping: boolean) => void;
+  setNumberOfLoops: (key: number, loops: number) => void;
   setSpeakerphoneOn: (key: number, value: boolean) => void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('Sound');
+export default TurboModuleRegistry.getEnforcing<Spec>("RNSound");

@@ -86,6 +86,6 @@ open class SoundSpec internal constructor(context: ReactApplicationContext) :
 
 
   companion object {
-    const val NAME = "Sound"
+    const val NAME = "RNSound"
   }
 }
