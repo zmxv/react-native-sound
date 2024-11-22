@@ -20,14 +20,16 @@ class SoundPackage : TurboReactPackage() {
     return ReactModuleInfoProvider {
       val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
       val isTurboModule: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+      val canOverrideExistingModule=false
+      val needsEagerInit=false
+      val isCxxModule=false
       moduleInfos[SoundModule.NAME] = ReactModuleInfo(
         SoundModule.NAME,
         SoundModule.NAME,
-        false,  // canOverrideExistingModule
-        false,  // needsEagerInit
-        false,  // hasConstants
-        false,  // isCxxModule
-        isTurboModule // isTurboModule
+        canOverrideExistingModule,
+        needsEagerInit,
+        isCxxModule,
+        isTurboModule
       )
       moduleInfos
     }
