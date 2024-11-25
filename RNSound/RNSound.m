@@ -198,18 +198,17 @@ RCT_EXPORT_METHOD(prepare
     NSError *error;
     NSURL *fileNameUrl;
     AVAudioPlayer *player;
-    NSString* fileNameEscaped = [fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
-    if ([fileNameEscaped hasPrefix:@"http"]) {
-        fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+    if ([fileName hasPrefix:@"http"]) {
+        fileNameUrl = [NSURL URLWithString:fileName];
         NSData *data = [NSData dataWithContentsOfURL:fileNameUrl];
         player = [[AVAudioPlayer alloc] initWithData:data error:&error];
-    } else if ([fileNameEscaped hasPrefix:@"ipod-library://"]) {
-        fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+    } else if ([fileName hasPrefix:@"ipod-library://"]) {
+        fileNameUrl = [NSURL URLWithString:fileName];
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl
                                                         error:&error];
     } else {
-        fileNameUrl = [NSURL URLWithString:fileNameEscaped];
+        fileNameUrl = [NSURL URLWithString:fileName];
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:fileNameUrl
                                                         error:&error];
     }
