@@ -204,6 +204,16 @@ public class RNSoundModule extends ReactContextBaseJavaModule implements AudioMa
       }
       return mediaPlayer;
     }
+
+    if (fileName.startsWith("content:/")){
+      try {
+        mediaPlayer.setDataSource(this.context, Uri.parse(fileName));
+      } catch(IOException e) {
+        Log.e("RNSoundModule", "Exception", e);
+        return null;
+      }
+      return mediaPlayer;
+    }
     
     File file = new File(fileName);
     if (file.exists()) {
