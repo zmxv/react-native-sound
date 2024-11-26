@@ -368,6 +368,12 @@ class Sound {
     }
   }
 
+  public static enable(enable: boolean): void {
+    if (!IsAndroid && !IsWindows) {
+      RNSound.enable(enable);
+    }
+  }
+
   public static setSpeakerPhone(value: boolean): void {
     if (!IsAndroid && !IsWindows) {
       RNSound.setSpeakerPhone(value);

@@ -76,6 +76,12 @@ declare class Sound {
   static setMode(mode: AVAudioSessionMode): void;
 
   /**
+   * Activates or deactivates the audio session with the ambient category, based on the provided boolean value.(iOS only)
+   * @param enabled
+   */
+  static enable(enabled: boolean): void;
+
+  /**
    * @param filenameOrFile Either absolute or relative path to the sound file or the `require` call.
    * @param basePathOrCallback Optional base path of the file. Omit this or pass '' if filename is an absolute path; you may use one of the predefined directories: Sound.MAIN_BUNDLE, Sound.DOCUMENT, Sound.LIBRARY, Sound.CACHES. If you are using `require` to define filepath, then set the callback function as the second argument.
    * @param callback Optional callback function called when load ends in either success or error. In the event of success, error is undefined.

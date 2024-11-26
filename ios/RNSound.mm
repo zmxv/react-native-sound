@@ -93,6 +93,12 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Audio Session Configuration
 
+RCT_EXPORT_METHOD(enable : (BOOL)enabled) {
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+    [session setActive:enabled error:nil];
+}
+
 RCT_EXPORT_METHOD(setActive:(BOOL)active) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
     [session setActive:active error:nil];

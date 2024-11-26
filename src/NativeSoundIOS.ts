@@ -32,6 +32,7 @@ export interface Spec extends TurboModule {
     callback: () => void
   ) => void;
   enableInSilenceMode: (enabled: boolean) => void;
+  enable: (enabled: boolean) => void;
   setActive: (value: boolean) => void;
   setCategory: (value: string, mixWithOthers?: boolean) => void;
   setSpeakerPhone: (key: number, isSpeaker: boolean) => void;
