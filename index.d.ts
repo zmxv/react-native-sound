@@ -200,3 +200,4 @@ declare class Sound {
 }
 
 export = Sound;
+export default Sound;
