@@ -15,6 +15,8 @@ type BasePathType = string
 
 type CallbackType = (error: any) => void
 
+type LatencyCallback = (latency: number) => void;
+
 declare class Sound {
   static MAIN_BUNDLE: string
   static DOCUMENT: string
@@ -49,6 +51,14 @@ declare class Sound {
    * @param mixWithOthers Can be set to true to force mixing with other audio sessions.
    */
   static setMode(mode: AVAudioSessionMode): void
+
+   /**
+   * Gets the current audio output latency
+   * This function is iOS only
+   *
+   * @param callback Function to receive the latency
+   */
+   static getOutputLatency(callback: LatencyCallback): void
 
   /**
    * @param filenameOrFile Either absolute or relative path to the sound file or the `require` call.
@@ -196,7 +206,7 @@ declare class Sound {
   /**
    * Whether the player is playing or not.
    */
-  isPlaying(): boolean
+  isPlaying(): boolean 
 }
 
 export = Sound;
