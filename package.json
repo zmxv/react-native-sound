@@ -13,18 +13,21 @@
     "android",
     "windows"
   ],
-  "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
+  "author": {
+    "name": "Zhen Wang (http://blog.zmxv.com)",
+    "email": "z@zmxv.com"
+  },
   "license": "MIT",
+  "devDependencies": {
+    "glob": "^7.1.4",
+    "promisify-child-process": "^3.1.1"
+  },
   "peerDependencies": {
     "react-native": ">=0.8.0"
   },
   "scripts": {
     "clang-format": "node scripts/clang-format.js",
     "clang-format:check": "node scripts/clang-format.js --check"
-  },
-  "devDependencies": {
-    "glob": "^7.1.4",
-    "promisify-child-process": "^3.1.1"
   },
   "files": [
     "**/*.@(js|ts)",
