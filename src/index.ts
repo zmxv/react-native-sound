@@ -1,6 +1,5 @@
 import {
   EmitterSubscription,
-  Image,
   NativeEventEmitter,
   NativeModules,
   Platform,
@@ -72,11 +71,8 @@ class Sound {
     onError?: (error: string, props: SoundProps) => void,
     options?: SoundOptionTypes
   ) {
-    const asset = Image.resolveAssetSource({
-      uri: filename,
-    });
-    if (asset) {
-      this._filename = asset.uri;
+    if (filename.startsWith("http")) {
+      this._filename = filename;
     } else {
       this._filename = basePath ? `${basePath}/${filename}` : filename;
 
