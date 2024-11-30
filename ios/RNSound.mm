@@ -75,6 +75,22 @@ RCT_EXPORT_MODULE()
     return [[self callbackPool] objectForKey:key];
 }
 
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player
+                       successfully:(BOOL)flag {
+    @synchronized(self) {
+        NSNumber *key = [self keyForPlayer:player];
+        if (key == nil)
+            return;
+        [self setOnPlay:NO forPlayerKey:self._key];
+        RCTResponseSenderBlock callback = [self callbackForKey:key];
+        if (callback) {
+            callback(
+                [NSArray arrayWithObjects:[NSNumber numberWithBool:flag], nil]);
+            [[self callbackPool] removeObjectForKey:key];
+        }
+    }
+}
+
 #pragma mark - File and Directory Access
 
 - (NSString *)getDirectory:(NSSearchPathDirectory)directory {
