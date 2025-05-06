@@ -2,9 +2,13 @@
   "name": "react-native-sound",
   "version": "0.11.2",
   "description": "React Native module for playing sound clips on iOS, Android, and Windows",
-  "main": "sound.js",
-  "typings": "index.d.ts",
-  "repository": "zmxv/react-native-sound",
+  "main": "src/index.ts",
+  "typings": "src/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zmxv/react-native-sound.git"
+  },
+  "homepage": "https://github.com/zmxv/react-native-sound",
   "keywords": [
     "react-native",
     "sound",
@@ -16,26 +20,26 @@
   "author": "Zhen Wang <z@zmxv.com> (http://blog.zmxv.com)",
   "license": "MIT",
   "peerDependencies": {
-    "react-native": ">=0.8.0"
-  },
-  "scripts": {
-    "clang-format": "node scripts/clang-format.js",
-    "clang-format:check": "node scripts/clang-format.js --check"
-  },
-  "devDependencies": {
-    "glob": "^7.1.4",
-    "promisify-child-process": "^3.1.1"
+    "react": "*",
+    "react-native": "*"
   },
   "files": [
-    "**/*.@(js|ts)",
-    "*.podspec",
-    "android/build.gradle",
-    "android/src/**/*.@(java|xml)",
-    "RNSound.xcodeproj/project.pbxproj",
-    "RNSound.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
-    "RNSound/**/*.@(h|m)",
-    "windows/RNSoundModule/**/*.@(sln|json|xml|csproj)",
-    "windows/RNSoundModule/**/*.cs",
-    "!scripts"
-  ]
+    "src",
+    "android",
+    "ios",
+    "windows",
+    "RNSound.podspec"
+  ],
+  "codegenConfig": {
+    "name": "RNSoundSpec",
+    "type": "all",
+    "jsSrcsDir": "src",
+    "outputDir": {
+      "ios": "ios/generated",
+      "android": "android/generated"
+    },
+    "android": {
+      "javaPackageName": "com.zmxv.RNSound"
+    }
+  }
 }
