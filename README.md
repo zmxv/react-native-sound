@@ -6,6 +6,8 @@
 
 [npm]: https://www.npmjs.com/package/react-native-sound
 
+⚠️ We need help to maintain react-native-sound https://github.com/zmxv/react-native-sound/pulls
+
 React Native module for playing sound clips on iOS, Android, and Windows.
 
 Be warned, this software is alpha quality and may have bugs. Test on your own
