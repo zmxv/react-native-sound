@@ -23,10 +23,8 @@ target 'example' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'exampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
+  # Force link AVFoundation and AudioToolbox for react-native-sound
+  pod 'RNSound', :path => '../node_modules/react-native-sound', :modular_headers => true
 
   post_install do |installer|
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
