@@ -8,8 +8,9 @@ import {
 } from 'react-native';
 import { RemoteAudioPlayer } from './RemoteAudioPlayer';
 import { LocalAudioPlayer } from './LocalAudioPlayer';
+import { AudioTester } from './AudioTester';
 
-type TabType = 'remote' | 'local';
+type TabType = 'remote' | 'local' | 'tests';
 
 export const TabNavigator = () => {
   const [activeTab, setActiveTab] = useState<TabType>('remote');
@@ -36,6 +37,8 @@ export const TabNavigator = () => {
         return <RemoteAudioPlayer />;
       case 'local':
         return <LocalAudioPlayer />;
+      case 'tests':
+        return <AudioTester />;
       default:
         return <RemoteAudioPlayer />;
     }
@@ -46,6 +49,7 @@ export const TabNavigator = () => {
       <View style={styles.tabContainer}>
         {renderTabButton('remote', 'Remote Audio')}
         {renderTabButton('local', 'Local Audio')}
+        {renderTabButton('tests', 'Tests')}
       </View>
       <View style={styles.contentContainer}>{renderContent()}</View>
     </SafeAreaView>
