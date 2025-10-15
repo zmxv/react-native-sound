@@ -1,8 +1,8 @@
 import React from 'react';
-import SoundPlayer from './SoundPlayer';
+import { TabNavigator } from './TabNavigator';
 
 const App = () => {
-  return <SoundPlayer />;
+  return <TabNavigator />;
 };
 
 export default App;

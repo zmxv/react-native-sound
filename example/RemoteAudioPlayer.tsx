@@ -18,7 +18,7 @@ Sound.setCategory('Playback');
 const secondsToMMSS = (seconds: number) =>
   new Date(seconds * 1000).toISOString().substring(14, 19);
 
-export default () => {
+export const RemoteAudioPlayer = () => {
   const [currentTime, setCurrentTime] = React.useState(0);
   const [duration, setDuration] = React.useState(0);
   const [isPlaying, setIsPlaying] = React.useState(false);
@@ -113,8 +113,8 @@ export default () => {
 
         {/* Title and subtitle */}
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>React Native Sound</Text>
-          <Text style={styles.subtitle}>Example Player</Text>
+          <Text style={styles.title}>Remote Audio Player</Text>
+          <Text style={styles.subtitle}>Playing from URL</Text>
         </View>
 
         {/* Progress display without slider */}
