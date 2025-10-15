@@ -1,180 +1,396 @@
-# react-native-sound
+# 🎵 React Native Sound
 
-[![](https://img.shields.io/npm/v/react-native-sound.svg?style=flat-square)][npm]
-[![](https://img.shields.io/npm/l/react-native-sound.svg?style=flat-square)][npm]
-[![](https://img.shields.io/npm/dm/react-native-sound.svg?style=flat-square)][npm]
+[![npm version](https://img.shields.io/npm/v/react-native-sound.svg?style=flat-square)][npm]
+[![license](https://img.shields.io/npm/l/react-native-sound.svg?style=flat-square)][npm]
+[![downloads](https://img.shields.io/npm/dm/react-native-sound.svg?style=flat-square)][npm]
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square)](src/index.d.ts)
+[![New Architecture](https://img.shields.io/badge/New_Architecture-TurboModule-green?style=flat-square)](#new-architecture-support)
 
 [npm]: https://www.npmjs.com/package/react-native-sound
 
-⚠️ We need help to maintain react-native-sound https://github.com/zmxv/react-native-sound/pulls
+> 🚀 **Cross-platform audio playback for React Native** — Play sound clips on iOS and Android with full TypeScript support and modern React Native architecture compatibility.
 
-React Native module for playing sound clips on iOS, Android, and Windows.
+## ✨ Features
 
-Be warned, this software is alpha quality and may have bugs. Test on your own
-and use at your own risk!
+- 🎯 **Cross-platform**: Works on iOS and Android
+- 📱 **Modern Architecture**: Full support for React Native's New Architecture (TurboModules)
+- 🔤 **TypeScript**: Complete TypeScript definitions included
+- 🎛️ **Rich Controls**: Play, pause, stop, seek, volume, pan, and looping
+- 📁 **Flexible Loading**: Load from app bundle, local files, or network URLs
+- 🔄 **Multiple Players**: Play multiple sounds simultaneously
+- ⚡ **Optimized**: Minimal latency with preloading support
+- 🛡️ **Reliable**: Battle-tested in production apps
 
-## Feature matrix
+## 📊 Platform Compatibility
 
-React-native-sound does not support streaming. See [#353][] for more info.
-Of course, we would welcome a PR if someone wants to take this on.
+> 📝 **Note**: This library focuses on audio clips playback, not streaming. For streaming audio, consider [react-native-video](https://github.com/react-native-video/react-native-video) or other dedicated streaming solutions.
 
-In iOS, the library uses [AVAudioPlayer][], not [AVPlayer][].
+**iOS Implementation**: Uses [AVAudioPlayer](https://developer.apple.com/documentation/avfoundation/avaudioplayer) for optimal performance and compatibility.
 
-[#353]: https://github.com/zmxv/react-native-sound/issues/353
-[AVAudioPlayer]: https://developer.apple.com/documentation/avfoundation/avaudioplayer
-[AVPlayer]: https://developer.apple.com/documentation/avfoundation/avplayer
+**Android Implementation**: Uses [MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) with proper audio focus handling.
 
-Feature | iOS | Android | Windows
----|---|---|---
-Load sound from the app bundle | ✓ | ✓ | ✓
-Load sound from other directories | ✓ | ✓ | ✓
-Load sound from the network | ✓ | ✓ |
-Play sound | ✓ | ✓ | ✓
-Playback completion callback | ✓ | ✓ | ✓
-Pause | ✓ | ✓ | ✓
-Resume | ✓ | ✓ | ✓
-Stop | ✓ | ✓ | ✓
-Reset |  | ✓ |
-Release resource | ✓ | ✓ | ✓
-Get duration | ✓ | ✓ | ✓
-Get number of channels | ✓ |   |
-Get/set volume | ✓ | ✓ | ✓
-Get system volume | ✓ | ✓ |
-Set system volume |   | ✓ |
-Get/set pan | ✓ |   |
-Get/set loops | ✓ | ✓ | ✓
-Get/set exact loop count | ✓ |   |
-Get/set current time | ✓ | ✓ | ✓
-Set speed | ✓ | ✓ |
+| Feature                      | iOS | Android |
+| ---------------------------- | --- | ------- |
+| **Loading**                  |
+| Load from app bundle         | ✅  | ✅      |
+| Load from local files        | ✅  | ✅      |
+| Load from network URLs       | ✅  | ✅      |
+| **Playback**                 |
+| Play/Pause/Stop              | ✅  | ✅      |
+| Playback completion callback | ✅  | ✅      |
+| Resume playback              | ✅  | ✅      |
+| Reset to beginning           | ❌  | ✅      |
+| **Audio Control**            |
+| Volume control               | ✅  | ✅      |
+| Pan (L/R stereo)             | ✅  | ❌      |
+| Playback speed               | ✅  | ✅      |
+| **System Integration**       |
+| Get system volume            | ✅  | ✅      |
+| Set system volume            | ❌  | ✅      |
+| **Advanced Features**        |
+| Loop control                 | ✅  | ✅      |
+| Exact loop count             | ✅  | ❌      |
+| Seek to time position        | ✅  | ✅      |
+| Get current position         | ✅  | ✅      |
+| Get duration                 | ✅  | ✅      |
+| Get channel count            | ✅  | ❌      |
+| **Resource Management**      |
+| Explicit resource cleanup    | ✅  | ✅      |
 
-## Installation
+## 📦 Installation
 
-First install the npm package from your app directory:
+### npm
 
-```javascript
-npm install react-native-sound --save
+```bash
+npm install react-native-sound
 ```
-Note: If your react-native version is >= 0.60 then linking is done automatically.
 
-If your react-native version is < 0.60 then link it using:
+### yarn
 
-```javascript
+```bash
+yarn add react-native-sound
+```
+
+### Auto-linking (React Native 0.60+)
+
+No additional steps required! The library will be linked automatically.
+
+### Manual Linking (React Native < 0.60)
+
+```bash
 react-native link react-native-sound
 ```
 
-**If you encounter this error**
+## 🏗️ New Architecture Support
+
+This library supports both the old and new React Native architecture:
+
+- ✅ **Old Architecture**: Uses traditional NativeModules
+- ✅ **New Architecture**: Uses TurboModules for better performance
+- ✅ **Expo**: Compatible with custom development builds (not Expo Go)
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+#### `undefined is not an object (evaluating 'RNSound.IsAndroid')`
+
+This usually indicates a linking issue. Try:
+
+1. **Clear build cache**:
+
+   ```bash
+   cd android && ./gradlew cleanBuildCache
+   ```
+
+2. **Reset Metro cache**:
+
+   ```bash
+   npx react-native start --reset-cache
+   ```
+
+3. **Clean and rebuild**:
+
+   ```bash
+   # iOS
+   cd ios && rm -rf build && cd .. && npx react-native run-ios
+
+   # Android
+   cd android && ./gradlew clean && cd .. && npx react-native run-android
+   ```
+
+#### iOS Build Issues
+
+- Ensure audio files are added to Xcode project bundle
+- Check that AVFoundation framework is linked (automatically handled by CocoaPods)
+
+#### Android Build Issues
+
+- Place audio files in `android/app/src/main/res/raw/`
+- Use lowercase filenames without spaces or special characters
+- Clear build cache if encountering linking issues
+
+### Getting Help
+
+- 📚 [Wiki Documentation](https://github.com/zmxv/react-native-sound/wiki)
+- 🐛 [Issue Tracker](https://github.com/zmxv/react-native-sound/issues)
+- 💬 [Discussions](https://github.com/zmxv/react-native-sound/discussions)
+
+## 🎮 Demo & Examples
+
+### Complete Example App
+
+Check out our enhanced example app with both remote and local audio playback:
+
+- 📁 [`/example`](./example) - Full-featured demo application
+- 🎯 Remote URL audio playback
+- 📱 Local bundled audio files
+- 🎨 Modern UI with TypeScript
+
+### Community Examples
+
+- 🎵 [react-native-sound-playerview](https://github.com/benevbright/react-native-sound-playerview) - Advanced audio player UI component
+
+## 🚀 Quick Start
+
+### Setup Audio Files
+
+#### Android
+
+Save audio files in `android/app/src/main/res/raw/`:
 
 ```
-undefined is not an object (evaluating 'RNSound.IsAndroid')
+android/app/src/main/res/raw/
+├── whoosh.mp3        ✅ Correct
+├── button_click.wav  ✅ Correct
+└── my-sound.mp3      ❌ Use underscores: my_sound.mp3
 ```
 
-you may additionally need to fully clear your build caches for Android. You
-can do this using
+> **Note**: Use lowercase, underscored filenames. No subdirectories allowed.
 
-```bash
-cd android
-./gradlew cleanBuildCache
-```
+#### iOS
 
-After clearing your build cache, you should execute a new `react-native` build.
+1. Open your project in Xcode
+2. Right-click your project → "Add Files to [PROJECT]"
+3. Select your audio files and ensure they're added to the app target
 
-If you still experience issues, **know that this is the most common build issue.** See [#592][] and the several
-issues linked from it for possible resolution. A pull request with improved
-documentation on this would be welcome!
+### Basic Usage
 
-[#592]: https://github.com/zmxv/react-native-sound/issues/592
+```typescript
+import Sound from "react-native-sound";
 
-### Manual Installation Notes
+// Enable playback in silence mode (important for iOS)
+Sound.setCategory("Playback");
 
-Please see the Wiki for these details https://github.com/zmxv/react-native-sound/wiki/Installation
-
-
-## Help with React-Native-Sound
-
-* For react-native-sound developers  [![][gitter badge]](https://gitter.im/react-native-sound/developers)
-* For help using react-native-sound  [![][gitter badge]](https://gitter.im/react-native-sound/Help)
-
-[gitter badge]: https://img.shields.io/gitter/room/react-native-sound/developers.svg?format=flat-square
-
-## Demo project
-
-https://github.com/zmxv/react-native-sound-demo
-
-## Player
-
-<img src="https://github.com/benevbright/react-native-sound-playerview/blob/master/docs/demo.gif?raw=true">
-
-https://github.com/benevbright/react-native-sound-playerview
-
-## Basic usage
-
-First you'll need to add audio files to your project.
-
-- Android: Save your sound clip files under the directory `android/app/src/main/res/raw`. Note that files in this directory must be lowercase and underscored (e.g. my_file_name.mp3) and that subdirectories are not supported by Android.
-- iOS: Open Xcode and add your sound files to the project (Right-click the project and select `Add Files to [PROJECTNAME]`)
-
-```js
-// Import the react-native-sound module
-var Sound = require('react-native-sound');
-
-// Enable playback in silence mode
-Sound.setCategory('Playback');
-
-// Load the sound file 'whoosh.mp3' from the app bundle
-// See notes below about preloading sounds within initialization code below.
-var whoosh = new Sound('whoosh.mp3', Sound.MAIN_BUNDLE, (error) => {
+// Load a sound file from the app bundle
+const whoosh = new Sound("whoosh.mp3", Sound.MAIN_BUNDLE, (error) => {
   if (error) {
-    console.log('failed to load the sound', error);
+    console.log("Failed to load the sound", error);
     return;
   }
-  // loaded successfully
-  console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
 
-  // Play the sound with an onEnd callback
+  // Sound loaded successfully
+  console.log("Duration:", whoosh.getDuration(), "seconds");
+  console.log("Channels:", whoosh.getNumberOfChannels());
+
+  // Play the sound
   whoosh.play((success) => {
     if (success) {
-      console.log('successfully finished playing');
+      console.log("Successfully finished playing");
     } else {
-      console.log('playback failed due to audio decoding errors');
+      console.log("Playback failed due to audio decoding errors");
     }
   });
 });
 
-// Reduce the volume by half
-whoosh.setVolume(0.5);
+// Audio controls
+whoosh.setVolume(0.5); // 50% volume
+whoosh.setPan(1); // Full right stereo
+whoosh.setNumberOfLoops(-1); // Loop indefinitely
 
-// Position the sound to the full right in a stereo field
-whoosh.setPan(1);
+// Get current properties
+console.log("Volume:", whoosh.getVolume());
+console.log("Pan:", whoosh.getPan());
+console.log("Loops:", whoosh.getNumberOfLoops());
 
-// Loop indefinitely until stop() is called
-whoosh.setNumberOfLoops(-1);
-
-// Get properties of the player instance
-console.log('volume: ' + whoosh.getVolume());
-console.log('pan: ' + whoosh.getPan());
-console.log('loops: ' + whoosh.getNumberOfLoops());
-
-// Seek to a specific point in seconds
+// Seek to specific time
 whoosh.setCurrentTime(2.5);
 
-// Get the current playback point in seconds
-whoosh.getCurrentTime((seconds) => console.log('at ' + seconds));
-
-// Pause the sound
-whoosh.pause();
-
-// Stop the sound and rewind to the beginning
-whoosh.stop(() => {
-  // Note: If you want to play a sound after stopping and rewinding it,
-  // it is important to call play() in a callback.
-  whoosh.play();
+// Get current playback position
+whoosh.getCurrentTime((seconds) => {
+  console.log("Current time:", seconds);
 });
 
-// Release the audio player resource
+// Control playback
+whoosh.pause(); // Pause playback
+whoosh.stop(() => {
+  // Stop and rewind
+  whoosh.play(); // Play from beginning
+});
+
+// Always release resources when done
 whoosh.release();
 ```
 
-## Notes
+### Advanced Examples
+
+#### Loading from Different Sources
+
+```typescript
+// From app bundle (most common)
+const bundleSound = new Sound("sound.mp3", Sound.MAIN_BUNDLE, callback);
+
+// From documents directory
+const docSound = new Sound("sound.mp3", Sound.DOCUMENT, callback);
+
+// From library directory
+const libSound = new Sound("sound.mp3", Sound.LIBRARY, callback);
+
+// From absolute path
+const pathSound = new Sound("/path/to/sound.mp3", "", callback);
+
+// From remote URL (iOS/Android only)
+const urlSound = new Sound("https://example.com/sound.mp3", "", callback);
+```
+
+#### React Hook Example
+
+```typescript
+import { useEffect, useRef, useState } from "react";
+import Sound from "react-native-sound";
+
+const useSound = (filename: string) => {
+  const sound = useRef<Sound | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    sound.current = new Sound(filename, Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        console.log("Error loading sound:", error);
+        return;
+      }
+      setIsLoaded(true);
+    });
+
+    return () => {
+      sound.current?.release();
+    };
+  }, [filename]);
+
+  const play = () => {
+    if (sound.current && isLoaded) {
+      sound.current.play((success) => {
+        setIsPlaying(false);
+      });
+      setIsPlaying(true);
+    }
+  };
+
+  const stop = () => {
+    if (sound.current) {
+      sound.current.stop();
+      setIsPlaying(false);
+    }
+  };
+
+  return { play, stop, isLoaded, isPlaying };
+};
+```
+
+## 📝 Important Notes
+
+### Performance Tips
+
+- **Preload sounds** during app initialization to minimize playback delay
+- **Reuse Sound instances** for multiple playbacks of the same file
+- **Avoid race conditions** by ensuring sounds are loaded before calling `play()`
+
+### Audio Session Behavior
+
+- **iOS**: Uses `AVAudioSessionCategoryAmbient` to mix multiple sounds
+- **Multiple playback**: You can play several sound files simultaneously
+- **Background audio**: Configure audio categories for background playback
+
+### File Format Support
+
+#### iOS (AVAudioPlayer)
+
+Supports: AAC, AIFF, CAF, MP3, WAV, and more
+
+- 📚 [Complete format list](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/CoreAudioOverview/SupportedAudioFormatsMacOSX/SupportedAudioFormatsMacOSX.html)
+
+#### Android (MediaPlayer)
+
+Supports: 3GPP, MP4, MP3, AAC, OGG, FLAC, WAV, and more
+
+- 📚 [Complete format list](https://developer.android.com/guide/topics/media/media-formats)
+
+### Path Handling
+
+- **Android absolute paths**: Use `/sdcard/` prefix (e.g., `/sdcard/Downloads/sound.mp3`)
+- **Method chaining**: Supported for setters (e.g., `sound.setVolume(0.5).setPan(0.5).play()`)
+
+## 🎵 Audio Ecosystem
+
+### Related Libraries
+
+| Library                                                                                                  | Purpose                 | Best For                     |
+| -------------------------------------------------------------------------------------------------------- | ----------------------- | ---------------------------- |
+| [react-native-video](https://github.com/react-native-video/react-native-video)                           | Video & audio streaming | Streaming audio/video        |
+| [react-native-audio-toolkit](https://github.com/react-native-community/react-native-audio-toolkit)       | Advanced audio features | Recording & complex audio    |
+| [Expo Audio](https://docs.expo.dev/versions/latest/sdk/audio/)                                           | Expo audio solution     | Expo managed workflow        |
+| [@react-native-async-storage/async-storage](https://github.com/react-native-async-storage/async-storage) | Storage                 | Persisting audio preferences |
+
+### When to Use react-native-sound
+
+- ✅ Playing sound effects and short audio clips
+- ✅ Background music with simple controls
+- ✅ Audio feedback for user interactions
+- ✅ Cross-platform compatibility requirements
+- ✅ TypeScript projects requiring type safety
+
+### When to Consider Alternatives
+
+- ❌ Audio streaming or long-form content
+- ❌ Advanced audio processing or effects
+- ❌ Audio recording capabilities
+- ❌ Complex playlist management
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+### Areas Where We Need Help
+
+- 🐛 Bug fixes and stability improvements
+- 📚 Documentation improvements and examples
+- 🧪 Test coverage expansion
+- 🚀 Performance optimizations
+- 🆕 New platform support
+
+### Development Setup
+
+1. Fork and clone the repository
+2. Install dependencies: `npm install`
+3. Run the example app: `cd example && npm install && npm run android`
+4. Make your changes and test thoroughly
+5. Add tests for new features
+6. Update documentation as needed
+
+### Pull Request Guidelines
+
+- 🔍 **Open an issue first** for major changes to discuss the approach
+- ✅ **Include tests** for new functionality
+- 📝 **Update documentation** including TypeScript definitions
+- 🧪 **Test on multiple platforms** (iOS and Android)
+- 📱 **Test with both architectures** (old and new React Native architecture)
+
+### Code Style
+
+- Follow existing TypeScript/JavaScript patterns
+- Use meaningful commit messages
+- Keep changes focused and atomic
 
 - To minimize playback delay, you may want to preload a sound file without calling `play()` (e.g. `var s = new Sound(...);`) during app initialization. This also helps avoid a race condition where `play()` may be called before loading of the sound is complete, which results in no sound but no error because loading is still being processed.
 - You can play multiple sound files at the same time. Under the hood, this module uses `AVAudioSessionCategoryAmbient` to mix sounds on iOS.
@@ -183,28 +399,24 @@ whoosh.release();
 - On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html
 - On Android, the absolute path can start with '/sdcard/'. So, if you want to access a sound called "my_sound.mp3" on Downloads folder, the absolute path will be: '/sdcard/Downloads/my_sound.mp3'.
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
+## 📄 License
 
-## Audio on React Native
+MIT License - see [LICENSE](LICENSE) file for details.
 
-- [The State of Audio Libraries in React Native (Oct. 2018)][medium]
-- [react-native-audio-toolkit][]
-- [react-native-video][] (also plays audio)
-- [Expo Audio SDK][]
-- [#media on awesome-react-native][#media]
+## 🌟 Support the Project
 
-[medium]: https://medium.com/@emmettharper/the-state-of-audio-libraries-in-react-native-7e542f57b3b4
-[react-native-audio-toolkit]: https://github.com/react-native-community/react-native-audio-toolkit
-[react-native-video]: https://github.com/react-native-community/react-native-video
-[expo audio sdk]: https://docs.expo.io/versions/latest/sdk/audio/
-[#media]: http://www.awesome-react-native.com/#media
+If this library helps your project, consider:
 
-## Contributing
+- ⭐ Starring the repository
+- 🐛 Reporting bugs and issues
+- 📝 Contributing improvements
+- 💬 Helping others in discussions
+- 📢 Sharing with the community
 
-Pull requests welcome with bug fixes, documentation improvements, and
-enhancements.
+---
 
-When making big changes, please open an issue first to discuss.
+  
+**Made with ❤️ by the React Native community**
 
-## License
+[![Star on GitHub](https://img.shields.io/github/stars/zmxv/react-native-sound.svg?style=social)](https://github.com/zmxv/react-native-sound/stargazers)
 
-This project is licensed under the MIT License.
