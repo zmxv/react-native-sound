@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import Slider from '@react-native-community/slider';
 import Sound from 'react-native-sound';
 
 // Removed getImageStyle as we're using emoji icons instead
@@ -89,62 +88,74 @@ export default () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+        <View style={styles.playerContainer}>
+          <ActivityIndicator size="large" color="#1976D2" />
+          <Text style={styles.title}>Loading audio...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
       <View style={styles.playerContainer}>
+        {/* Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logoPlaceholder}>
             <Text style={styles.logoText}>🎵</Text>
           </View>
         </View>
 
+        {/* Title and subtitle */}
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>React Native Sound Player</Text>
-          <Text style={styles.subtitle}>Abnormal For You - Demo Track</Text>
+          <Text style={styles.title}>React Native Sound</Text>
+          <Text style={styles.subtitle}>Example Player</Text>
         </View>
 
-        <View style={styles.sliderContainer}>
+        {/* Progress display without slider */}
+        <View style={styles.progressContainer}>
           <Text style={styles.timeText}>{secondsToMMSS(currentTime)}</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={duration}
-            value={currentTime}
-            onSlidingComplete={value => {
-              if (sound.current) {
-                sound.current.setCurrentTime(value);
-              }
-            }}
-            minimumTrackTintColor="#1976D2"
-            maximumTrackTintColor="#E0E0E0"
-            thumbTintColor="#1976D2"
-          />
+          <View style={styles.progressBar}>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${
+                    duration > 0 ? (currentTime / duration) * 100 : 0
+                  }%`,
+                },
+              ]}
+            />
+          </View>
           <Text style={styles.timeText}>{secondsToMMSS(duration)}</Text>
         </View>
 
+        {/* Controls */}
         <View style={styles.controlsContainer}>
           <TouchableOpacity
-            onPress={onPressBackward}
             style={styles.controlButton}
+            onPress={onPressBackward}
           >
             <Text style={styles.controlIcon}>⏪</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={onPressPlayPause}
             style={styles.playButton}
+            onPress={onPressPlayPause}
           >
-            {isLoading ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : (
-              <Text style={styles.playIcon}>{isPlaying ? '⏸️' : '▶️'}</Text>
-            )}
+            <Text style={[styles.controlIcon, styles.playIcon]}>
+              {isPlaying ? '⏸️' : '▶️'}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={onPressFastFoward}
             style={styles.controlButton}
+            onPress={onPressFastFoward}
           >
             <Text style={styles.controlIcon}>⏩</Text>
           </TouchableOpacity>
@@ -196,16 +207,24 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
-  sliderContainer: {
+  progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     marginBottom: 40,
   },
-  slider: {
+  progressBar: {
     flex: 1,
-    height: 40,
+    height: 4,
+    backgroundColor: '#ddd',
+    borderRadius: 2,
     marginHorizontal: 10,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#1976D2',
+    borderRadius: 2,
   },
   timeText: {
     fontSize: 14,

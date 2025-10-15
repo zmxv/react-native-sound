@@ -2111,13 +2111,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/slider@npm:^4.5.5":
-  version: 4.5.7
-  resolution: "@react-native-community/slider@npm:4.5.7"
-  checksum: f8b722c1821332398324d4d45a31c70b90007c1f859840ddc58388a0783d3a4706e7d0808898ecc76091de60041ae20a0758ef4d706d2ae06a4b4d46ff934028
-  languageName: node
-  linkType: hard
-
 "@react-native/assets-registry@npm:0.81.4":
   version: 0.81.4
   resolution: "@react-native/assets-registry@npm:0.81.4"
@@ -3948,9 +3941,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.227":
-  version: 1.5.235
-  resolution: "electron-to-chromium@npm:1.5.235"
-  checksum: 95ce99421bac64614f0c4439cd361aa6e2ba4618f2192bef6c06d366da8b5130b2dadb30c237c85404cea4865ab56a7c76ae42ca8c1a1410e32d39165a3d9e81
+  version: 1.5.237
+  resolution: "electron-to-chromium@npm:1.5.237"
+  checksum: 5905e2808dc6243ced0a83537afbafedec20c063feb6403a678b612a7855d79bc6ecb7d094bdab71f54173cf2ae5d1d8070b0c31572025001c94de62af84f5f8
   languageName: node
   linkType: hard
 
@@ -4500,7 +4493,6 @@ __metadata:
     "@react-native-community/cli": 20.0.0
     "@react-native-community/cli-platform-android": 20.0.0
     "@react-native-community/cli-platform-ios": 20.0.0
-    "@react-native-community/slider": ^4.5.5
     "@react-native/babel-preset": 0.81.4
     "@react-native/eslint-config": 0.81.4
     "@react-native/metro-config": 0.81.4
@@ -7519,12 +7511,12 @@ __metadata:
   linkType: hard
 
 "react-native-sound@file:../::locator=example%40workspace%3A.":
-  version: 0.12.0
-  resolution: "react-native-sound@file:../#../::hash=c847af&locator=example%40workspace%3A."
+  version: 0.13.0
+  resolution: "react-native-sound@file:../#../::hash=033ebd&locator=example%40workspace%3A."
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 46504db6176eaaf4c5371076587140fd689dd418eb5e9afbed8d97cc25c24b167669a38e0b872a990af0878a2dd7619b53c344f7cc3d0ef001da106c88b7ede5
+  checksum: e4acceac6fdbd41d3b07bede85384d57969e056d2818232daafa9c20b99d14ee5460fa00c6fd768bea7957a0f6f0405b897ff7e3113a5dd3060bc69189ec5077
   languageName: node
   linkType: hard
 
