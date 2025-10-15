@@ -71,16 +71,6 @@ npm install react-native-sound
 yarn add react-native-sound
 ```
 
-### Auto-linking (React Native 0.60+)
-
-No additional steps required! The library will be linked automatically.
-
-### Manual Linking (React Native < 0.60)
-
-```bash
-react-native link react-native-sound
-```
-
 ## 🏗️ New Architecture Support
 
 This library supports both the old and new React Native architecture:
@@ -399,6 +389,7 @@ We welcome contributions! Here's how you can help:
 - On Android, the module wraps `android.media.MediaPlayer`. The full list of supported formats can be found at https://developer.android.com/guide/topics/media/media-formats.html
 - On Android, the absolute path can start with '/sdcard/'. So, if you want to access a sound called "my_sound.mp3" on Downloads folder, the absolute path will be: '/sdcard/Downloads/my_sound.mp3'.
 - You may chain non-getter calls, for example, `sound.setVolume(.5).setPan(.5).play()`.
+
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -415,8 +406,6 @@ If this library helps your project, consider:
 
 ---
 
-  
 **Made with ❤️ by the React Native community**
 
 [![Star on GitHub](https://img.shields.io/github/stars/zmxv/react-native-sound.svg?style=social)](https://github.com/zmxv/react-native-sound/stargazers)
-
