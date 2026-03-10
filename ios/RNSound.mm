@@ -142,12 +142,12 @@ RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
     return modes[modeName];
 }
 
-RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName mixWithOthers:(NSNumber *)mixWithOthers) {
+RCT_EXPORT_METHOD(setCategory:(NSString *)categoryName mixWithOthers:(BOOL)mixWithOthers) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
     NSString *category = [self categoryForName:categoryName];
     
     if (category) {
-        if (mixWithOthers.boolValue) {
+        if (mixWithOthers) {
             [session setCategory:category
                      withOptions:AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionAllowBluetooth
                            error:nil];
@@ -176,8 +176,11 @@ RCT_EXPORT_METHOD(enableInSilenceMode:(BOOL)enabled) {
 }
 
 #pragma mark - Audio Control Methods
-
+#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(prepare:(NSString *)fileName key:(double)key options:(JS::NativeSoundIOS::SoundOptionTypes &)options callback:(RCTResponseSenderBlock)callback ) {
+#else
+RCT_EXPORT_METHOD(prepare:(NSString *)fileName key:(double)key options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback ) {
+#endif
     NSError *error;
     NSURL *fileNameUrl;
     AVAudioPlayer *player;
