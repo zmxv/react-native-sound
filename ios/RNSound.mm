@@ -117,7 +117,17 @@ RCT_EXPORT_METHOD(enable : (BOOL)enabled) {
 
 RCT_EXPORT_METHOD(setActive:(BOOL)active) {
     AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setActive:active error:nil];
+    if (active) {
+        [session setActive:YES error:nil];
+    } else {
+        // Use notifyOthersOnDeactivation so other apps (e.g. Spotify,
+        // Apple Music) are informed they can resume their audio playback.
+        // Without this flag, other apps' audio stays paused permanently
+        // after our session deactivates.
+        [session setActive:NO
+              withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
+                    error:nil];
+    }
 }
 
 RCT_EXPORT_METHOD(setMode:(NSString *)modeName) {
@@ -216,23 +226,22 @@ RCT_EXPORT_METHOD(prepare:(NSString *)fileName key:(double)key options:(JS::Nati
 }
 
 RCT_EXPORT_METHOD(play:(double)key callback:(RCTResponseSenderBlock)callback) {
-    [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self
-        selector:@selector(audioSessionChangeObserver:)
-            name:AVAudioSessionRouteChangeNotification
-          object:[AVAudioSession sharedInstance]];
-    
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self
-        selector:@selector(audioSessionChangeObserver:)
-            name:AVAudioSessionInterruptionNotification
-          object:[AVAudioSession sharedInstance]];
-    
+    // Audio session activation is left to the app via setCategory/setActive.
+    // Calling setActive:YES here on every play() call interrupts other apps'
+    // audio (e.g. Spotify, Apple Music) even when the category is configured
+    // with mixWithOthers — because the per-play activation triggers iOS audio
+    // route reconfiguration. Apps should call setActive(true) once during
+    // setup, not on every play.
+    //
+    // Observer registration is also removed. The audioSessionChangeObserver
+    // auto-resumes playback on AVAudioSessionInterruptionTypeEnded, which
+    // causes unexpected sound replay after lock screen, phone calls, or Siri.
+    // Apps that need interruption handling should implement it at the app level
+    // rather than having the sound library auto-resume behind their back.
+
     self._key = key;
     AVAudioPlayer *player = [self playerForKey:key];
-    
+
     if (player) {
         NSNumber *myNumber = @(key);
         [[self callbackPool] setObject:[callback copy] forKey:myNumber];
