@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class Sound internal constructor(context:ReactApplicationContext):AudioManager.OnAudioFocusChangeListener  {
@@ -35,6 +36,21 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
   }
 
   fun prepare(fileName: String, key: Double?, options: ReadableMap, callback: Callback) {
+    // onPrepared and onError both wrap the *same* one-shot RN Callback, and the
+    // early no-resource path can also reach it. The previous per-listener
+    // `callbackWasCalled` flags did not coordinate across the two listeners, so
+    // the same Callback could be invoked twice. Under the New Architecture a
+    // second invoke of a one-shot Callback is LOG(FATAL) -> SIGABRT (the legacy
+    // bridge threw a catchable RuntimeException instead). Route every invoke
+    // through fire() so the first verdict wins and any later invoke is dropped.
+    val invoked = AtomicBoolean(false)
+    fun fire(vararg args: Any?) {
+      if (invoked.compareAndSet(false, true)) {
+        callback.invoke(*args)
+      } else {
+        Log.w(TAG, "skip double-invoke: source=prepare reason=callback_already_used")
+      }
+    }
     val player = createMediaPlayer(fileName)
     if (options.hasKey("speed")) {
       player!!.playbackParams = player.playbackParams.setSpeed(options.getDouble("speed").toFloat())
@@ -43,7 +59,7 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
       val e = Arguments.createMap()
       e.putInt("code", -1)
       e.putString("message", "resource not found")
-      callback.invoke(e, null)
+      fire(e, null)
       return
     }
     if (key != null) {
@@ -69,40 +85,19 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
     }
 
     player.setOnPreparedListener(object : OnPreparedListener {
-      var callbackWasCalled: Boolean = false
-
-      @Synchronized
       override fun onPrepared(mp: MediaPlayer) {
-        if (callbackWasCalled) return
-        callbackWasCalled = true
-
         val props = Arguments.createMap()
         props.putDouble("duration", mp.duration * .001)
-        try {
-          callback.invoke(null, props)
-        } catch (runtimeException: RuntimeException) {
-          // The callback was already invoked
-
-        }
+        fire(null, props)
       }
     })
 
     player.setOnErrorListener(object : OnErrorListener {
-      var callbackWasCalled: Boolean = false
-
-      @Synchronized
       override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        if (callbackWasCalled) return true
-        callbackWasCalled = true
-        try {
-          val props = Arguments.createMap()
-          props.putInt("what", what)
-          props.putInt("extra", extra)
-          callback.invoke(props, null)
-        } catch (runtimeException: RuntimeException) {
-          // The callback was already invoked
-
-        }
+        val props = Arguments.createMap()
+        props.putInt("what", what)
+        props.putInt("extra", extra)
+        fire(props, null)
         return true
       }
     })
@@ -186,12 +181,22 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
 
 
   fun play(key: Double?, callback: Callback?) {
+    // One shared single-fire latch per callback (see prepare()). The early
+    // no-player path, onCompletion and onError all wrap the same one-shot Callback.
+    val invoked = AtomicBoolean(false)
+    fun fire(vararg args: Any?) {
+      if (invoked.compareAndSet(false, true)) {
+        callback?.invoke(*args)
+      } else {
+        Log.w(TAG, "skip double-invoke: source=play reason=callback_already_used")
+      }
+    }
     val player = playerPool[key]
     if (player == null) {
       if (key != null) {
         setOnPlay(false, key)
       }
-      callback?.invoke(false)
+      fire(false)
       return
     }
     if (player.isPlaying) {
@@ -208,39 +213,21 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
     }
 
     player.setOnCompletionListener(object : OnCompletionListener {
-      var callbackWasCalled: Boolean = false
-
-      @Synchronized
       override fun onCompletion(mp: MediaPlayer) {
         if (!mp.isLooping) {
           if (key != null) {
             setOnPlay(false, key)
           }
-          if (callbackWasCalled) return
-          callbackWasCalled = true
-          try {
-            callback?.invoke(true)
-          } catch (e: Exception) {
-            //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
-          }
+          fire(true)
         }
       }
     })
     player.setOnErrorListener(object : OnErrorListener {
-      var callbackWasCalled: Boolean = false
-
-      @Synchronized
       override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         if (key != null) {
           setOnPlay(false, key)
         }
-        if (callbackWasCalled) return true
-        callbackWasCalled = true
-        try {
-          callback?.invoke(true)
-        } catch (e: Exception) {
-          //Catches the exception: java.lang.RuntimeException·Illegal callback invocation from native module
-        }
+        fire(true)
         return true
       }
     })
@@ -413,5 +400,9 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
         }
       }
     }
+  }
+
+  companion object {
+    private const val TAG = "RNSound"
   }
 }
