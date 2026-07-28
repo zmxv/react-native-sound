@@ -242,7 +242,7 @@ class Sound {
       if (IsAndroid) {
         this.setAndroidVolumes();
       } else {
-        RNSound.setVolume(this._key, value);
+        RNSound.setVolume(this._key, value, value);
       }
     }
     return this;
