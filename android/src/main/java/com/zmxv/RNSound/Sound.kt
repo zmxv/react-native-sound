@@ -67,9 +67,8 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
         player.setAudioStreamType(category)
       }
     }
-
+    var callbackWasCalled = false
     player.setOnPreparedListener(object : OnPreparedListener {
-      var callbackWasCalled: Boolean = false
 
       @Synchronized
       override fun onPrepared(mp: MediaPlayer) {
@@ -88,7 +87,6 @@ open class Sound internal constructor(context:ReactApplicationContext):AudioMana
     })
 
     player.setOnErrorListener(object : OnErrorListener {
-      var callbackWasCalled: Boolean = false
 
       @Synchronized
       override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
